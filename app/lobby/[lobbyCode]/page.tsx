@@ -1,6 +1,3 @@
-//This page we could use to prompt the user name after lobby creating / join.
-//via code: get redirected to this page and then from here to [lobbyCode]
-//via link: similar to M1 access verification where you bounce back to login (in this case just to this page) if you do not have a username (here: always)
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
 import { useParams } from "next/navigation";
@@ -36,4 +33,3 @@ export default function LobbyPage() {
     </div>
   );
 }
-
