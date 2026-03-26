@@ -11,6 +11,7 @@ export default function Home() {
 
   const handleCreateLobby = async () => {
     const lobby = await apiService.post<Lobby>("/api/lobbies", {});
+    localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
     router.push(`/lobby/${lobby.lobbyCode}`);
   };
   

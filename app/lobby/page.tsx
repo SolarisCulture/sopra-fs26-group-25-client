@@ -19,7 +19,7 @@ export default function LobbyPage() {
   return (
     <div className={styles.page}>
       <div style={{position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-        <span style={{ fontWeight: 600 }}>{link}</span>
+        <span style={{fontWeight: 600}}>{link}</span>
         <Button
           type="primary"
           onClick={() => {
@@ -30,8 +30,11 @@ export default function LobbyPage() {
           Copy
         </Button>
       </div>
+      <div style={{position: "absolute", top: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
+          <span style={{fontSize: "25px",fontWeight: 600}}>Code: {lobbyCode}</span>
+      </div>
       <div>
-        <h1 style={{ fontSize: "48px", fontWeight: "700" }}>Lobby</h1>
+        <h1 style={{marginTop: "100px", fontSize: "48px", fontWeight: "700"}}>Lobby</h1>
       </div>
     </div>
   );
