@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
-import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Select, Upload } from "antd";
+import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Upload } from "antd";
 import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 
@@ -15,6 +15,7 @@ export default function LobbyPage() {
   const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
   const [timerDisabled, setTimerDisabled] = useState(false);
   const [roundsNumberDisabled, setRoundsNumberDisabled] = useState(true);
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false);
 
   useEffect(() => {
     setLink(`${window.location.origin}/lobby/${lobbyCode}`);
@@ -84,6 +85,7 @@ export default function LobbyPage() {
           Select: {colorText: "#000", colorBgContainer: "#fff"},
           Input: {colorText: "#000", colorBgContainer: "#fff"},
           InputNumber: {colorText: "#000", colorBgContainer: "#fff"},
+          Modal: {colorText: "#000", colorBgContainer: "#fff"}
         },
       }}>
 
@@ -108,6 +110,23 @@ export default function LobbyPage() {
 
         <div>
           <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700"}}>Lobby</h1>
+        </div>
+
+        <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
+          <Button 
+            type="primary"
+            onClick={() => { setHowToPlayOpen(true)}}
+          >
+            How To Play
+          </Button>
+          <Modal
+            title={<div style={{ color: "#000" }}>Game Rules</div>}
+            open={howToPlayOpen}
+            onCancel={() => setHowToPlayOpen(false)}
+            footer={null}
+          >
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+          </Modal>
         </div>
 
         <div className={styles.ctas} style={{flexDirection: "column"}}>
