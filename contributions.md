@@ -30,12 +30,16 @@ reason).
 
 ---
 
-## Contributions Week 1 - [Begin Date] to [End Date]
+## Contributions Week 1 - [23.03.2026] to [29.03.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@serilia03]** | [26.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/3cf02ec7c5dc730ea95e79c8e94cf9c5e76b0c35] | [Task: Implement starting page with "Create Lobby" button and wire it to POST/lobbies | [This contribution is relevant, because on the home page players can create / join lobbies - without it we couldn't set up any games.] |
+|                    | [26.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/b1b9d36bbb5c9a0213072e16ad69acd14b23d4fe] | [Task: Display sharable link containing the lobby code] | [This contribution is relevant, because we will need the lobby code later so other players can join.] |
+|                    | [26.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/2fe6d589a0f56fe812c1d02844e4e0b130535593] | [Task: Display unique lobby code on the lobby page] | [This contribution is relevant, because we will need the lobby link later to invite other players.] |
+|                    | [27.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/2dc25d7ed9c6a825b0930eec41d9e00c616d9381] | [Task: Display the lobby settings and allow the host to modify them] | [This contribution is relevant, because it adds the foundation to later be able to play the game with different settings.] |
+|                    | [27.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/07dfee82eb5f9fc7c590480e964308ec0eba2bdd] | [Task: Display "How to play" button in the lobby for everyone to see] | [This contribution is relevant, because the created pop-up will later display the game rules.] |
+|                    | [27.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/f3037c19761d16a2329725c45855483158041f00] | [Task: Show the player list of everybody currently in the lobby and not assigned to a team] | [This contribution is relevant, because it allows us to later move the players from this list to the two teams. It also will indicate who is not yet assigned a team and in general who is in the lobby.] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
