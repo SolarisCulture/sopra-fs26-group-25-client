@@ -44,7 +44,9 @@ reason).
 |                    | [28.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/00c74164ce2d824c143d3443f55b10ce4c7ff1a1] | [Task: Implement "Leave Lobby" button that triggers reassignment of the host role if the host leaves] | [This contribution is relevant, because a player who decides they do nto want to play anymore should be allowed to do that (rather than having to create a new lobby or have them in a game they do not want to be in) but if they are a host we need to handle this and say what should happen in that case.] |
 | **[@Kirusou]** | [25.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/28ff82d8212c175d6abeef55211461e7abbbb0b5] | [Task: Implement PUT request handling for assigning team and for assigning role + tests for them] | [This is relevant, because it allows us to correctly handle any assignment requests sent by the front end.] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@Timmy-Ho]** | [24.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/ad95da8e0b2b24ec3dd54d865e459af21a821f8b] | [Task: Create Lobby and Player entities Closes #107
+] | [Why this contribution is relevant] |
+|                    | [24.03.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/16b2972173ff4087d6ce9dd853738a2a05e9bfb6] | [Task: Add WebSocket structure for lobby events] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
