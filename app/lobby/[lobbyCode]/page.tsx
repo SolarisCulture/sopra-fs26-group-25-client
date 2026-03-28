@@ -19,19 +19,25 @@ export default function LobbyPage() {
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [players, setPlayers] = useState<User[] | null>(null);
+  const [userID, setUserID] = useState("");
 
-//  mock player to see table
+  // mock players to see table
 //  const [players, setPlayers] = useState<User[] | null>([
 //    {id: "1", username: "alice123", token: null},
+//    {id: "2", username: "bob456", token: null},
 //  ]);
 
-  const playerColumns: TableProps<User>["columns"] = [
-    {
-      title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
-      dataIndex: "username",
-      key: "username",
+const playerColumns: TableProps<User>["columns"] = [
+  {
+    title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
+    dataIndex: "username",
+    key: "username",
+    render: (username: string, player: User) => {
+      const isCurrentHost = isHost && player.id == userID;
+      return (<span>{username} {isCurrentHost && "👑"}</span>);
     },
-  ];
+  },
+];
 
   // fetch players useEffect
   useEffect(() => {
@@ -49,10 +55,11 @@ export default function LobbyPage() {
     return () => clearInterval(interval);
   }, [apiService, lobbyCode]);
 
-  // link useEffect
+  // link & host & id useEffect
   useEffect(() => {
     setLink(`${window.location.origin}/lobby/${lobbyCode}`);
-    setIsHost(localStorage.getItem("hostedLobby") === lobbyCode);
+    setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
+    setUserID(JSON.parse(localStorage.getItem("userID") || '""'));
   }, [lobbyCode]); // use effect only runs again if lobbyCode changes --> won't actually happen
 
   const handleSave = async () => {
@@ -91,7 +98,7 @@ export default function LobbyPage() {
   };
 
   const handleRoundsNumberChange = (val: number | null) => {
-    if (val === null) return;
+    if (val == null) return;
     if (val < 1) {
       message.warning("Rounds must be at least 1.");
       return;
