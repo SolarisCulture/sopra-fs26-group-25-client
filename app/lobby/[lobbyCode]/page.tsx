@@ -1,6 +1,6 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
 import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Table, TableProps, Upload } from "antd";
@@ -10,6 +10,7 @@ import { User } from "@/types/user";
 
 export default function LobbyPage() {
   const apiService = useApi();
+  const router = useRouter();
   const {lobbyCode} = useParams();
   const [link, setLink] = useState("");
   const [isHost, setIsHost] = useState(false);
@@ -18,6 +19,7 @@ export default function LobbyPage() {
   const [roundsNumberDisabled, setRoundsNumberDisabled] = useState(true);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const [players, setPlayers] = useState<User[] | null>(null);
   const [userID, setUserID] = useState("");
 
@@ -61,6 +63,19 @@ const playerColumns: TableProps<User>["columns"] = [
     setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
     setUserID(JSON.parse(localStorage.getItem("userID") || '""'));
   }, [lobbyCode]); // use effect only runs again if lobbyCode changes --> won't actually happen
+
+  const handleLeave = async () => {
+    try {
+      await apiService.delete(`/lobbies/${lobbyCode}/players/${userID}`);
+      if (isHost) {
+        await apiService.put(`/lobbies/${lobbyCode}/host`, {});
+        localStorage.removeItem("hostedLobby");
+      }
+      router.push("/");
+    } catch (error) {
+      message.error("Failed to leave lobby!");
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -174,7 +189,7 @@ const playerColumns: TableProps<User>["columns"] = [
 
 
         {/*HOW TO PLAY*/}
-        <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
+        <div style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center"}}>
           <Button 
             type="primary"
             style={{width: "125px"}}
@@ -192,12 +207,34 @@ const playerColumns: TableProps<User>["columns"] = [
           </Modal>
         </div>
 
+        {/*LEAVE LOBBY*/}
+        <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
+          <Button 
+            type="primary"
+            style={{width: "125px"}}
+            onClick={() => setLeaveOpen(true)}
+          >
+            Leave Lobby
+          </Button>
+          <Modal
+            title={<div style={{color: "#000"}}>Are you sure you want to leave the lobby?</div>}
+            open={leaveOpen}
+            closable={false}
+            footer={null}
+          >
+            <p>By leaving the lobby you return to the home page.</p>
+            <div style={{display: "flex", justifyContent: "right", gap: 10, marginTop: "10px"}}>
+              <Button onClick={() => setLeaveOpen(false)}>No, stay.</Button>
+              <Button type="primary" onClick={handleLeave}>Yes, leave.</Button>
+            </div>
+          </Modal>
+        </div>
 
         {/*SETTINGS*/}
         <Button 
           type="primary"
           onClick={() => {setSettingsOpen(true)}}
-          style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center", width: "125px"}}
+          style={{position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px"}}
         >
           Settings
         </Button>
@@ -323,7 +360,7 @@ const playerColumns: TableProps<User>["columns"] = [
 
             {/*RESET & SAVE*/}
             {isHost && (
-              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+              <div style={{display: "flex", justifyContent: "center", gap: 10}}>
                 <Button onClick={handleReset}>Reset to default</Button>
                 <Button type="primary" onClick={handleSave}>Save Settings</Button>
               </div>
