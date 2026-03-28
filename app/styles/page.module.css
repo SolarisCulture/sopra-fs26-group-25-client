@@ -1,4 +1,11 @@
 .page {
+  background: radial-gradient(
+    circle at center,
+    #F9C74F 0%,
+    #F26A2E 25%,
+    #C12D6E 55%,
+    #5A1F6F 100%
+  );
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
   --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
