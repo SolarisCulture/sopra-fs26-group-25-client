@@ -1,6 +1,6 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
+import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css";
 import { useApi } from "./hooks/useApi";
 import { Lobby } from "./types/lobby";
@@ -14,6 +14,27 @@ export default function Home() {
     localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
     router.push(`/lobby/${lobby.lobbyCode}`);
   };
+
+  const handleJoin = async (values: {code: string}) => {
+    const code = values.code.trim();
+    try{
+      await apiService.get<Lobby>(`api/lobby/${code}`);
+      router.push(`/lobby/${code}`)
+    }
+    catch(error){
+      const err = error as { response?: { status?: number }, status?: number };
+
+      if (err?.response?.status === 404 || err?.status === 404){
+        alert(`Lobby code not found.`)
+      }
+      else if (error instanceof Error) {
+        alert(`Something went wrong:\n${error.message}`);
+      } else {
+        console.error(`An unkown error occured.`, error);
+      }
+    }
+    
+  };
   
   return (
     <div className={styles.page}>
@@ -25,19 +46,41 @@ export default function Home() {
           <Button
             type="primary"
             variant="solid"
+            size="large"
             style={{width:200}}
             onClick={handleCreateLobby}
           >
             Create Lobby
           </Button>
-          <Button
-            type="primary"
-            variant="solid"
-            style={{width:200}}
-            onClick={() => router.push("/lobby")}
-          >
-            Join Lobby
-          </Button>
+          <div className="join-container" >
+            <Form
+              size="large"
+              variant="outlined"
+              validateTrigger="onSubmit"
+              onFinish={handleJoin}
+              style={{display: "flex", flexDirection: "row"}}
+            >
+              <Form.Item
+                name="code"
+                rules={[{required: true}]}
+                style={{width:80, marginRight:5,}}
+              >
+              <Input
+                styles={{
+                  input: {backgroundColor: "white", color: "black"}
+                }}
+              />
+              </Form.Item>
+              <Button
+                type="primary"
+                variant="solid"
+                htmlType="submit"
+                style={{width:120, height:40}}
+                >
+                Join Lobby
+              </Button>
+            </Form>
+          </div>
         </div>
       </main>
     </div>
