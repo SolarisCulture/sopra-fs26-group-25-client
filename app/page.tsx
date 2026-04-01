@@ -26,10 +26,11 @@ export default function Home() {
     setErrorMessage(null);
     const code = values.code.trim();
     try{
-      await apiService.get<Lobby>(`api/lobby/${code}`);
+      await apiService.get<Lobby>(`/api/lobby/${code}`);
       router.push(`/lobby/${code}`)
     }
     catch (error) {
+      console.log(error);
       const appError = error as ApplicationError;
       if (appError.status === 404) {
         setErrorMessage("Lobby code not found.");
@@ -51,22 +52,20 @@ export default function Home() {
         </div>
       )}
       <main className={styles.main}>
-        <h1 style={{fontSize: "48px", fontWeight: "700", marginBottom: "-15px", display: "flex", flexDirection: "column", alignItems: "center"}}>CODENAMES</h1>
-        <p style={{fontSize: "30px", fontWeight: "500", display: "flex", flexDirection: "column", alignItems: "center"}}>SoPra Project Group 25 FS26</p>
+        <h1 style={{fontSize: "48px", fontWeight: "700", marginBottom: "-15px", display: "flex", flexDirection: "column", alignItems: "center", color:"#fff"}}>CODENAMES</h1>
+        <p style={{fontSize: "30px", fontWeight: "500", display: "flex", flexDirection: "column", alignItems: "center", color:"#fff"}}>SoPra Project Group 25 FS26</p>
 
         <div className={styles.ctas} style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
           <Button
             type="primary"
             variant="solid"
-            size="large"
-            style={{width:200}}
+            style={{width:250, height: "40px"}}
             onClick={handleCreateLobby}
           >
             Create Lobby
           </Button>
           <div className="join-container" >
             <Form
-              size="large"
               variant="outlined"
               validateTrigger="onSubmit"
               onFinish={handleJoin}
@@ -75,11 +74,13 @@ export default function Home() {
               <Form.Item
                 name="code"
                 rules={[{required: true}]}
-                style={{width:80, marginRight:5,}}
+                style={{marginBottom: 0, marginRight: 0}}
               >
               <Input
+                placeholder="Enter Lobby Code"
+                onChange={() => setErrorMessage(null)}
                 styles={{
-                  input: {backgroundColor: "white", color: "black"}
+                  input: {backgroundColor: "white", color: "black", width: 150, borderRadius: "8px 0 0 8px", height: "40px"}
                 }}
               />
               </Form.Item>
@@ -87,7 +88,7 @@ export default function Home() {
                 type="primary"
                 variant="solid"
                 htmlType="submit"
-                style={{width:120, height:40}}
+                style={{width: 100, borderRadius: "0 8px 8px 0", height: "40"}}
                 >
                 Join Lobby
               </Button>
