@@ -1,43 +1,54 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 import { useRouter } from "next/navigation";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Alert } from "antd";
 import styles from "@/styles/page.module.css";
 import { useApi } from "./hooks/useApi";
 import { Lobby } from "./types/lobby";
+import { ApplicationError } from "@/types/error";
+import { useState } from "react";
 
 export default function Home() {
   const router = useRouter();
   const apiService = useApi();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCreateLobby = async () => {
-    const lobby = await apiService.post<Lobby>("/api/lobbies", {});
-    localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
-    router.push(`/lobby/${lobby.lobbyCode}`);
+    try {
+      const lobby = await apiService.post<Lobby>("/api/lobbies", {});
+      localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
+      router.push(`/lobby/${lobby.lobbyCode}`);
+    } catch (error) {
+      setErrorMessage("Something went wrong. Please try again.");
   };
 
   const handleJoin = async (values: {code: string}) => {
+    setErrorMessage(null);
     const code = values.code.trim();
     try{
       await apiService.get<Lobby>(`api/lobby/${code}`);
       router.push(`/lobby/${code}`)
     }
-    catch(error){
-      const err = error as { response?: { status?: number }, status?: number };
-
-      if (err?.response?.status === 404 || err?.status === 404){
-        alert(`Lobby code not found.`)
-      }
-      else if (error instanceof Error) {
-        alert(`Something went wrong:\n${error.message}`);
+    catch (error) {
+      const appError = error as ApplicationError;
+      if (appError.status === 404) {
+        setErrorMessage("Lobby code not found.");
       } else {
-        console.error(`An unkown error occured.`, error);
+        setErrorMessage("Something went wrong. Please try again.");
       }
     }
-    
   };
   
   return (
     <div className={styles.page}>
+      {errorMessage && (
+        <div style={{position: "fixed", top: "15%"}} >
+          <Alert
+            title={errorMessage}
+            type="error"
+            showIcon
+          />
+        </div>
+      )}
       <main className={styles.main}>
         <h1 style={{fontSize: "48px", fontWeight: "700", marginBottom: "-15px", display: "flex", flexDirection: "column", alignItems: "center"}}>CODENAMES</h1>
         <p style={{fontSize: "30px", fontWeight: "500", display: "flex", flexDirection: "column", alignItems: "center"}}>SoPra Project Group 25 FS26</p>
