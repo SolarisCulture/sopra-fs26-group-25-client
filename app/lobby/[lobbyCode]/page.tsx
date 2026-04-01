@@ -151,13 +151,13 @@ const playerColumns: TableProps<User>["columns"] = [
 
       <div className={styles.page}>
         <div>
-          <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700"}}>Lobby</h1>
+          <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
         </div>
 
 
         {/*LINK & CODE*/}
         <div style={{position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-          <span style={{fontWeight: 600}}>{link}</span>
+          <span style={{fontWeight: 600, color: "#fff"}}>{link}</span>
           <Button
             type="primary"
             onClick={() => {
@@ -170,7 +170,7 @@ const playerColumns: TableProps<User>["columns"] = [
         </div>
 
         <div style={{position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-          <span style={{fontWeight: 600}}>Code: {lobbyCode}</span>
+          <span style={{fontWeight: 600, color: "#fff"}}>Code: {lobbyCode}</span>
         </div>
 
 
