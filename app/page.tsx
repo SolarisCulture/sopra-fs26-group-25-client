@@ -19,6 +19,7 @@ export default function Home() {
       router.push(`/lobby/${lobby.lobbyCode}`);
     } catch (error) {
       setErrorMessage("Something went wrong. Please try again.");
+    }
   };
 
   const handleJoin = async (values: {code: string}) => {
