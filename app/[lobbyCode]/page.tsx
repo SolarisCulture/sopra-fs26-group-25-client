@@ -12,6 +12,7 @@ import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
 import UsernameModal from "../components/UsernameModal";
 import SettingsModal from "../components/SettingsModal";
+import TeamTable from "@/components/TeamTable";
 
 export default function LobbyPage() {
   const apiService = useApi();
@@ -25,6 +26,7 @@ export default function LobbyPage() {
 
   // player list
   const [players, setPlayers] = useState<User[]>([]);
+  const [assignTarget, setAssignTarget] = useState<User | null>(null);
 
   // username pop-up
   const [showUsernamePopUp, setShowUsernamePopUp] = useState(false);
@@ -51,14 +53,28 @@ export default function LobbyPage() {
       title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
       dataIndex: "username",
       key: "username",
+
       render: (username: string, player: User) => {
-        const isCurrentHost = player.isHost;
-          return (
-            <span style={{display: "flex", justifyContent: "space-between"}}>
-              <span>{username}</span>
-              {isCurrentHost && <span>👑</span>}
+        return (
+          <span style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+            <span style={{display: "flex", alignItems: "center", gap: 4}}>
+              <span style={{width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2}}>
+                {player.isHost ? "👑" : ""}
+              </span>
+              {username}
             </span>
-          );
+            {/* only allow host to assign players to teams*/}
+            {isHost && !player.team && (
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => setAssignTarget(player)}
+              >
+                Assign
+              </Button>
+            )}
+          </span>
+        );
       },
     },
   ];
@@ -82,9 +98,12 @@ export default function LobbyPage() {
 
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
+    setIsHost(true);
     setLink(`${window.location.origin}/${lobbyCode}`);
+    
     // has this browser already joined this lobby?
     const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
+
     if (savedId){
       setUserID(Number(savedId));
       setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
@@ -130,6 +149,20 @@ export default function LobbyPage() {
     } finally {
       setJoiningLobby(false);
     }
+  };
+
+  // assign players to teams
+  const handleAssignTeam = (playerId: string | null, team: "red" | "blue" | null): void => {
+    if (playerId == null) return;
+
+    (async () => {
+      try {
+        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team });
+        setPlayers(players.map(p => p.id == playerId ? { ...p, team } : p));
+      } catch {
+        message.error("Failed to assign team!");
+      }
+    })();
   };
 
   // leave lobby
@@ -204,8 +237,14 @@ export default function LobbyPage() {
     onCommit: (v: number) => void
   ) => {
     if (val == null) return;
-    if (val < 10) { message.warning(`${label} cannot be less than 10 seconds.`); return; }
-    if (val > 3600) { message.warning(`${label} cannot exceed 3600 seconds.`); return; }
+    if (val < 10) {
+      message.warning(`${label} cannot be less than 10 seconds.`); 
+      return;
+    }
+    if (val > 3600) {
+      message.warning(`${label} cannot exceed 3600 seconds.`);
+      return;
+    }
     onCommit(val);
   };
 
@@ -213,11 +252,6 @@ export default function LobbyPage() {
   const handleRoundsLimitDisabledChange = (checked: boolean) => {
     setRoundsNumberDisabled(checked);
     setSettings({ ...settings, roundsNumber: checked ? null : DEFAULT_SETTINGS.roundsNumber });
-  };
-
-  // clean up customTheme & customWordList
-  const handleThemeChange = (val: string) => {
-    setSettings({ ...settings, theme: val, customTheme: "", customWordList: "" });
   };
 
   return (
@@ -236,7 +270,7 @@ export default function LobbyPage() {
       <div className={styles.page}>
 
         {/*INPUT USERNAME POP-UP*/}
-        {/* <Modal
+        <Modal
           title={<div style={{color: "#000", textAlign: "center"}}>Enter Username</div>}
           open={showUsernamePopUp}
           closable={false}
@@ -251,7 +285,7 @@ export default function LobbyPage() {
             onChange={(val: string) => { setUsernameInput(val); setUsernameError(""); }}
             onJoin={handleJoin}
           />
-        </Modal> */}
+        </Modal>
 
         <div>
           <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
@@ -290,6 +324,15 @@ export default function LobbyPage() {
           )}
         </div>
 
+        {/*TEAM TABLE*/}
+        <TeamTable
+          players={players}
+          isHost={isHost}
+          onAssign={handleAssignTeam}
+          assignTarget={assignTarget}
+          setAssignTarget={setAssignTarget}
+        />
+
 
         {/*HOW TO PLAY*/}
         <div style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center"}}>
@@ -300,7 +343,10 @@ export default function LobbyPage() {
             How To Play
           </Button>
         </div>
-        <HowToPlayModal open={howToPlayOpen} onClose={() => setHowToPlayOpen(false)} />
+        <HowToPlayModal
+          open={howToPlayOpen}
+          onClose={() => setHowToPlayOpen(false)}
+        />
 
         {/*LEAVE LOBBY*/}
         <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>

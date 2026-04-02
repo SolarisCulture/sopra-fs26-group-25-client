@@ -3,4 +3,5 @@ export interface User {
   username: string | null;
   token: string | null;
   isHost?: boolean;
+  team?: "red" | "blue" | null;
 }
