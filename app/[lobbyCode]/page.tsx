@@ -86,7 +86,7 @@ export default function LobbyPage() {
       try {
         const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
         setPlayers(data);
-      } catch (error) {
+      } catch {
         message.error("Failed to fetch players!");
       }
     };
@@ -94,7 +94,7 @@ export default function LobbyPage() {
     fetchPlayers();
     const interval = setInterval(fetchPlayers, 3000);
     return () => clearInterval(interval);
-  }, [apiService, lobbyCode]);
+  }, [apiService, lobbyCode, userID]);
 
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
@@ -183,7 +183,7 @@ export default function LobbyPage() {
       localStorage.removeItem(`playerId_${lobbyCode}`);
       localStorage.removeItem(`isHost_${lobbyCode}`);
       router.push("/");
-    } catch (error) {
+    } catch {
       message.error("Failed to leave lobby!");
     }
   };
@@ -193,7 +193,7 @@ export default function LobbyPage() {
     try {
       await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
       message.success("Settings saved!");
-    } catch (error) {
+    } catch {
       message.error("Failed to save settings!");
     }
   };
