@@ -26,7 +26,7 @@ export default function HowToPlayModal({ open, onClose }: Props) {
         <p>The host can make changes to the settings.</p>
         <br />
         <p><strong>Theme:</strong> One of several given themes can be chosen.
-            The default theme is "Standard".
+            The default theme is Standard.
             Own themes and custom word lists can also be added.
             The own word list must be a .txt or.csv file.
         </p>
@@ -36,7 +36,7 @@ export default function HowToPlayModal({ open, onClose }: Props) {
         </p>
         <br />
         <p><strong>Timer:</strong> A time limit can be chosen both for how long the spymaster has to
-            come up with a clue and for how long the spies have to guess their team's words.
+            come up with a clue and for how long the spies have to guess their team&apos;s words.
             The default settings are 90 seconds for the spymaster and no timer for the spies.
         </p>
         <br />
@@ -86,7 +86,7 @@ export default function HowToPlayModal({ open, onClose }: Props) {
         <p>Spymasters take turns giving one-word clues. A clue may relate to multiple words on the table. 
             The spies try to guess which words their spymaster meant. When a spie touches a word, its secret identity
             is revealed. If the spie guess correctly, they may continue guessing, until they run out of ideas for the given 
-            clue or until they hit a wrong person. Then it is the other team's turn to give a clue and guess. 
+            clue or until they hit a wrong person. Then it is the other team&apos;s turn to give a clue and guess. 
             The first team to contact all their agents wins the game.</p>
         <br />
         <hr />
@@ -107,9 +107,9 @@ export default function HowToPlayModal({ open, onClose }: Props) {
         <p>The spies discuss and touch a codename to make their guess.</p>
         <br />
         <ul>
-            <li>Correct guess → word is covered with their team's agent card → they may keep guessing</li>
+            <li>Correct guess → word is covered with their team&apos;s agent card → they may keep guessing</li>
             <li>Innocent bystander → covered with bystander card → turn ends</li>
-            <li>Other team's word → covered with other team's agent card → turn ends (and helps the other team!)</li>
+            <li>Other team&apos;s word → covered with other team&apos;s agent card → turn ends (and helps the other team!)</li>
             <li>Assassin → game over → that team loses</li>
         </ul>
         <br />
@@ -128,13 +128,13 @@ export default function HowToPlayModal({ open, onClose }: Props) {
             guessing. Their turn ends when they guess 
             wrong, when they decide to stop, or when they 
             have made the maximum number of guesses 
-            for that clue. Then it is the other team's turn.
+            for that clue. Then it is the other team&apos;s turn.
         </p>
         <br />
         <p style={{color: "#A02A6C", fontWeight: "bold"}}>PENALTY FOR INVALID CLUES</p>
         <p>If a spymaster gives an invalid clue, the 
-            team's turn ends immediately. As an additional 
-            penalty, the other team's spymaster may cover 
+            team&apos;s turn ends immediately. As an additional 
+            penalty, the other team&apos;s spymaster may cover 
             one of his or her words with an agent card 
             before giving the next clue.
             But if no one notices that a clue is invalid, it 
@@ -149,17 +149,17 @@ export default function HowToPlayModal({ open, onClose }: Props) {
         <br />
         <ul>
             <li>Your clue must be about the meaning of the 
-                words. You can't use your clue to talk about 
+                words. You can&apos;t use your clue to talk about 
                 the letters in a word or its position on the table.
             </li>
             <li>Letters and numbers are valid clues, as long as they refer to meanings.</li>
-            <li>The number you say after your clue can't be used as a clue.</li>
+            <li>The number you say after your clue can&apos;t be used as a clue.</li>
             <li>You must play in English. A foreign word is 
                 allowed only if the players in your group would 
                 use it in an English sentence.
             </li>
-            <li>You can't say any form of a visible word on the table.</li>
-            <li>You can't say part of a compound word on the table.</li>
+            <li>You can&apos;t say any form of a visible word on the table.</li>
+            <li>You can&apos;t say part of a compound word on the table.</li>
         </ul>
         <br />
         <p style={{color: "#A02A6C", fontWeight: "bold"}}>HOMONYMS & SPELLING</p>
@@ -178,14 +178,14 @@ export default function HowToPlayModal({ open, onClose }: Props) {
                 use it in an English sentence.
             </li>
             <li>You should spell out your clue if someone 
-                asks. If you aren't that strong on spelling, ask 
+                asks. If you aren&apos;t that strong on spelling, ask 
                 the opposing spymaster for help.
             </li>
         </ul>
         <br />
-        <p style={{color: "#A02A6C", fontWeight: "bold"}}>DON'T BE TOO STRICT</p>
-        <p>If the opposing spymaster allows it, the clue is valid. If you aren't sure, ask your opponent. (Quietly, 
-            so the others can't hear.)
+        <p style={{color: "#A02A6C", fontWeight: "bold"}}>DON&apos;T BE TOO STRICT</p>
+        <p>If the opposing spymaster allows it, the clue is valid. If you aren&apos;t sure, ask your opponent. (Quietly, 
+            so the others can&apos;t hear.)
         </p>
         <br />
         <p style={{color: "#A02A6C", fontWeight: "bold"}}>FLEXIBLE RULES</p>

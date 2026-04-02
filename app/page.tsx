@@ -17,7 +17,7 @@ export default function Home() {
       const lobby = await apiService.post<Lobby>("/api/lobbies", {});
       localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
       router.push(`/${lobby.lobbyCode}`);
-    } catch (error) {
+    } catch {
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
