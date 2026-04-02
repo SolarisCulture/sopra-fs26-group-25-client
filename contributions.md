@@ -59,12 +59,13 @@ reason).
 
 ---
 
-## Contributions Week 2 - [Begin Date] to [End Date]
+## Contributions Week 2 - [30.03.2026] to [05.04.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@serilia03]** | [01.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/d95d953f1e94ac4e20ba62240bb9da6862ca5dc8, https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/81c5648b5670abf3077d8c8a26a376d9f8ba9343] | [Task: After entering a username and a valid code, the user can join the lobby #68, Task: Navigating with a join link should join the lobby and prompt the user to create a username #67, Task: Add a "Code" field to the homepage and a "Join Lobby" button. Clicking "Join Lobby" with a valid code should redirect the user to a valid lobby. #64k] | [This contribution is relevant, because it got rid of /lobby, making the navigation through the pages more intuitive and cleaner. Also, it fixed some things from #64 and it allows users now to join /create a lobby. Also, most importantly, users must now provide a unique username before entering the lobby, which is crucial, because otherwise it would be hard to distinguish them later on and know who's turn it is. It also allows for personalisation, which makes the over all user experience better.] |
+|                    | [02.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/4491f35296a16c149f3aa31d808d0542031fa22e, https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/a8f0701abfd8adcf6da9e6508a4358dd983ca3bc] | [Task: add rules instructions in page pop up after clicking on button #225] | [These contribution is relevant, because the game cannot be played if the instructions are unclear / a player doesn't know how to play. The second commit also will make it a lot easier for us now to navigate through the code since I extracted some parts out of the /[lobbyCode] page and created separate files.] |
+|                    | [02.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/0541e0f7740d5bbc47411f3ecdd8ae63e15bfb59] | [Task: Show team red and team blue and which players are assigned to which team #63, Task: Add the functionality to drag and drop the players to assign them the roles #70] | [This contribution is relevant, because without it the game cannot start, as we first must have groups. It also allows for some flexibility, sicne the host can assign & unassign players, which makes the overal user experience better.] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
