@@ -16,7 +16,7 @@ export default function Home() {
     try {
       const lobby = await apiService.post<Lobby>("/api/lobbies", {});
       localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
-      router.push(`/lobby/${lobby.lobbyCode}`);
+      router.push(`/${lobby.lobbyCode}`);
     } catch (error) {
       setErrorMessage("Something went wrong. Please try again.");
     }
@@ -27,7 +27,7 @@ export default function Home() {
     const code = values.code.trim();
     try{
       await apiService.get<Lobby>(`/api/lobby/${code}`);
-      router.push(`/lobby/${code}`)
+      router.push(`/${code}`)
     }
     catch (error) {
       console.log(error);
@@ -51,6 +51,7 @@ export default function Home() {
           />
         </div>
       )}
+
       <main className={styles.main}>
         <h1 style={{fontSize: "48px", fontWeight: "700", marginBottom: "-15px", display: "flex", flexDirection: "column", alignItems: "center", color:"#fff"}}>CODENAMES</h1>
         <p style={{fontSize: "30px", fontWeight: "500", display: "flex", flexDirection: "column", alignItems: "center", color:"#fff"}}>SoPra Project Group 25 FS26</p>
@@ -64,6 +65,7 @@ export default function Home() {
           >
             Create Lobby
           </Button>
+          
           <div className="join-container" >
             <Form
               variant="outlined"
