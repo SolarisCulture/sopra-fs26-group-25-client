@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
-import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Table, TableProps, Upload } from "antd";
+import { Alert, Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Table, TableProps, Upload } from "antd";
 import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
@@ -12,37 +12,47 @@ export default function LobbyPage() {
   const apiService = useApi();
   const router = useRouter();
   const {lobbyCode} = useParams();
+
+  // lobby info
   const [link, setLink] = useState("");
   const [isHost, setIsHost] = useState(false);
-  const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
-  const [timerDisabled, setTimerDisabled] = useState(false);
-  const [roundsNumberDisabled, setRoundsNumberDisabled] = useState(true);
+  const [userID, setUserID] = useState<number | null>(null);
+
+  // player list
+  const [players, setPlayers] = useState<User[]>([]);
+
+  // username pop-up
+  const [showUsernamePopUp, setShowUsernamePopUp] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [joiningLobby, setJoiningLobby] = useState(false);
+
+  // other pop-ups
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
-  const [players, setPlayers] = useState<User[] | null>(null);
-  const [userID, setUserID] = useState("");
 
-  // mock players to see table
-//  const [players, setPlayers] = useState<User[] | null>([
-//    {id: "1", username: "alice123", token: null},
-//    {id: "2", username: "bob456", token: null},
-//  ]);
+  // settings
+  const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
+  const [timerDisabled, setTimerDisabled] = useState(false);
+  const [roundsNumberDisabled, setRoundsNumberDisabled] = useState(true);
 
-const playerColumns: TableProps<User>["columns"] = [
-  {
-    title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
-    dataIndex: "username",
-    key: "username",
-    render: (username: string, player: User) => {
-      const isCurrentHost = isHost && player.id == userID;
-      return (<span>{username} {isCurrentHost && "👑"}</span>);
+  // player table
+  const playerColumns: TableProps<User>["columns"] = [
+    {
+      title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
+      dataIndex: "username",
+      key: "username",
+      render: (username: string, player: User) => {
+        const isCurrentHost = isHost && player.id == String(userID);
+        return (<span>{username} {isCurrentHost && "👑"}</span>);
+      },
     },
-  },
-];
+  ];
 
-  // fetch players useEffect
+  // on page load fetch players
   useEffect(() => {
+    if (userID == null) return;
     const fetchPlayers = async () => {
       try {
         const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
@@ -57,26 +67,82 @@ const playerColumns: TableProps<User>["columns"] = [
     return () => clearInterval(interval);
   }, [apiService, lobbyCode]);
 
-  // link & host & id useEffect
+  // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
-    setLink(`${window.location.origin}/lobby/${lobbyCode}`);
-    setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
-    setUserID(JSON.parse(localStorage.getItem("userID") || '""'));
+    setLink(`${window.location.origin}/${lobbyCode}`);
+    // has this browser already joined this lobby?
+    const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
+    if (savedId){
+      setUserID(Number(savedId));
+      setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
+    } else {
+      setShowUsernamePopUp(true);
+    }
   }, [lobbyCode]); // use effect only runs again if lobbyCode changes --> won't actually happen
 
+  // join lobby with username
+  const handleJoin = async () => {
+    const username = usernameInput.trim();
+
+    if (username.length < 1 || username.length > 50) {
+      setUsernameError("Username must be between 1 and 50 characters.");
+      return;
+    }
+
+    // make sure username is unique
+    const alreadyTaken = players.some(p => p.username?.toLowerCase() == username.toLowerCase());
+    if (alreadyTaken) {
+      setUsernameError("This username is already taken. Please choose a different username.");
+      return;
+    }
+
+    setJoiningLobby(true);
+    setUsernameError("");
+
+    try {
+      const newPlayerID = await apiService.post<number>(`/api/lobbies/${lobbyCode}/join`, username);
+      localStorage.setItem(`playerID_${lobbyCode}`, String(newPlayerID));
+      const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
+      
+      if (createdThisLobby) {
+        localStorage.setItem(`isHost_${lobbyCode}`, "true");
+        localStorage.removeItem("hostedLobby") // not needed anymore
+        setIsHost(true);
+      }
+
+      setUserID(newPlayerID);
+      setShowUsernamePopUp(false);
+    } catch {
+      setUsernameError("There was an issue while joining. Username is already taken or the lobby may no longer exist.");
+    } finally {
+      setJoiningLobby(false);
+    }
+  };
+
+  // leave lobby
   const handleLeave = async () => {
+    if (userID == null) return;
     try {
       await apiService.delete(`/lobbies/${lobbyCode}/players/${userID}`);
-      if (isHost) {
-        await apiService.put(`/lobbies/${lobbyCode}/host`, {});
-        localStorage.removeItem("hostedLobby");
+      if (isHost && players.length > 1) {
+        const nextHost = players.find(p => p.id != String(userID));
+        if (nextHost) {
+          await apiService.put(`/api/lobbies/${lobbyCode}/host/transfer`, {
+            currentHostId: userID,
+            newHostId: nextHost.id,
+          });
+        }
       }
+
+      localStorage.removeItem(`playerId_${lobbyCode}`);
+      localStorage.removeItem(`isHost_${lobbyCode}`);
       router.push("/");
     } catch (error) {
       message.error("Failed to leave lobby!");
     }
   };
 
+  // save settings 
   const handleSave = async () => {
     try {
       await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
@@ -86,6 +152,7 @@ const playerColumns: TableProps<User>["columns"] = [
     }
   };
 
+  // reset settings
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
     setTimerDisabled(false);
@@ -150,6 +217,40 @@ const playerColumns: TableProps<User>["columns"] = [
       }}>
 
       <div className={styles.page}>
+
+        {/*INPUT USERNAME POP-UP*/}
+        <Modal
+          title={<div style={{ color: "#000", textAlign: "center" }}>Enter Username</div>}
+          open={showUsernamePopUp}
+          closable={false}
+          maskClosable={false}
+          footer={null}
+        >
+          <div style={{display: "flex", flexDirection: "column", gap: 12, padding: "8px 0",}}>
+            <Input
+              placeholder="Username (must be between 1 and 50 characters)"
+              value={usernameInput}
+              maxLength={50}
+              status={usernameError ? "error" : ""}
+              onChange={event => { setUsernameInput(event.target.value); setUsernameError(""); }}
+              onPressEnter={handleJoin}
+            />
+            {usernameError &&
+              <Alert
+                title={usernameError}
+                type="error"
+                showIcon />}
+              <Button
+                type="primary"
+                loading={joiningLobby}
+                onClick={handleJoin}
+                block
+              >
+              Join Lobby
+            </Button>
+          </div>
+        </Modal>
+
         <div>
           <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
         </div>
@@ -170,7 +271,7 @@ const playerColumns: TableProps<User>["columns"] = [
         </div>
 
         <div style={{position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-          <span style={{fontWeight: 600, color: "#fff"}}>Code: {lobbyCode}</span>
+          <span style={{fontWeight: 600, color: "#fff"}}>Lobby Code: {lobbyCode}</span>
         </div>
 
 
