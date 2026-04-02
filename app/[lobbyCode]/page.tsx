@@ -34,7 +34,10 @@ export default function LobbyPage() {
 
   // settings
   const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
-  const [timerDisabled, setTimerDisabled] = useState(false);
+  const [spymasterTimerDisabled, setSpymasterTimerDisabled] = useState(false);
+  const [spyTimerDisabled, setSpyTimerDisabled] = useState(true);
+  const [spymasterTimerDraft, setSpymasterTimerDraft] = useState<number | null>(DEFAULT_SETTINGS.spymasterTimer);
+  const [spyTimerDraft, setSpyTimerDraft] = useState<number | null>(null);
   const [roundsNumberDisabled, setRoundsNumberDisabled] = useState(true);
 
   // player table
@@ -44,8 +47,13 @@ export default function LobbyPage() {
       dataIndex: "username",
       key: "username",
       render: (username: string, player: User) => {
-        const isCurrentHost = isHost && player.id == String(userID);
-        return (<span>{username} {isCurrentHost && "👑"}</span>);
+        const isCurrentHost = player.isHost;
+          return (
+            <span style={{display: "flex", justifyContent: "space-between"}}>
+              <span>{username}</span>
+              {isCurrentHost && <span>👑</span>}
+            </span>
+          );
       },
     },
   ];
@@ -155,28 +163,20 @@ export default function LobbyPage() {
   // reset settings
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
-    setTimerDisabled(false);
+    setSpyTimerDisabled(true);
+    setSpymasterTimerDisabled(false);
     setRoundsNumberDisabled(true);
     message.info("Reset to default.");
   };
 
-  const handleTimerChange = (val: number | null) => {
-    if (val == null) return;
-    if (val < 10) {
-      message.warning("Timer cannot be less than 10 seconds.");
-      return;
-    }
-    if (val > 300) {
-      message.warning("Timer cannot exceed 300 seconds.");
-      return;
-    }
-    setSettings({ ...settings, roundTimer: val });
+  const handleSpymasterTimerDisabledChange = (checked: boolean) => {
+    setSpymasterTimerDisabled(checked);
+    setSettings({ ...settings, spymasterTimer: checked ? null : DEFAULT_SETTINGS.spymasterTimer });
   };
 
-  // clean up timerDisabled
-  const handleTimerDisabledChange = (checked: boolean) => {
-    setTimerDisabled(checked);
-    setSettings({ ...settings, roundTimer: checked ? null : DEFAULT_SETTINGS.roundTimer });
+  const handleSpyTimerDisabledChange = (checked: boolean) => {
+    setSpyTimerDisabled(checked);
+    setSettings({ ...settings, spyTimer: checked ? null : DEFAULT_SETTINGS.spyTimer });
   };
 
   const handleRoundsNumberChange = (val: number | null) => {
@@ -190,6 +190,18 @@ export default function LobbyPage() {
       return;
     }
     setSettings({ ...settings, roundsNumber: val });
+  };
+
+  // helper for timer restrictions
+  const validateAndCommitTimer = (
+    val: number | null,
+    label: string,
+    onCommit: (v: number) => void
+  ) => {
+    if (val == null) return;
+    if (val < 10) { message.warning(`${label} cannot be less than 10 seconds.`); return; }
+    if (val > 3600) { message.warning(`${label} cannot exceed 3600 seconds.`); return; }
+    onCommit(val);
   };
 
   // clean up roundsNumberDisabled
@@ -276,7 +288,7 @@ export default function LobbyPage() {
 
 
         {/*PLAYER TABLE*/}
-        <div style={{position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "200px"}}>
+        <div style={{position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px"}}>
           {players && (
             <Table<User>
               columns={playerColumns}
@@ -419,21 +431,40 @@ export default function LobbyPage() {
             />
 
 
-            {/*TIMER*/}
-            <label>Round timer (seconds):</label>
+            {/*SPYMASTER TIMER*/}
+            <label>Spymaster timer (seconds):</label>
             <InputNumber
               style={{width: 200}}
-              min={10}
-              max={300}
-              value={settings.roundTimer}
-              disabled={!isHost || timerDisabled}
-              onChange={handleTimerChange}
+              value={settings.spymasterTimer}
+              disabled={!isHost || spymasterTimerDisabled}
+              onChange={(val) => setSpymasterTimerDraft(val)}
+              onBlur={() => validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => setSettings({ ...settings, spymasterTimer: v }))}
+              onKeyDown={(e) => { if (e.key === "Enter") validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => setSettings({ ...settings, spymasterTimer: v })); }}
+              onStep={(val) => validateAndCommitTimer(val, "Spymaster timer", (v) => { setSpymasterTimerDraft(v); setSettings({ ...settings, spymasterTimer: v }); })}
             />
-
             <Checkbox
               disabled={!isHost}
-              checked={timerDisabled}
-              onChange={(event) => handleTimerDisabledChange(event.target.checked)}
+              checked={spymasterTimerDisabled}
+              onChange={(e) => handleSpymasterTimerDisabledChange(e.target.checked)}
+            >
+              No timer
+            </Checkbox>
+
+            {/*SPY TIMER*/}
+            <label>Spy timer (seconds):</label>
+            <InputNumber
+              style={{width: 200}}
+              value={settings.spyTimer}
+              disabled={!isHost || spyTimerDisabled}
+              onChange={(val) => setSpyTimerDraft(val)}
+              onBlur={() => validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => setSettings({ ...settings, spyTimer: v }))}
+              onKeyDown={(e) => { if (e.key === "Enter") validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => setSettings({ ...settings, spyTimer: v })); }}
+              onStep={(val) => validateAndCommitTimer(val, "Spy timer", (v) => { setSpyTimerDraft(v); setSettings({ ...settings, spyTimer: v }); })}
+            />
+            <Checkbox
+              disabled={!isHost}
+              checked={spyTimerDisabled}
+              onChange={(e) => handleSpyTimerDisabledChange(e.target.checked)}
             >
               No timer
             </Checkbox>

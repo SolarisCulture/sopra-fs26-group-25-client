@@ -65,7 +65,7 @@ export default function Home() {
           >
             Create Lobby
           </Button>
-          
+
           <div className="join-container" >
             <Form
               variant="outlined"
