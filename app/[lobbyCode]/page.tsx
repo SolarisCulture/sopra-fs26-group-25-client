@@ -3,10 +3,15 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
-import { Alert, Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Table, TableProps, Upload } from "antd";
+import { Button, ConfigProvider, message, Modal, Table, TableProps } from "antd";
 import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
+
+import HowToPlayModal from "../components/HowToPlayModal";
+import LeaveModal from "../components/LeaveModal";
+import UsernameModal from "../components/UsernameModal";
+import SettingsModal from "../components/SettingsModal";
 
 export default function LobbyPage() {
   const apiService = useApi();
@@ -231,37 +236,22 @@ export default function LobbyPage() {
       <div className={styles.page}>
 
         {/*INPUT USERNAME POP-UP*/}
-        <Modal
-          title={<div style={{ color: "#000", textAlign: "center" }}>Enter Username</div>}
+        {/* <Modal
+          title={<div style={{color: "#000", textAlign: "center"}}>Enter Username</div>}
           open={showUsernamePopUp}
           closable={false}
           maskClosable={false}
           footer={null}
         >
-          <div style={{display: "flex", flexDirection: "column", gap: 12, padding: "8px 0",}}>
-            <Input
-              placeholder="Username (must be between 1 and 50 characters)"
-              value={usernameInput}
-              maxLength={50}
-              status={usernameError ? "error" : ""}
-              onChange={event => { setUsernameInput(event.target.value); setUsernameError(""); }}
-              onPressEnter={handleJoin}
-            />
-            {usernameError &&
-              <Alert
-                title={usernameError}
-                type="error"
-                showIcon />}
-              <Button
-                type="primary"
-                loading={joiningLobby}
-                onClick={handleJoin}
-                block
-              >
-              Join Lobby
-            </Button>
-          </div>
-        </Modal>
+          <UsernameModal
+            open={showUsernamePopUp}
+            usernameInput={usernameInput}
+            usernameError={usernameError}
+            joiningLobby={joiningLobby}
+            onChange={(val: string) => { setUsernameInput(val); setUsernameError(""); }}
+            onJoin={handleJoin}
+          />
+        </Modal> */}
 
         <div>
           <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
@@ -303,203 +293,60 @@ export default function LobbyPage() {
 
         {/*HOW TO PLAY*/}
         <div style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center"}}>
-          <Button 
+          <Button
             type="primary"
             style={{width: "125px"}}
-            onClick={() => {setHowToPlayOpen(true)}}
-          >
+            onClick={() => setHowToPlayOpen(true)}>
             How To Play
           </Button>
-          <Modal
-            title={<div style={{color: "#000"}}>Game Rules</div>}
-            open={howToPlayOpen}
-            onCancel={() => setHowToPlayOpen(false)}
-            footer={null}
-          >
-            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-          </Modal>
         </div>
+        <HowToPlayModal open={howToPlayOpen} onClose={() => setHowToPlayOpen(false)} />
 
         {/*LEAVE LOBBY*/}
         <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
-          <Button 
+          <Button
             type="primary"
             style={{width: "125px"}}
             onClick={() => setLeaveOpen(true)}
           >
             Leave Lobby
           </Button>
-          <Modal
-            title={<div style={{color: "#000"}}>Are you sure you want to leave the lobby?</div>}
-            open={leaveOpen}
-            closable={false}
-            footer={null}
-          >
-            <p>By leaving the lobby you return to the home page.</p>
-            <div style={{display: "flex", justifyContent: "right", gap: 10, marginTop: "10px"}}>
-              <Button onClick={() => setLeaveOpen(false)}>No, stay.</Button>
-              <Button type="primary" onClick={handleLeave}>Yes, leave.</Button>
-            </div>
-          </Modal>
         </div>
+        <LeaveModal
+          open={leaveOpen}
+          onStay={() => setLeaveOpen(false)}
+          onLeave={handleLeave}
+        />
 
         {/*SETTINGS*/}
-        <Button 
+        <Button
           type="primary"
-          onClick={() => {setSettingsOpen(true)}}
+          onClick={() => setSettingsOpen(true)}
           style={{position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px"}}
         >
           Settings
         </Button>
-
-        <Modal
-          title={<div style={{color: "#000", textAlign: "center"}}>Settings</div>}
-          width={"400px"}
+        <SettingsModal
           open={settingsOpen}
-          onCancel={() => setSettingsOpen(false)}
-          footer={null}
-        >
-
-
-          {/*THEME*/}
-          <div className={styles.ctas} style={{ display: "flex", flexDirection: "column", width: 200, margin: "auto"}}>
-            <label>Select a theme:</label>
-            <Select
-              style={{width: 200}}
-              value={settings.theme}
-              disabled={!isHost}
-              onChange={handleThemeChange}
-              options={[
-                {value: "", label: "Select..."},
-                {value: "standard", label: "Standard"},
-                {value: "customTheme", label: "Custom Theme"},
-                {value: "customWordList", label: "Custom Word List"},
-              ]}
-            />
-
-
-            {/*CUSTOM THEME*/}
-            {settings.theme == "customTheme" && (
-              <>
-                <label>Enter custom theme name:</label>
-                <Input
-                  style={{width: 200}}
-                  value={settings.customTheme}
-                  disabled={!isHost}
-                  placeholder="Custom theme name"
-                  onChange={(error) => setSettings({ ...settings, customTheme: error.target.value })}
-                />
-              </>
-            )}
-
-
-            {/*CUSTOM WORD LIST*/}
-            {settings.theme == "customWordList" && (
-              <>
-                <label>Upload a custom word list:</label>
-                <Upload
-                  disabled={!isHost} // only host can upload
-                  maxCount={1}
-                  accept=".txt,.csv"
-                  beforeUpload={(file) => {
-                    setSettings({ ...settings, customWordList: file.name });
-                    return false; // we only actually save the file name (no upload is happening yet --> out of scope for this user story)
-                  }}
-                  onRemove={() => setSettings({ ...settings, customWordList: "" })}
-                >
-                  <Button disabled={!isHost} style={{width: 200}}> {/* non-host players see grayed out box */}
-                    Click to upload (.txt, .csv)
-                  </Button>
-                </Upload>
-              </>
-            )}
-
-
-            {/*DIFFICULTY*/}
-            <label>Difficulty:</label>
-            <Select
-              style={{width: 200}}
-              value={settings.difficulty}
-              disabled={!isHost}
-              onChange={(val) => setSettings({ ...settings, difficulty: val as LobbySettings["difficulty"] })}
-              options={[
-                {value: "easy", label: "Easy"},
-                {value: "medium", label: "Medium"},
-                {value: "hard", label: "Hard"},
-                {value: "all", label: "All"},
-              ]}
-            />
-
-
-            {/*SPYMASTER TIMER*/}
-            <label>Spymaster timer (seconds):</label>
-            <InputNumber
-              style={{width: 200}}
-              value={settings.spymasterTimer}
-              disabled={!isHost || spymasterTimerDisabled}
-              onChange={(val) => setSpymasterTimerDraft(val)}
-              onBlur={() => validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => setSettings({ ...settings, spymasterTimer: v }))}
-              onKeyDown={(e) => { if (e.key === "Enter") validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => setSettings({ ...settings, spymasterTimer: v })); }}
-              onStep={(val) => validateAndCommitTimer(val, "Spymaster timer", (v) => { setSpymasterTimerDraft(v); setSettings({ ...settings, spymasterTimer: v }); })}
-            />
-            <Checkbox
-              disabled={!isHost}
-              checked={spymasterTimerDisabled}
-              onChange={(e) => handleSpymasterTimerDisabledChange(e.target.checked)}
-            >
-              No timer
-            </Checkbox>
-
-            {/*SPY TIMER*/}
-            <label>Spy timer (seconds):</label>
-            <InputNumber
-              style={{width: 200}}
-              value={settings.spyTimer}
-              disabled={!isHost || spyTimerDisabled}
-              onChange={(val) => setSpyTimerDraft(val)}
-              onBlur={() => validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => setSettings({ ...settings, spyTimer: v }))}
-              onKeyDown={(e) => { if (e.key === "Enter") validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => setSettings({ ...settings, spyTimer: v })); }}
-              onStep={(val) => validateAndCommitTimer(val, "Spy timer", (v) => { setSpyTimerDraft(v); setSettings({ ...settings, spyTimer: v }); })}
-            />
-            <Checkbox
-              disabled={!isHost}
-              checked={spyTimerDisabled}
-              onChange={(e) => handleSpyTimerDisabledChange(e.target.checked)}
-            >
-              No timer
-            </Checkbox>
-
-
-            {/*ROUNDS LIMIT*/}
-            <label>Rounds limit:</label>
-            <InputNumber
-              style={{width: 200}}
-              min={1}
-              max={100}
-              value={settings.roundsNumber}
-              disabled={!isHost || roundsNumberDisabled}
-              onChange={handleRoundsNumberChange}
-            />
-
-            <Checkbox
-              disabled={!isHost}
-              checked={roundsNumberDisabled}
-              onChange={(event) => handleRoundsLimitDisabledChange(event.target.checked)}
-            >
-              No limit
-            </Checkbox>
-
-
-            {/*RESET & SAVE*/}
-            {isHost && (
-              <div style={{display: "flex", justifyContent: "center", gap: 10}}>
-                <Button onClick={handleReset}>Reset to default</Button>
-                <Button type="primary" onClick={handleSave}>Save Settings</Button>
-              </div>
-            )}
-
-          </div>
-        </Modal>
+          onClose={() => setSettingsOpen(false)}
+          isHost={isHost}
+          settings={settings}
+          setSettings={setSettings}
+          spymasterTimerDisabled={spymasterTimerDisabled}
+          spyTimerDisabled={spyTimerDisabled}
+          spymasterTimerDraft={spymasterTimerDraft}
+          spyTimerDraft={spyTimerDraft}
+          setSpymasterTimerDraft={setSpymasterTimerDraft}
+          setSpyTimerDraft={setSpyTimerDraft}
+          roundsNumberDisabled={roundsNumberDisabled}
+          onSpymasterTimerDisabledChange={handleSpymasterTimerDisabledChange}
+          onSpyTimerDisabledChange={handleSpyTimerDisabledChange}
+          onRoundsLimitDisabledChange={handleRoundsLimitDisabledChange}
+          onRoundsNumberChange={handleRoundsNumberChange}
+          validateAndCommitTimer={validateAndCommitTimer}
+          onReset={handleReset}
+          onSave={handleSave}
+        />
       </div>
     </ConfigProvider>
   );
