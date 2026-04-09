@@ -151,7 +151,7 @@ export default function LobbyPage() {
     }
   };
 
-  // assign players to teams
+  // assign players to teams (blue or red)
   const handleAssignTeam = (playerId: string | null, team: "red" | "blue" | null): void => {
     if (playerId == null) return;
 
