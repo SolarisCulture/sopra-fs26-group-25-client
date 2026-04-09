@@ -26,6 +26,7 @@ export default function LobbyPage() {
   const [link, setLink] = useState("");
   const [isHost, setIsHost] = useState(false);
   const [userID, setUserID] = useState<number | null>(null);
+  const [lobby, setLobby] = useState<Lobby | null>(null);
 
   // player list
   const [players, setPlayers] = useState<User[]>([]);
@@ -121,11 +122,11 @@ export default function LobbyPage() {
     console.log("Lobby event received:", event);
     
     switch (event.type) {
-      case "PLAYER_JOINED": {fetchPlayers(); break;}
-      case "PLAYER_LEFT": {fetchPlayers(); break;}
-      case "HOST_CHANGED": {fetchPlayers(); fetchLobby(); break;}
-      case "TEAM_UPDATED": {fetchPlayers(); fetchLobby(); break;}
-      case "ROLE_UPDATED": {fetchPlayers(); fetchLobby(); break;}
+      case "PLAYER_JOINED": {await fetchPlayers(); break;}
+      case "PLAYER_LEFT": {await fetchPlayers(); break;}
+      case "HOST_CHANGED": {await fetchPlayers(); await fetchLobby(); break;}
+      case "TEAM_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
+      case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
       case "STATUS_UPDATED": {
         const updatedLobby = event.data as Lobby; //STATUS_UPDATED event not defined
         setLobby(updatedLobby);
@@ -189,7 +190,7 @@ export default function LobbyPage() {
       
       if (createdThisLobby) {
         localStorage.setItem(`isHost_${lobbyCode}`, "true");
-        localStorage.removeItem("hostedLobby") // not needed anymore
+        localStorage.removeItem("hostedLobby"); // not needed anymore
         setIsHost(true);
       }
 
