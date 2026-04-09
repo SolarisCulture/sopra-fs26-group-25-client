@@ -7,7 +7,6 @@ import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, S
 import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
-import { fetchInternalImage } from "next/dist/server/image-optimizer";
 
 // websocket
 import { createLobbySocket, LobbyEvent } from "@/utils/lobbyWebsocket";
