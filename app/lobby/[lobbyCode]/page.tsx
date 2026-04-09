@@ -4,9 +4,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
 import { Button, Checkbox, ConfigProvider, Input, InputNumber, message, Modal, Select, Table, TableProps, Upload } from "antd";
-import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
+import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
+import { fetchInternalImage } from "next/dist/server/image-optimizer";
+
+// websocket
+import { createLobbySocket, LobbyEvent } from "@/utils/lobbyWebsocket";
 
 export default function LobbyPage() {
   const apiService = useApi();
@@ -22,12 +26,13 @@ export default function LobbyPage() {
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [players, setPlayers] = useState<User[] | null>(null);
   const [userID, setUserID] = useState("");
+  const [lobby, setLobby] = useState<Lobby | null>(null);
 
   // mock players to see table
-//  const [players, setPlayers] = useState<User[] | null>([
-//    {id: "1", username: "alice123", token: null},
-//    {id: "2", username: "bob456", token: null},
-//  ]);
+ // const [players, setPlayers] = useState<User[] | null>([
+ //   {id: "1", username: "alice123", token: null},
+ //   {id: "2", username: "bob456", token: null},
+ // ]);
 
 const playerColumns: TableProps<User>["columns"] = [
   {
@@ -41,100 +46,153 @@ const playerColumns: TableProps<User>["columns"] = [
   },
 ];
 
-  // fetch players useEffect
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
-        setPlayers(data);
-      } catch (error) {
-        message.error("Failed to fetch players!");
+// link & host & id useEffect
+useEffect(() => {
+  setLink(`${window.location.origin}/lobby/${lobbyCode}`);
+  setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
+  setUserID(JSON.parse(localStorage.getItem("userID") || '""'));
+}, [lobbyCode]); // use effect only runs again if lobbyCode changes --> won't actually happen
+
+// fetch players as a helper function
+const fetchPlayers = async () => {
+  try {
+    const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
+    setPlayers(data);
+  } catch (error) {
+    message.error("Failed to fetch players!");
+  }
+};
+
+// fetch lobby as a helper function
+const fetchLobby = async () => {
+  try {
+    const lobbyData = await apiService.get<Lobby>(`/lobbies/${lobbyCode}`);
+    setLobby(lobbyData);
+
+    if (lobbyData.lobbyStatus === "IN_PROGRESS") {
+      router.push(`/game/${lobbyCode}`);
+    }
+  } catch (error) {
+    message.error("Failed to fetch lobby data!");
+  }
+};
+
+// fetch player and lobby on startupt
+useEffect(() => {
+  fetchPlayers();
+  fetchLobby();
+
+  // using websocket events, not needed to fetch every 3 secs
+  // const interval = setInterval(fetchPlayers, 3000);
+  // return () => clearInterval(interval);
+}, [apiService, lobbyCode, router]);
+
+
+// websocket
+useEffect(() => {
+  if(!lobbyCode) return;
+  const socket = createLobbySocket(String(lobbyCode), async (event: LobbyEvent) => {
+  console.log("Lobby event received:", event);
+  
+  switch (event.type) {
+    case "PLAYER_JOINED": {fetchPlayers(); break;}
+    case "PLAYER_LEFT": {fetchPlayers(); break;}
+    case "HOST_CHANGED": {fetchPlayers(); fetchLobby(); break;}
+    case "TEAM_UPDATED": {fetchPlayers(); fetchLobby(); break;}
+    case "ROLE_UPDATED": {fetchPlayers(); fetchLobby(); break;}
+    case "STATUS_UPDATED": {
+      const updatedLobby = event.data as Lobby;
+      setLobby(updatedLobby);
+
+      if (updatedLobby.lobbyStatus === "IN_PROGRESS") {
+        router.push(`/game/${lobbyCode}`);
       }
-    };
-
-    fetchPlayers();
-    const interval = setInterval(fetchPlayers, 3000);
-    return () => clearInterval(interval);
-  }, [apiService, lobbyCode]);
-
-  // link & host & id useEffect
-  useEffect(() => {
-    setLink(`${window.location.origin}/lobby/${lobbyCode}`);
-    setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
-    setUserID(JSON.parse(localStorage.getItem("userID") || '""'));
-  }, [lobbyCode]); // use effect only runs again if lobbyCode changes --> won't actually happen
-
-  const handleLeave = async () => {
-    try {
-      await apiService.delete(`/lobbies/${lobbyCode}/players/${userID}`);
-      if (isHost) {
-        await apiService.put(`/lobbies/${lobbyCode}/host`, {});
-        localStorage.removeItem("hostedLobby");
-      }
-      router.push("/");
-    } catch (error) {
-      message.error("Failed to leave lobby!");
+      break;
     }
-  };
 
-  const handleSave = async () => {
-    try {
-      await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
-      message.success("Settings saved!");
-    } catch (error) {
-      message.error("Failed to save settings!");
+    default:
+      break;
+  }
+});
+
+socket.connect();
+  return () => {
+    socket.disconnect();
+  }
+}, [apiService, lobbyCode, router]);
+
+
+const handleLeave = async () => {
+  try {
+    await apiService.delete(`/lobbies/${lobbyCode}/players/${userID}`);
+    if (isHost) {
+      await apiService.put(`/lobbies/${lobbyCode}/host`, {});
+      localStorage.removeItem("hostedLobby");
     }
-  };
+    router.push("/");
+  } catch (error) {
+    message.error("Failed to leave lobby!");
+  }
+};
 
-  const handleReset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    setTimerDisabled(false);
-    setRoundsNumberDisabled(true);
-    message.info("Reset to default.");
-  };
+const handleSave = async () => {
+  try {
+    await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
+    message.success("Settings saved!");
+  } catch (error) {
+    message.error("Failed to save settings!");
+  }
+};
 
-  const handleTimerChange = (val: number | null) => {
-    if (val == null) return;
-    if (val < 10) {
-      message.warning("Timer cannot be less than 10 seconds.");
-      return;
-    }
-    if (val > 300) {
-      message.warning("Timer cannot exceed 300 seconds.");
-      return;
-    }
-    setSettings({ ...settings, roundTimer: val });
-  };
+const handleReset = () => {
+  setSettings(DEFAULT_SETTINGS);
+  setTimerDisabled(false);
+  setRoundsNumberDisabled(true);
+  message.info("Reset to default.");
+};
 
-  // clean up timerDisabled
-  const handleTimerDisabledChange = (checked: boolean) => {
-    setTimerDisabled(checked);
-    setSettings({ ...settings, roundTimer: checked ? null : DEFAULT_SETTINGS.roundTimer });
-  };
+const handleTimerChange = (val: number | null) => {
+  if (val == null) return;
+  if (val < 10) {
+    message.warning("Timer cannot be less than 10 seconds.");
+    return;
+  }
+  if (val > 300) {
+    message.warning("Timer cannot exceed 300 seconds.");
+    return;
+  }
+  setSettings({ ...settings, roundTimer: val });
+};
 
-  const handleRoundsNumberChange = (val: number | null) => {
-    if (val == null) return;
-    if (val < 1) {
-      message.warning("Rounds must be at least 1.");
-      return;
-    }
-    if (val > 100) {
-      message.warning("Rounds cannot exceed 100.");
-      return;
-    }
-    setSettings({ ...settings, roundsNumber: val });
-  };
+// clean up timerDisabled
+const handleTimerDisabledChange = (checked: boolean) => {
+  setTimerDisabled(checked);
+  setSettings({ ...settings, roundTimer: checked ? null : DEFAULT_SETTINGS.roundTimer });
+};
 
-  // clean up roundsNumberDisabled
-  const handleRoundsLimitDisabledChange = (checked: boolean) => {
-    setRoundsNumberDisabled(checked);
-    setSettings({ ...settings, roundsNumber: checked ? null : DEFAULT_SETTINGS.roundsNumber });
-  };
+const handleRoundsNumberChange = (val: number | null) => {
+  if (val == null) return;
+  if (val < 1) {
+    message.warning("Rounds must be at least 1.");
+    return;
+  }
+  if (val > 100) {
+    message.warning("Rounds cannot exceed 100.");
+    return;
+  }
+  setSettings({ ...settings, roundsNumber: val });
+};
 
-  // clean up customTheme & customWordList
-  const handleThemeChange = (val: string) => {
-    setSettings({ ...settings, theme: val, customTheme: "", customWordList: "" });
-  };
+// clean up roundsNumberDisabled
+const handleRoundsLimitDisabledChange = (checked: boolean) => {
+  setRoundsNumberDisabled(checked);
+  setSettings({ ...settings, roundsNumber: checked ? null : DEFAULT_SETTINGS.roundsNumber });
+};
+
+// clean up customTheme & customWordList
+const handleThemeChange = (val: string) => {
+  setSettings({ ...settings, theme: val, customTheme: "", customWordList: "" });
+};
 
   return (
     <ConfigProvider
