@@ -8,8 +8,7 @@ export interface LobbySettings {
   customTheme: string;
   customWordList: string,
   difficulty: "easy" | "medium" | "hard" | "all";
-  spymasterTimer: number | null;
-  spyTimer: number | null;
+  roundTimer: number | null;
   roundsNumber:number | null,
 }
 
@@ -18,7 +17,6 @@ export const DEFAULT_SETTINGS: LobbySettings = {
   customTheme: "",
   customWordList: "",
   difficulty: "all",
-  spymasterTimer: 90,
-  spyTimer: null,
+  roundTimer: 90,
   roundsNumber: null,
 };
