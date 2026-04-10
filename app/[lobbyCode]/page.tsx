@@ -132,7 +132,7 @@ export default function LobbyPage() {
         setLobby(updatedLobby);
 
         if (updatedLobby.lobbyStatus === "IN_PROGRESS") {
-          router.push(`/game/${lobbyCode}`);
+          router.push(`/${lobbyCode}/game`);
         }
         break;
       }
