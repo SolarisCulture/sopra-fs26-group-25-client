@@ -122,18 +122,13 @@ export default function LobbyPage() {
     console.log("Lobby event received:", event);
     
     switch (event.type) {
-      case "PLAYER_JOINED": {await fetchPlayers(); break;}
+      case "PLAYER_JOINED":
       case "PLAYER_LEFT": {await fetchPlayers(); break;}
-      case "HOST_CHANGED": {await fetchPlayers(); await fetchLobby(); break;}
-      case "TEAM_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
+      case "HOST_CHANGED": 
+      case "TEAM_UPDATED": 
       case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
       case "STATUS_UPDATED": {
-        const updatedLobby = event.data as Lobby; //STATUS_UPDATED event not defined
-        setLobby(updatedLobby);
-
-        if (updatedLobby.lobbyStatus === "IN_PROGRESS") {
-          router.push(`/game/${lobbyCode}`);
-        }
+        await fetchLobby();
         break;
       }
 
