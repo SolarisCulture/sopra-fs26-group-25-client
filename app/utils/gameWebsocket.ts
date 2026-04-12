@@ -1,16 +1,9 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { User } from "@/types/user";
-
-export interface GameEvent<T = unknown> {
-  type: string;
-  lobbyCode: string;
-  board: T | null;
-}
+import { GameEvent, GuessEvent } from "@/types/gameEvent";
 
 export function createGameSocket(
   lobbyCode: string,
-  role: User["role"],
   onMessage: (event: GameEvent) => void
 ) {
   const client = new Client({
@@ -22,21 +15,13 @@ export function createGameSocket(
   let subscription: StompSubscription | null = null;
 
   client.onConnect = () => {
-    let topic = "";
-
-    if (role === "spymaster") {
-      topic = `/topic/game/${lobbyCode}/spymaster`;
-    } else if (role === "spy") {
-      topic = `/topic/game/${lobbyCode}/spy`;
-    } else {
-      console.error("Cannot subscribe to game websocket. Role is null or invalid.");
-      return;
-    }
-
-    subscription = client.subscribe(topic, (message: IMessage) => {
-      const event: GameEvent = JSON.parse(message.body);
-      onMessage(event);
-    });
+    subscription = client.subscribe(
+      `/topic/game/${lobbyCode}/events`,
+      (message: IMessage) => {
+        const event: GameEvent = JSON.parse(message.body);
+        onMessage(event);
+      }
+    );
   };
 
   client.onStompError = (frame) => {
@@ -50,6 +35,14 @@ export function createGameSocket(
 
   return {
     connect: () => client.activate(),
+    sendGuess: (event: GuessEvent) => {
+      client.publish({
+        destination: `/app/${lobbyCode}/guess`,
+        body: JSON.stringify(event),
+      })
+    },
+
+
     disconnect: async () => {
       if (subscription !== null) {
         subscription.unsubscribe();
