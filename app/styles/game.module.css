@@ -1,0 +1,90 @@
+.page {
+  --board-background: #554b92;
+  --civilian: #F9C74F;
+  --blue-agent: #1B9FD8;
+  --blue-turn: #106083;
+  --red-agent: #E8401C;
+  --red-turn: #932912;
+  --assassin: black;
+  --board-border: #3a3661;
+  --card-background: #9d96c0;
+  --card-border: #635f75;
+  --card-text: #3a3661;
+  --team-background: var(--red-turn);
+
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  box-sizing: border-box;
+  background: var(--team-background);
+}
+
+.redTeam {
+  --team-background: var(--red-turn);
+}
+
+.blueTeam {
+  --team-background: var(--blue-turn);
+}
+
+.board {
+  width: min(52vw, 900px);
+  min-width: 520px;
+  aspect-ratio: 1.35 / 1;
+  background: var(--board-background);
+  border: 4px solid var(--board-border);
+  padding: 1.25rem;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.9rem;
+}
+
+.card {
+  background: var(--card-background);
+  border: 3px solid var(--card-border);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0.6rem;
+  box-sizing: border-box;
+  aspect-ratio: 1.55 / 1;
+}
+
+.clickableCard{
+  cursor: pointer;
+}
+
+.clickableCard:hover{
+  border-color:white;
+}
+
+.cardWord {
+  color: var(--card-text);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cardCivilian {
+  background: var(--civilian);
+  cursor: default;
+}
+
+.cardBlueAgent {
+  background: var(--blue-agent);
+  cursor: default;
+}
+
+.cardRedAgent {
+  background: var(--red-agent);
+  cursor: default;
+}
+
+.cardAssassin {
+  background: var(--assassin);
+  cursor: default;
+}
