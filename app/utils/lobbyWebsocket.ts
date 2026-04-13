@@ -1,5 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { getApiDomain } from "./domain";
 
 export interface LobbyEvent {
   type:
@@ -21,7 +22,7 @@ export function createLobbySocket(
 ) {
   const client = new Client({
     webSocketFactory: () =>
-      new SockJS(`${process.env.NEXT_PUBLIC_API_URL}/ws`),
+      new SockJS(`${getApiDomain()}/ws`),
     reconnectDelay: 5000,
   });
 
