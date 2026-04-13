@@ -62,10 +62,10 @@
   height: 42px;
   position: relative;
   overflow: hidden;
-  background: var(--board-background);
+  background: var(--card-background);
   border: 4px solid var(--board-border);
   box-sizing: border-box;
-  color: black;
+  color: var(--board-border);
   font-size: 1.35rem;
   font-weight: 500;
   cursor: pointer;
