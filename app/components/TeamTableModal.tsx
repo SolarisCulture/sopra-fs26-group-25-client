@@ -1,15 +1,16 @@
-import { Button, Modal } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import { User } from "@/types/user";
 
 interface ScriptProps {
   players: User[];
   isHost: boolean;
   onAssign: (playerId: string, team: "red" | "blue" | null) => void;
+  onMakeSpymaster: (playerId: string) => void;
   assignTarget: User | null;
   setAssignTarget: (user: User | null) => void;
 }
 
-export default function TeamTable({ players, isHost, onAssign, assignTarget, setAssignTarget }: ScriptProps) {
+export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, assignTarget, setAssignTarget }: ScriptProps) {
   const bluePlayers = players.filter(p => p.team == "blue");
   const redPlayers = players.filter(p => p.team == "red");
 
@@ -28,7 +29,25 @@ export default function TeamTable({ players, isHost, onAssign, assignTarget, set
         {/*loop over all blue players and create row for them*/}
         {bluePlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
-            <span style={{color: "#fff"}}>{p.username}</span>
+            <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
+              {p.role == "spymaster" ? (
+                <span style={{fontSize: 16}}>🕵️</span>
+              ) : isHost ? (
+                <Tooltip title="Click to make spymaster" color="#1B9FD8">
+                  <span
+                    style={{fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s"}}
+                    onClick={() => p.id && onMakeSpymaster(p.id)}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                  >
+                    🕵️
+                  </span>
+                </Tooltip>
+              ) : (
+                <span style={{fontSize: 16, opacity: 0.3}}>🕵️</span>
+              )}
+              {p.username}
+            </span>
             {isHost && (
               <Button
                 size="small"
@@ -49,7 +68,25 @@ export default function TeamTable({ players, isHost, onAssign, assignTarget, set
         {/*loop over all red players and create row for them*/}
         {redPlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
-            <span style={{color: "#fff"}}>{p.username}</span>
+            <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
+              {p.role == "spymaster" ? (
+                <span style={{fontSize: 16}}>🕵️</span>
+              ) : isHost ? (
+                <Tooltip title="Click to make spymaster" color="#E8401C">
+                  <span
+                    style={{fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s"}}
+                    onClick={() => p.id && onMakeSpymaster(p.id)}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                  >
+                    🕵️
+                  </span>
+                </Tooltip>
+              ) : (
+                <span style={{fontSize: 16, opacity: 0.3}}>🕵️</span>
+              )}
+              {p.username}
+            </span>
             {isHost && (
               <Button
                 size="small"
