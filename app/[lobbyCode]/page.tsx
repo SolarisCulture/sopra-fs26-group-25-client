@@ -15,7 +15,7 @@ import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
 import UsernameModal from "../components/UsernameModal";
 import SettingsModal from "../components/SettingsModal";
-import TeamTable from "@/components/TeamTable";
+import TeamTableModal from "@/components/TeamTableModal";
 
 export default function LobbyPage() {
   const apiService = useApi();
@@ -63,11 +63,21 @@ export default function LobbyPage() {
           <span style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
             <span style={{display: "flex", alignItems: "center", gap: 4}}>
               <span style={{width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2}}>
-                {player.isHost ? "👑" : ""}
+                {player.isHost ? "👑" : isHost && player.id !== String(userID) ? (
+                  <span
+                    title="Make Host"
+                    style={{cursor: "pointer", fontSize: "16px", opacity: 0.5, transition: "opacity 0.2s"}}
+                    onClick={() => handleTransferHost(player)}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                  >
+                    👑
+                  </span>
+                ) : ""}
               </span>
               {username}
             </span>
-            {/* only allow host to assign players to teams*/}
+            {/* only allow host to assign players to teams and transfer host role*/}
             {isHost && !player.team && (
               <Button
                 size="small"
@@ -150,7 +160,6 @@ export default function LobbyPage() {
 
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
-    setIsHost(true);
     setLink(`${window.location.origin}/${lobbyCode}`);
     
     // has this browser already joined this lobby?
@@ -170,6 +179,21 @@ export default function LobbyPage() {
 
     if (username.length < 1 || username.length > 50) {
       setUsernameError("Username must be between 1 and 50 characters.");
+      return;
+    }
+
+    if (String(lobbyCode) == "new") {
+      setJoiningLobby(true);
+      try {
+        const lobby = await apiService.post<Lobby>("/api/lobbies", { hostUsername: username });
+        localStorage.setItem("hostedLobby", lobby.lobbyCode);
+        localStorage.setItem(`playerId_${lobby.lobbyCode}`, String(lobby.hostId));
+        router.push(`/${lobby.lobbyCode}`);
+      } catch {
+        setUsernameError("Failed to create lobby. Please try again.");
+      } finally {
+        setJoiningLobby(false);
+      }
       return;
     }
 
@@ -217,21 +241,25 @@ export default function LobbyPage() {
     })();
   };
 
+  // handle transfer host
+  const handleTransferHost = async (newHost: User) => {
+    if (userID == null) return;
+    try {
+      await apiService.put(`/api/lobbies/${lobbyCode}/host/transfer`, {
+        currentHostId: userID,
+        newHostId: newHost.id,
+      });
+      message.success(`${newHost.username} is now the host.`);
+    } catch {
+      message.error("Failed to transfer host!");
+    }
+  };
+
   // leave lobby
   const handleLeave = async () => {
     if (userID == null) return;
     try {
       await apiService.delete(`/lobbies/${lobbyCode}/players/${userID}`);
-      if (isHost && players.length > 1) {
-        const nextHost = players.find(p => p.id != String(userID));
-        if (nextHost) {
-          await apiService.put(`/api/lobbies/${lobbyCode}/host/transfer`, {
-            currentHostId: userID,
-            newHostId: nextHost.id,
-          });
-        }
-      }
-
       localStorage.removeItem(`playerId_${lobbyCode}`);
       localStorage.removeItem(`isHost_${lobbyCode}`);
       router.push("/");
@@ -315,7 +343,7 @@ export default function LobbyPage() {
           InputNumber: {colorText: "#000", colorBgContainer: "#fff"},
           Modal: {colorText: "#000", colorBgContainer: "#fff"},
           Checkbox: {colorText: "#000", colorBgContainer: "#fff"},
-          Table: {colorText: "#fff", colorBgContainer: "rgba(255, 255, 255, 0.2)"}
+          Table: {colorText: "#fff", colorBgContainer: "rgba(250, 250, 250, 0.25)"}
         },
       }}>
 
@@ -377,7 +405,7 @@ export default function LobbyPage() {
         </div>
 
         {/*TEAM TABLE*/}
-        <TeamTable
+        <TeamTableModal
           players={players}
           isHost={isHost}
           onAssign={handleAssignTeam}
