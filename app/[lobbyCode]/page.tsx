@@ -31,6 +31,7 @@ export default function LobbyPage() {
   // player list
   const [players, setPlayers] = useState<User[]>([]);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
+  const allAssigned = players.length > 0 && players.every(p => p.team !== null);
 
   // username pop-up
   const [showUsernamePopUp, setShowUsernamePopUp] = useState(false);
@@ -96,7 +97,7 @@ export default function LobbyPage() {
   // fetch players as a helper function
   const fetchPlayers = async () => {
     try {
-      const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
+      const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
       setPlayers(data);
     } catch (error) {
       message.error("Failed to fetch players!");
@@ -106,7 +107,7 @@ export default function LobbyPage() {
   // fetch lobby as a helper function
   const fetchLobby = async () => {
     try {
-      const lobbyData = await apiService.get<Lobby>(`/lobbies/${lobbyCode}`);
+      const lobbyData = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
       setLobby(lobbyData);
 
       if (lobbyData.lobbyStatus === "IN_PROGRESS") {
@@ -402,6 +403,26 @@ export default function LobbyPage() {
               style={{borderRadius: "8px", overflow: "hidden"}}
             />
           )}
+        </div>
+
+        {/*START GAME*/}
+        <div style={{position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)"}}>
+        <Button
+          type="primary"
+          style={{
+            width: "200px",
+            height: "50px",
+            fontSize: "18px",
+            fontWeight: "600",
+            background: "#7B2D8B",
+            borderColor: "#7B2D8B",
+            opacity: allAssigned ? 1 : 0.4,
+          }}
+          disabled={!allAssigned}
+          onClick={() => router.push(`/${lobbyCode}/game`)}
+        >
+          Start Game
+        </Button>
         </div>
 
         {/*TEAM TABLE*/}
