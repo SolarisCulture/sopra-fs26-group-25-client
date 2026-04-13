@@ -4,9 +4,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "@/styles/page.module.css";
 import { Button, ConfigProvider, message, Modal, Table, TableProps } from "antd";
-import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
+import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
+
+// websocket
+import { createLobbySocket, LobbyEvent } from "@/utils/lobbyWebsocket";
 
 import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
@@ -23,6 +26,7 @@ export default function LobbyPage() {
   const [link, setLink] = useState("");
   const [isHost, setIsHost] = useState(false);
   const [userID, setUserID] = useState<number | null>(null);
+  const [lobby, setLobby] = useState<Lobby | null>(null);
 
   // player list
   const [players, setPlayers] = useState<User[]>([]);
@@ -79,22 +83,70 @@ export default function LobbyPage() {
     },
   ];
 
-  // on page load fetch players
-  useEffect(() => {
-    if (userID == null) return;
-    const fetchPlayers = async () => {
-      try {
-        const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
-        setPlayers(data);
-      } catch {
-        message.error("Failed to fetch players!");
-      }
-    };
+  // fetch players as a helper function
+  const fetchPlayers = async () => {
+    try {
+      const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
+      setPlayers(data);
+    } catch (error) {
+      message.error("Failed to fetch players!");
+    }
+  };
 
+  // fetch lobby as a helper function
+  const fetchLobby = async () => {
+    try {
+      const lobbyData = await apiService.get<Lobby>(`/lobbies/${lobbyCode}`);
+      setLobby(lobbyData);
+
+      if (lobbyData.lobbyStatus === "IN_PROGRESS") {
+        router.push(`/game/${lobbyCode}`);
+      }
+    } catch (error) {
+      message.error("Failed to fetch lobby data!");
+    }
+  };
+
+
+  // fetch player and lobby on startupt
+  useEffect(() => {
     fetchPlayers();
-    const interval = setInterval(fetchPlayers, 3000);
-    return () => clearInterval(interval);
-  }, [apiService, lobbyCode, userID]);
+    fetchLobby();
+  }, [apiService, lobbyCode]);
+
+
+  // websocket
+  useEffect(() => {
+    if(!lobbyCode) return;
+    const socket = createLobbySocket(String(lobbyCode), async (event: LobbyEvent) => {
+    console.log("Lobby event received:", event);
+    
+    switch (event.type) {
+      case "PLAYER_JOINED": {await fetchPlayers(); break;}
+      case "PLAYER_LEFT": {await fetchPlayers(); break;}
+      case "HOST_CHANGED": {await fetchPlayers(); await fetchLobby(); break;}
+      case "TEAM_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
+      case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
+      case "STATUS_UPDATED": {
+        const updatedLobby = event.data as Lobby; //STATUS_UPDATED event not defined
+        setLobby(updatedLobby);
+
+        if (updatedLobby.lobbyStatus === "IN_PROGRESS") {
+          router.push(`/${lobbyCode}/game`);
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+  });
+
+  socket.connect();
+    return () => {
+      socket.disconnect();
+    }
+  }, [lobbyCode, router]);
 
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
@@ -133,12 +185,12 @@ export default function LobbyPage() {
 
     try {
       const newPlayerID = await apiService.post<number>(`/api/lobbies/${lobbyCode}/join`, username);
-      localStorage.setItem(`playerID_${lobbyCode}`, String(newPlayerID));
+      localStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
       const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
       
       if (createdThisLobby) {
         localStorage.setItem(`isHost_${lobbyCode}`, "true");
-        localStorage.removeItem("hostedLobby") // not needed anymore
+        localStorage.removeItem("hostedLobby"); // not needed anymore
         setIsHost(true);
       }
 

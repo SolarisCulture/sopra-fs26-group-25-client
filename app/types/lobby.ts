@@ -1,6 +1,7 @@
 export interface Lobby {
   lobbyCode: string;
   hostId: number;
+  lobbyStatus: "WAITING" | "IN_PROGRESS" | "FINISHED";
 }
 
 export interface LobbySettings {

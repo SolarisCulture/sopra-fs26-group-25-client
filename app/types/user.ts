@@ -4,4 +4,5 @@ export interface User {
   token: string | null;
   isHost?: boolean;
   team?: "red" | "blue" | null;
+  role: "spy" | "spymaster" | null;
 }
