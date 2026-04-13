@@ -14,6 +14,11 @@ export default function GamePage() {
   const {lobbyCode} = useParams();
   const socketRef = useRef<ReturnType<typeof createGameSocket> | null>(null);
 
+
+  const [currentPlayer, setCurrentPlayer] = useState<User | null>(null);
+  const [endHoverProgress, setEndHoverProgress] = useState(0);
+  const [endReady, setEndReady] = useState(false);
+  const endHoverRef = useRef<number | null>(null);
   const [players, setPlayers] = useState<User[]>([]);
   const [role, setRole] = useState<User["role"] | null>(null);
   const [board, setBoard] = useState<WordCard[]>([]);
@@ -76,6 +81,7 @@ export default function GamePage() {
     }
 
     setRole(currentPlayer.role);
+    setCurrentPlayer(currentPlayer);
     setLoadingRole(false);
   }, [players, lobbyCode]);
 
@@ -89,7 +95,7 @@ export default function GamePage() {
 
       switch(event.type){
         case "Clue": break;
-        case "Guess": {fetchBoard; break;}
+        case "Guess": {fetchBoard(); break;}
         default: break;
       }
     });
@@ -136,10 +142,6 @@ export default function GamePage() {
     setBoard(cards);
   }, []);
 
-  const handleToggleTurn = () => {
-    setCurrentTurn((prev) => (prev === "red" ? "blue" : "red"));
-  };
-
   const getCardClass = (card: WordCard) => {
     if (!card.revealed) return `${styles.card} ${styles.clickableCard}`;
 
@@ -185,18 +187,46 @@ export default function GamePage() {
     }
   };
 
+  const handlePause = () => {
+    console.log("Pause!")
+  }
+
+  const handleEnd = () => {
+    console.log("End!");
+  };
+
 
   return (
     <div className={`${styles.page} ${teamClass}`}>
-      <div className={styles.board}>
-        {board.map((card, index) => (
-          <div key={index} className={getCardClass(card)} onClick={() => handleCardClick(card, index)}>
-            <span className={styles.cardWord}>{card.word}</span>
-          </div>
-        ))}
-      </div>
+      <div className={styles.boardArea}>
+        {(currentPlayer?.isHost || true) && (
+        <div className={styles.topButtonsRow}>
+          <div className={styles.topButtons}>
+            <button className={styles.topActionButton} onClick={handlePause}>
+              {"\u23F8"}
+            </button>
 
-      <button onClick={handleToggleTurn}>Change Turn (Temporary Button to show feature)</button>
+            <button
+              className={styles.topActionButton}
+              onClick={handleEnd}
+            >
+              <span className={styles.buttonLabel}>End</span>
+            </button>
+          </div>
+        </div>
+        )}
+        <div className={styles.board}>
+          {board.map((card, index) => (
+            <div
+              key={index}
+              className={getCardClass(card)}
+              onClick={() => handleCardClick(card, index)}
+            >
+              <span className={styles.cardWord}>{card.word}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
