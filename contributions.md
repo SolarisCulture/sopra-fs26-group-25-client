@@ -74,7 +74,8 @@ reason).
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@SolarisCulture]** | [03.04.2026]   | - | [Set Up Docker] | [Be able to run project on any machine] |
-
+|                    | [04.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/234/changes/0494b65637a10e6c809b3021e245f611e05bab7f] | [Create Turn entity with fields: currentTeamColor, phase, guessesRemaining, startTime, clue, guesses] | [Created the Turn entity which is the core of the game loop. Each turn tracks which team is playing, what phase the turn is in (spymaster giving clue vs spies guessing), the clue given, and all guesses made.] |
+|                    | [05.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/234/changes/fb38ca0f4b84eb3d97268c1054fed38cb59278b8] | [Implemented turn management service and enriched the game state response so the frontend has all the information needed to display the game — teams, roles, turn phase, clue and real-time updates via WebSocket.] | [This connects the game entities to actual player actions, turning a static board into a playable game where spymasters can submit clues and all players receive live updates.] |
 ---
 
 ## Contributions Week 3 - [Begin Date] to [End Date]
