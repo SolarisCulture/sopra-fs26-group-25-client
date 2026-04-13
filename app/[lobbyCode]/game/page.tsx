@@ -16,9 +16,6 @@ export default function GamePage() {
 
 
   const [currentPlayer, setCurrentPlayer] = useState<User | null>(null);
-  const [endHoverProgress, setEndHoverProgress] = useState(0);
-  const [endReady, setEndReady] = useState(false);
-  const endHoverRef = useRef<number | null>(null);
   const [players, setPlayers] = useState<User[]>([]);
   const [role, setRole] = useState<User["role"] | null>(null);
   const [board, setBoard] = useState<WordCard[]>([]);
