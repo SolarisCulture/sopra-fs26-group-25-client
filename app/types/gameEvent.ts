@@ -2,7 +2,6 @@ import { User } from "@/types/user";
 import { WordCard } from "./wordCard";
 
 export interface GameEventBase {
-  type: "Clue" | "Guess";
   timeStamp: string;
   player: User;
   description: string;
@@ -25,4 +24,20 @@ export interface GuessEvent extends GameEventBase, Guess {
   type: "Guess";
 }
 
-export type GameEvent = ClueEvent | GuessEvent;
+export interface ClueReportedEvent extends GameEventBase, Clue {
+  type: "ClueReported";
+}
+
+export interface ClueRulingEvent extends GameEventBase {
+  type: "ClueApproved" | "ClueRuledInvalid";
+}
+
+export interface TurnChangedEvent {
+    type: "TurnChanged";
+    timeStamp: string;
+    player: User;
+    description: string;
+    team: "red" | "blue";
+}
+
+export type GameEvent = ClueEvent | GuessEvent | ClueReportedEvent | ClueRulingEvent | TurnChangedEvent;

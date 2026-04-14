@@ -20,7 +20,7 @@ import TeamTable from "@/components/TeamTable";
 export default function LobbyPage() {
   const apiService = useApi();
   const router = useRouter();
-  const {lobbyCode} = useParams();
+  const { lobbyCode } = useParams();
 
   // lobby info
   const [link, setLink] = useState("");
@@ -54,15 +54,15 @@ export default function LobbyPage() {
   // player table
   const playerColumns: TableProps<User>["columns"] = [
     {
-      title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
+      title: <span style={{ color: "#fff", fontSize: "22px" }}>Players</span>,
       dataIndex: "username",
       key: "username",
 
       render: (username: string, player: User) => {
         return (
-          <span style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-            <span style={{display: "flex", alignItems: "center", gap: 4}}>
-              <span style={{width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2}}>
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
                 {player.isHost ? "👑" : ""}
               </span>
               {username}
@@ -86,7 +86,7 @@ export default function LobbyPage() {
   // fetch players as a helper function
   const fetchPlayers = async () => {
     try {
-      const data = await apiService.get<User[]>(`/lobbies/${lobbyCode}/players`);
+      const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
       setPlayers(data);
     } catch (error) {
       message.error("Failed to fetch players!");
@@ -117,27 +117,27 @@ export default function LobbyPage() {
 
   // websocket
   useEffect(() => {
-    if(!lobbyCode) return;
+    if (!lobbyCode) return;
     const socket = createLobbySocket(String(lobbyCode), async (event: LobbyEvent) => {
-    console.log("Lobby event received:", event);
-    
-    switch (event.type) {
-      case "PLAYER_JOINED":
-      case "PLAYER_LEFT": {await fetchPlayers(); break;}
-      case "HOST_CHANGED": 
-      case "TEAM_UPDATED": 
-      case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
-      case "STATUS_UPDATED": {
-        await fetchLobby();
-        break;
+      console.log("Lobby event received:", event);
+
+      switch (event.type) {
+        case "PLAYER_JOINED":
+        case "PLAYER_LEFT": { await fetchPlayers(); break; }
+        case "HOST_CHANGED":
+        case "TEAM_UPDATED":
+        case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break; }
+        case "STATUS_UPDATED": {
+          await fetchLobby();
+          break;
+        }
+
+        default:
+          break;
       }
+    });
 
-      default:
-        break;
-    }
-  });
-
-  socket.connect();
+    socket.connect();
     return () => {
       socket.disconnect();
     }
@@ -147,11 +147,11 @@ export default function LobbyPage() {
   useEffect(() => {
     setIsHost(true);
     setLink(`${window.location.origin}/${lobbyCode}`);
-    
+
     // has this browser already joined this lobby?
     const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
 
-    if (savedId){
+    if (savedId) {
       setUserID(Number(savedId));
       setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
     } else {
@@ -182,7 +182,7 @@ export default function LobbyPage() {
       const newPlayerID = await apiService.post<number>(`/api/lobbies/${lobbyCode}/join`, username);
       localStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
       const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
-      
+
       if (createdThisLobby) {
         localStorage.setItem(`isHost_${lobbyCode}`, "true");
         localStorage.removeItem("hostedLobby"); // not needed anymore
@@ -285,7 +285,7 @@ export default function LobbyPage() {
   ) => {
     if (val == null) return;
     if (val < 10) {
-      message.warning(`${label} cannot be less than 10 seconds.`); 
+      message.warning(`${label} cannot be less than 10 seconds.`);
       return;
     }
     if (val > 3600) {
@@ -305,12 +305,12 @@ export default function LobbyPage() {
     <ConfigProvider
       theme={{
         components: {
-          Select: {colorText: "#000", colorBgContainer: "#fff"},
-          Input: {colorText: "#000", colorBgContainer: "#fff"},
-          InputNumber: {colorText: "#000", colorBgContainer: "#fff"},
-          Modal: {colorText: "#000", colorBgContainer: "#fff"},
-          Checkbox: {colorText: "#000", colorBgContainer: "#fff"},
-          Table: {colorText: "#fff", colorBgContainer: "rgba(255, 255, 255, 0.2)"}
+          Select: { colorText: "#000", colorBgContainer: "#fff" },
+          Input: { colorText: "#000", colorBgContainer: "#fff" },
+          InputNumber: { colorText: "#000", colorBgContainer: "#fff" },
+          Modal: { colorText: "#000", colorBgContainer: "#fff" },
+          Checkbox: { colorText: "#000", colorBgContainer: "#fff" },
+          Table: { colorText: "#fff", colorBgContainer: "rgba(255, 255, 255, 0.2)" }
         },
       }}>
 
@@ -318,7 +318,7 @@ export default function LobbyPage() {
 
         {/*INPUT USERNAME POP-UP*/}
         <Modal
-          title={<div style={{color: "#000", textAlign: "center"}}>Enter Username</div>}
+          title={<div style={{ color: "#000", textAlign: "center" }}>Enter Username</div>}
           open={showUsernamePopUp}
           closable={false}
           maskClosable={false}
@@ -335,13 +335,13 @@ export default function LobbyPage() {
         </Modal>
 
         <div>
-          <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
+          <h1 style={{ marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff" }}>Lobby</h1>
         </div>
 
 
         {/*LINK & CODE*/}
-        <div style={{position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-          <span style={{fontWeight: 600, color: "#fff"}}>{link}</span>
+        <div style={{ position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px" }}>
+          <span style={{ fontWeight: 600, color: "#fff" }}>{link}</span>
           <Button
             type="primary"
             onClick={() => {
@@ -353,20 +353,20 @@ export default function LobbyPage() {
           </Button>
         </div>
 
-        <div style={{position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-          <span style={{fontWeight: 600, color: "#fff"}}>Lobby Code: {lobbyCode}</span>
+        <div style={{ position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px" }}>
+          <span style={{ fontWeight: 600, color: "#fff" }}>Lobby Code: {lobbyCode}</span>
         </div>
 
 
         {/*PLAYER TABLE*/}
-        <div style={{position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px"}}>
+        <div style={{ position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px" }}>
           {players && (
             <Table<User>
               columns={playerColumns}
               dataSource={players}
               rowKey="id"
               pagination={false}
-              style={{borderRadius: "8px", overflow: "hidden"}}
+              style={{ borderRadius: "8px", overflow: "hidden" }}
             />
           )}
         </div>
@@ -382,10 +382,10 @@ export default function LobbyPage() {
 
 
         {/*HOW TO PLAY*/}
-        <div style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center"}}>
+        <div style={{ position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center" }}>
           <Button
             type="primary"
-            style={{width: "125px"}}
+            style={{ width: "125px" }}
             onClick={() => setHowToPlayOpen(true)}>
             How To Play
           </Button>
@@ -396,10 +396,10 @@ export default function LobbyPage() {
         />
 
         {/*LEAVE LOBBY*/}
-        <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
+        <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center" }}>
           <Button
             type="primary"
-            style={{width: "125px"}}
+            style={{ width: "125px" }}
             onClick={() => setLeaveOpen(true)}
           >
             Leave Lobby
@@ -415,7 +415,7 @@ export default function LobbyPage() {
         <Button
           type="primary"
           onClick={() => setSettingsOpen(true)}
-          style={{position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px"}}
+          style={{ position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px" }}
         >
           Settings
         </Button>

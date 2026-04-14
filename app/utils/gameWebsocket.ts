@@ -1,6 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent } from "@/types/gameEvent";
 
 export function createGameSocket(
   lobbyCode: string,
@@ -42,6 +42,33 @@ export function createGameSocket(
       })
     },
 
+    sendClue: (event: ClueEvent) => {
+      client.publish({
+        destination: `/app/${lobbyCode}/clue`,
+        body: JSON.stringify(event),
+      });
+    },
+
+    sendClueReport: (event: ClueReportedEvent) => {
+      client.publish({
+          destination: `/app/${lobbyCode}/clue-report`,
+          body: JSON.stringify(event),
+      });
+    },
+
+    sendClueRuling: (event: ClueRulingEvent) => {
+      client.publish({
+          destination: `/app/${lobbyCode}/clue-ruling`,
+          body: JSON.stringify(event),
+      });
+    },
+
+  sendTurnChange: (event: TurnChangedEvent) => {
+      client.publish({
+          destination: `/app/${lobbyCode}/turn-change`,
+          body: JSON.stringify(event),
+      });
+  },
 
     disconnect: async () => {
       if (subscription !== null) {
