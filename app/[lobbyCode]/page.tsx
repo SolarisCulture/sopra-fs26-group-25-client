@@ -105,7 +105,6 @@ export default function LobbyPage() {
   const fetchPlayers = async () => {
     try {
       const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
-      const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
       setPlayers(data);
     } catch (error) {
       message.error("Failed to fetch players!");

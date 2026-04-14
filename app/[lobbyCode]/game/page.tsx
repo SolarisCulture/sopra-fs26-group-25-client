@@ -592,7 +592,7 @@ export default function GamePage() {
             >
                 <div style={{ padding: "12px 0 8px", color: "#000" }}>
                     <p style={{ fontSize: 15, marginBottom: 20 }}>
-                        Are you sure you want to report the clue <strong>"{currentClue?.word}"</strong>?
+                        Are you sure you want to report the clue <strong>&quot;{currentClue?.word}&quot;</strong>?
                         <br />
                         The opposing spymaster will be asked to rule on its validity.
                     </p>
@@ -643,7 +643,7 @@ export default function GamePage() {
                                     marginBottom: 20,
                                     textAlign: "center"
                                 }}>
-                                <span style={{ fontSize: 22, fontWeight: 700 }}>"{currentClue?.word}"</span>
+                                <span style={{ fontSize: 22, fontWeight: 700 }}>&quot;{currentClue?.word}&quot;</span>
                                 <span style={{ fontSize: 16, marginLeft: 8, color: "#555" }}>({currentClue?.count})</span>
                             </div>
                             <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
@@ -694,7 +694,7 @@ export default function GamePage() {
             >
                 <div style={{ padding: "12px 0 8px", color: "#000" }}>
                     <p style={{ fontSize: 15, marginBottom: 20 }}>
-                        Reveal <strong>"{penaltyCardPicked?.word}"</strong> as your free card? This cannot be undone.
+                        Reveal <strong>&quot;{penaltyCardPicked?.word}&quot;</strong> as your free card? This cannot be undone.
                     </p>
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
                         <Button
@@ -716,10 +716,6 @@ export default function GamePage() {
                     </div>
                 </div>
             </Modal>
-            <HowToPlayModal
-                open={howToPlayOpen}
-                onClose={() => setHowToPlayOpen(false)}
-            />
         </ConfigProvider>
     );
 }
