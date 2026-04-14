@@ -12,27 +12,22 @@ export default function Home() {
   const apiService = useApi();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // need this because we need username before creating lobby
   const handleCreateLobby = async () => {
-    try {
-      const lobby = await apiService.post<Lobby>("/api/lobbies", {});
-      localStorage.setItem("hostedLobby", lobby.lobbyCode); // needed to identify the host
-      router.push(`/${lobby.lobbyCode}`);
-    } catch {
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+    router.push('/new');
   };
 
   const handleJoin = async (values: {code: string}) => {
     setErrorMessage(null);
     const code = values.code.trim();
     try{
-      await apiService.get<Lobby>(`/api/lobby/${code}`);
+      await apiService.get<Lobby>(`/api/lobbies/${code}`);
       router.push(`/${code}`)
     }
     catch (error) {
       console.log(error);
       const appError = error as ApplicationError;
-      if (appError.status === 404) {
+      if (appError.status == 404) {
         setErrorMessage("Lobby code not found.");
       } else {
         setErrorMessage("Something went wrong. Please try again.");
