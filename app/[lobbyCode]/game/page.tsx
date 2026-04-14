@@ -58,7 +58,7 @@ export default function GamePage() {
     // fetch players as a helper function
     const fetchPlayers = async () => {
         try {
-            const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
+            const players = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
             setPlayers(data);
         } catch (error) {
             console.error("Failed to fetch players!");
@@ -67,7 +67,7 @@ export default function GamePage() {
 
     const fetchBoard = async () => {
         try {
-            const data = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE" }>(
+            const boardData = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE" }>(
                 `/api/games/${lobbyCode}/board?role=${role === "spymaster" ? "SPYMASTER" : "SPY"}`
             );
             setBoard(data.cards);
