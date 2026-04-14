@@ -21,7 +21,7 @@ export default function LobbyPage() {
   const { message } = App.useApp();
   const apiService = useApi();
   const router = useRouter();
-  const {lobbyCode} = useParams();
+  const { lobbyCode } = useParams();
 
   // lobby info
   const [link, setLink] = useState("");
@@ -60,7 +60,7 @@ export default function LobbyPage() {
   // player table
   const playerColumns: TableProps<User>["columns"] = [
     {
-      title: <span style={{color: "#fff", fontSize: "22px"}}>Players</span>,
+      title: <span style={{ color: "#fff", fontSize: "22px" }}>Players</span>,
       dataIndex: "username",
       key: "username",
 
@@ -137,26 +137,27 @@ export default function LobbyPage() {
   // websocket
   useEffect(() => {
     if(!lobbyCode || !userID) return;
+    if (!lobbyCode) return;
     const socket = createLobbySocket(String(lobbyCode), async (event: LobbyEvent) => {
-    console.log("Lobby event received:", event);
-    
-    switch (event.type) {
-      case "PLAYER_JOINED":
-      case "PLAYER_LEFT": {await fetchPlayers(); break;}
-      case "HOST_CHANGED": 
-      case "TEAM_UPDATED": 
-      case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break;}
-      case "STATUS_UPDATED": {
-        await fetchLobby();
-        break;
+      console.log("Lobby event received:", event);
+
+      switch (event.type) {
+        case "PLAYER_JOINED":
+        case "PLAYER_LEFT": { await fetchPlayers(); break; }
+        case "HOST_CHANGED":
+        case "TEAM_UPDATED":
+        case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break; }
+        case "STATUS_UPDATED": {
+          await fetchLobby();
+          break;
+        }
+
+        default:
+          break;
       }
+    });
 
-      default:
-        break;
-    }
-  });
-
-  socket.connect();
+    socket.connect();
     return () => {
       socket.disconnect();
     }
@@ -165,11 +166,11 @@ export default function LobbyPage() {
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
     setLink(`${window.location.origin}/${lobbyCode}`);
-    
+
     // has this browser already joined this lobby?
     const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
 
-    if (savedId){
+    if (savedId) {
       setUserID(Number(savedId));
       setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
     } else {
@@ -215,7 +216,7 @@ export default function LobbyPage() {
       const newPlayerID = await apiService.post<number>(`/api/lobbies/${lobbyCode}/join`, username);
       localStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
       const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
-      
+
       if (createdThisLobby) {
         localStorage.setItem(`isHost_${lobbyCode}`, "true");
         localStorage.removeItem("hostedLobby"); // not needed anymore
@@ -347,7 +348,7 @@ export default function LobbyPage() {
   ) => {
     if (val == null) return;
     if (val < 10) {
-      message.warning(`${label} cannot be less than 10 seconds.`); 
+      message.warning(`${label} cannot be less than 10 seconds.`);
       return;
     }
     if (val > 3600) {
