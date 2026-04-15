@@ -5,16 +5,17 @@ import { useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent } from "@/types/gameEvent";
+import { GuessEvent, ClueEvent } from "@/types/gameEvent";
 import { createGameSocket } from "@/utils/gameWebsocket";
 import styles from "@/styles/game.module.css";
-import { Input, InputNumber, Button, message, ConfigProvider, Modal } from "antd";
+import { Button, message, ConfigProvider } from "antd";
 import HowToPlayModal from "@/components/HowToPlayModal";
 import ClueHistory from "@/components/ClueHistory";
 import ClueInput from "@/components/ClueInputs";
 import ReportConfirmationModal from "@/components/ReportConfirmationModal";
 import ClueReviewModal from "@/components/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
+import PlayerList from "@/components/PlayerTable";
 
 export default function GamePage() {
     const apiService = useApi();
@@ -157,54 +158,48 @@ export default function GamePage() {
 
 
     // mock board
-    // useEffect(() => {
-    //     const cards: WordCard[] = [
-    //         { word: "Apple", cardType: "CIVILIAN", revealed: false },
-    //         { word: "River", cardType: "AGENTBLUE", revealed: true },
-    //         { word: "Castle", cardType: "AGENTRED", revealed: false },
-    //         { word: "Moon", cardType: "ASSASSIN", revealed: true },
-    //         { word: "Tiger", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Glass", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Train", cardType: "AGENTRED", revealed: true },
-    //         { word: "Cloud", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Chair", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Book", cardType: "AGENTRED", revealed: false },
-    //         { word: "Bridge", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Whale", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Snow", cardType: "AGENTRED", revealed: false },
-    //         { word: "Clock", cardType: "CIVILIAN", revealed: true },
-    //         { word: "Piano", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Bread", cardType: "AGENTRED", revealed: false },
-    //         { word: "Forest", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Bottle", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Star", cardType: "AGENTRED", revealed: false },
-    //         { word: "Window", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Rocket", cardType: "AGENTBLUE", revealed: true },
-    //         { word: "Lamp", cardType: "AGENTRED", revealed: false },
-    //         { word: "Beach", cardType: "CIVILIAN", revealed: false },
-    //         { word: "Ring", cardType: "AGENTBLUE", revealed: false },
-    //         { word: "Tower", cardType: "AGENTRED", revealed: false },
-    //     ];
-    //     setBoard(cards);
-    //     const MOCK_ID = "mock-player-1";
-    //     localStorage.setItem(`playerId_${lobbyCode}`, MOCK_ID);
-    //     setPlayers([
-    //         {
-    //             id: "mock-player-1", username: "Alice", team: "red", role: "spymaster",
-    //             token: null
-    //         },
-    //         {
-    //             id: "mock-player-2", username: "Bob", team: "blue", role: "spymaster",
-    //             token: null
-    //         },
-    //     ]);
-    // }, []);
-
-    const handleToggleTurn = () => {
-        setCurrentTurn((prev) => (prev === "red" ? "blue" : "red"));
-        setCluePublished(false);
-        setCurrentClue(null);
-    };
+    useEffect(() => {
+        const cards: WordCard[] = [
+            { word: "Apple", cardType: "CIVILIAN", revealed: false },
+            { word: "River", cardType: "AGENTBLUE", revealed: true },
+            { word: "Castle", cardType: "AGENTRED", revealed: false },
+            { word: "Moon", cardType: "ASSASSIN", revealed: true },
+            { word: "Tiger", cardType: "CIVILIAN", revealed: false },
+            { word: "Glass", cardType: "AGENTBLUE", revealed: false },
+            { word: "Train", cardType: "AGENTRED", revealed: true },
+            { word: "Cloud", cardType: "CIVILIAN", revealed: false },
+            { word: "Chair", cardType: "AGENTBLUE", revealed: false },
+            { word: "Book", cardType: "AGENTRED", revealed: false },
+            { word: "Bridge", cardType: "CIVILIAN", revealed: false },
+            { word: "Whale", cardType: "AGENTBLUE", revealed: false },
+            { word: "Snow", cardType: "AGENTRED", revealed: false },
+            { word: "Clock", cardType: "CIVILIAN", revealed: true },
+            { word: "Piano", cardType: "AGENTBLUE", revealed: false },
+            { word: "Bread", cardType: "AGENTRED", revealed: false },
+            { word: "Forest", cardType: "CIVILIAN", revealed: false },
+            { word: "Bottle", cardType: "AGENTBLUE", revealed: false },
+            { word: "Star", cardType: "AGENTRED", revealed: false },
+            { word: "Window", cardType: "CIVILIAN", revealed: false },
+            { word: "Rocket", cardType: "AGENTBLUE", revealed: true },
+            { word: "Lamp", cardType: "AGENTRED", revealed: false },
+            { word: "Beach", cardType: "CIVILIAN", revealed: false },
+            { word: "Ring", cardType: "AGENTBLUE", revealed: false },
+            { word: "Tower", cardType: "AGENTRED", revealed: false },
+        ];
+        setBoard(cards);
+        const MOCK_ID = "mock-player-1";
+        localStorage.setItem(`playerId_${lobbyCode}`, MOCK_ID);
+        setPlayers([
+            {
+                id: "mock-player-1", username: "Alice", team: "red", role: "spymaster",
+                token: null
+            },
+            {
+                id: "mock-player-2", username: "Bob", team: "blue", role: "spymaster",
+                token: null
+            },
+        ]);
+    }, []);
 
     // publish clue
     const handleSendClue = () => {
@@ -276,8 +271,8 @@ export default function GamePage() {
         }
     };
 
-    const handleCardClick = (card: WordCard, index: number) => {
-        if (card.revealed) return;
+    const handleCardClick = (card: WordCard) => {
+        if (card.revealed || !currentPlayer) return;
 
         if (penaltyPickMode) {
             handlePenaltyCardClick(card);
@@ -300,6 +295,7 @@ export default function GamePage() {
     };
 
     const teamClass = currentTurn === "red" ? styles.teamRed : styles.blueTeam;
+
 
 
     // report flow
@@ -384,6 +380,11 @@ export default function GamePage() {
                     Modal: { colorText: "#000", colorBgContainer: "#fff" },
                 },
             }}>
+                
+            <PlayerList
+                currentTurn={currentTurn}
+            />
+
             <div className={`${styles.page} ${teamClass}`}>
 
                 {/*CLUE HISTORY SIDEBAR*/}
@@ -395,7 +396,7 @@ export default function GamePage() {
                         <div
                             key={index}
                             className={getCardClass(card)}
-                            onClick={() => handleCardClick(card, index)}
+                            onClick={() => handleCardClick(card)}
                         >
                             <span className={styles.cardWord}>{card.word}</span>
                         </div>
@@ -415,8 +416,6 @@ export default function GamePage() {
                         remainingTeamCards={remainingTeamCards}
                     />
                 )}
-
-                <button onClick={handleToggleTurn}>Change Turn (Temporary Button to show feature)</button>
             </div>
 
             {/*REPORT CLUE BUTTON*/}

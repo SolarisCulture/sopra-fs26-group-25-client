@@ -9,7 +9,7 @@ interface Props {
     setPenaltyCardPicked: (val: WordCard | null) => void;
 }
 
-export default function PenaltyConfirmModal({ open, penaltyCardPicked, onConfirm, setPenaltyConfirmOpen,setPenaltyCardPicked }: Props) {
+export default function PenaltyConfirmModal({ open, penaltyCardPicked, onConfirm, setPenaltyConfirmOpen, setPenaltyCardPicked }: Props) {
     return (
         <Modal
             title={<div style={{ color: "#000", textAlign: "center", fontSize: 18, fontWeight: 700 }}>Confirm Free Reveal</div>}
