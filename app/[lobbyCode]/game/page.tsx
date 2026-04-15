@@ -10,6 +10,11 @@ import { createGameSocket } from "@/utils/gameWebsocket";
 import styles from "@/styles/game.module.css";
 import { Input, InputNumber, Button, message, ConfigProvider, Modal } from "antd";
 import HowToPlayModal from "@/components/HowToPlayModal";
+import ClueHistory from "@/components/ClueHistory";
+import ClueInput from "@/components/ClueInputs";
+import ReportConfirmationModal from "@/components/ReportConfirmationModal";
+import ClueReviewModal from "@/components/ReviewClueModal";
+import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
 
 export default function GamePage() {
     const apiService = useApi();
@@ -382,116 +387,7 @@ export default function GamePage() {
             <div className={`${styles.page} ${teamClass}`}>
 
                 {/*CLUE HISTORY SIDEBAR*/}
-                <div style={{
-                    position: "absolute",
-                    left: 20,
-                    top: 100,
-                    width: 320,
-                    maxHeight: "70vh",
-                    background: "rgba(255,255,255,0.2)",
-                    backdropFilter: "blur(12px)",
-                    borderRadius: 16,
-                    padding: 20,
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    color: "#fff",
-                    overflowY: "auto",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 16,
-                }}>
-                    <h3 style={{
-                        fontSize: 22,
-                        fontWeight: 700,
-                        margin: "0 0 5px 0",
-                        borderBottom: "1px solid rgba(255,255,255,0.2)",
-                        paddingBottom: 10
-                    }}>
-                        Clue History
-                    </h3>
-
-                    {clueHistory.length == 0 && (
-                        <span style={{
-                            opacity: 0.5,
-                            fontStyle: "italic",
-                            textAlign: "center",
-                            padding: "20px 0"
-                        }}>
-                            Waiting for clues...
-                        </span>
-                    )}
-
-                    {clueHistory.map((h, i) => {
-                        const isLatest = i == 0;
-                        const teamColor = h.team == "red" ? "#ff4d4f" : "#1890ff";
-
-                        return (
-                            <div key={i} style={{
-                                padding: isLatest ? "20px 14px 14px" : "12px 14px",
-                                borderRadius: 12,
-                                background: "rgba(0,0,0,0.25)",
-                                borderLeft: `4px solid ${teamColor}`,
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 4,
-                                position: "relative",
-                                marginTop: isLatest ? 5 : 0,
-                            }}>
-                                {isLatest && (
-                                    <span style={{
-                                        position: "absolute",
-                                        top: -10,
-                                        right: 10,
-                                        background: teamColor,
-                                        color: "#fff",
-                                        fontSize: 10,
-                                        padding: "2px 10px",
-                                        borderRadius: 10,
-                                        fontWeight: 800,
-                                        letterSpacing: "0.5px",
-                                    }}>
-                                        LATEST CLUE
-                                    </span>
-                                )}
-                                <div style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "flex-start",
-                                    gap: 10
-                                }}>
-                                    <span style={{
-                                        fontWeight: 800,
-                                        fontSize: isLatest ? 18 : 16,
-                                        color: "#fff",
-                                        flex: 1
-                                    }}>
-                                        {h.word}
-                                    </span>
-                                    <span style={{
-                                        background: "rgba(255,255,255,0.9)",
-                                        color: "#000",
-                                        padding: "2px 8px",
-                                        borderRadius: 6,
-                                        fontSize: 14,
-                                        fontWeight: 900,
-                                        minWidth: 28,
-                                        textAlign: "center",
-                                    }}>
-                                        {h.count}
-                                    </span>
-                                </div>
-                                <span style={{
-                                    fontSize: 10,
-                                    opacity: 0.6,
-                                    fontWeight: 700,
-                                    textTransform: "uppercase"
-                                }}>
-                                    Team {h.team}
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
+                <ClueHistory clueHistory={clueHistory} />
 
                 {/*BOARD*/}
                 <div className={styles.board}>
@@ -509,46 +405,15 @@ export default function GamePage() {
 
                 {/*CLUE INPUT --> comment out role == "spymaster" to see the spy view*/}
                 {role == "spymaster" && !penaltyPickMode && (
-                    <div style={{
-                        position: "absolute",
-                        bottom: 40,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        display: "flex",
-                        gap: 12,
-                        alignItems: "center",
-                        padding: "16px 20px",
-                        background: "rgba(255,255,255,0.2)",
-                        backdropFilter: "blur(8px)",
-                        borderRadius: 12,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                    }}>
-                        <Input
-                            placeholder="Clue word"
-                            value={clueWord}
-                            onChange={(e) => setClueWord(e.target.value)}
-                            onPressEnter={handleSendClue}
-                            disabled={cluePublished}
-                            style={{ width: 180, borderRadius: 8 }}
-                        />
-                        <InputNumber
-                            min={0}
-                            max={remainingTeamCards + 1}
-                            value={clueCount}
-                            onChange={(val) => setClueCount(val ?? 1)}
-                            formatter={(value) => Number(value) > remainingTeamCards ? "∞" : String(value)}
-                            parser={(value) => value == "∞" ? remainingTeamCards + 1 : parseInt(value || "1", 10)}
-                            disabled={cluePublished}
-                            style={{ width: 70, borderRadius: 8 }}
-                        />
-                        <Button
-                            type="primary"
-                            onClick={handleSendClue}
-                            style={{ height: 40, padding: "0 20px", borderRadius: 8, fontWeight: 600 }}
-                        >
-                            Publish Clue
-                        </Button>
-                    </div>
+                    <ClueInput
+                        clueWord={clueWord}
+                        setClueWord={setClueWord}
+                        clueCount={clueCount}
+                        setClueCount={setClueCount}
+                        onSend={handleSendClue}
+                        disabled={cluePublished}
+                        remainingTeamCards={remainingTeamCards}
+                    />
                 )}
 
                 <button onClick={handleToggleTurn}>Change Turn (Temporary Button to show feature)</button>
@@ -582,140 +447,31 @@ export default function GamePage() {
             />
 
             {/*REPORT CONFIRMATION*/}
-            <Modal
-                title={<div style={{ color: "#000", textAlign: "center", fontSize: 18, fontWeight: 700 }}>Report Clue</div>}
-                open={reportConfirmOpen}
+            <ReportConfirmationModal
+                reportConfirmOpen={reportConfirmOpen}
                 onCancel={() => setReportConfirmOpen(false)}
-                footer={null}
-                width={480}
-                centered
-            >
-                <div style={{ padding: "12px 0 8px", color: "#000" }}>
-                    <p style={{ fontSize: 15, marginBottom: 20 }}>
-                        Are you sure you want to report the clue <strong>&quot;{currentClue?.word}&quot;</strong>?
-                        <br />
-                        The opposing spymaster will be asked to rule on its validity.
-                    </p>
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-                        <Button
-                            onClick={() => setReportConfirmOpen(false)}
-                            style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            danger
-                            onClick={handleReportConfirm}
-                            style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                            Yes, Report
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+                onConfirm={handleReportConfirm}
+                currentClue={currentClue}
+            />
 
             {/*REVIEW CLUE (OPPOSING SPYMASTER)*/}
-            <Modal
-                title={
-                    <div style={{ color: "#000", textAlign: "center", fontSize: 18, fontWeight: 700 }}>
-                        {isOpposingSpymaster ? "Review Reported Clue" : "Clue Under Review"}
-                    </div>
-                }
-                open={clueReviewOpen}
-                closable={false}
-                maskClosable={false}
-                footer={null}
-                width={520}
-                centered
-            >
-                <div style={{ padding: "12px 0 8px", color: "#000" }}>
-                    {isOpposingSpymaster ? (
-                        <>
-                            <p style={{ fontSize: 15, marginBottom: 6 }}>
-                                A clue has been reported. As the opposing spymaster, you must decide:
-                            </p>
-                            <div
-                                style={{
-                                    background: "rgba(0,0,0,0.06)",
-                                    borderRadius: 8,
-                                    padding: "12px 16px",
-                                    marginBottom: 20,
-                                    textAlign: "center"
-                                }}>
-                                <span style={{ fontSize: 22, fontWeight: 700 }}>&quot;{currentClue?.word}&quot;</span>
-                                <span style={{ fontSize: 16, marginLeft: 8, color: "#555" }}>({currentClue?.count})</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
-                                <Button
-                                    type="primary"
-                                    onClick={handleClueApproved}
-                                    style={{ borderRadius: 8, fontWeight: 600, minWidth: 130 }}
-                                >
-                                    Clue is OK
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    danger onClick={handleClueRuledInvalid}
-                                    style={{ borderRadius: 8, fontWeight: 600, minWidth: 130 }}
-                                >
-                                    Clue is Invalid
-                                </Button>
-                            </div>
-                        </>
-                    ) : (
-                        <div style={{ textAlign: "center", padding: "20px 0" }}>
-                            <p style={{ fontSize: 16, marginBottom: 20 }}>
-                                The <strong style={{ color: currentTurn == "red" ? "#1890ff" : "#ff4d4f" }}>
-                                    {currentTurn == "red" ? "Blue" : "Red"} Spymaster
-                                </strong> is reviewing the clue...
-                            </p>
-                            <div
-                                className={styles.spinner}
-                                style={{ margin: "0 auto" }}
-                            />
-                        </div>
-                    )}
-                </div>
-            </Modal>
+            <ClueReviewModal
+                clueReviewOpen={clueReviewOpen}
+                isOpposingSpymaster={isOpposingSpymaster}
+                currentClue={currentClue}
+                onApprove={handleClueApproved}
+                onReject={handleClueRuledInvalid}
+                currentTurn={currentTurn}
+            />
 
             {/*CONFIRM PENALTY CARD REVEAL*/}
-            <Modal
-                title={<div style={{ color: "#000", textAlign: "center", fontSize: 18, fontWeight: 700 }}>Confirm Free Reveal</div>}
+            <PenaltyConfirmModal
                 open={penaltyConfirmOpen}
-                onCancel={() => {
-                    setPenaltyConfirmOpen(false);
-                    setPenaltyCardPicked(null);
-                }}
-                closable={false}
-                footer={null}
-                width={420}
-                centered
-            >
-                <div style={{ padding: "12px 0 8px", color: "#000" }}>
-                    <p style={{ fontSize: 15, marginBottom: 20 }}>
-                        Reveal <strong>&quot;{penaltyCardPicked?.word}&quot;</strong> as your free card? This cannot be undone.
-                    </p>
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-                        <Button
-                            onClick={() => {
-                                setPenaltyConfirmOpen(false);
-                                setPenaltyCardPicked(null);
-                            }}
-                            style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                            Pick a Different Card
-                        </Button>
-                        <Button
-                            type="primary"
-                            onClick={handlePenaltyConfirm}
-                            style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                            Confirm
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+                penaltyCardPicked={penaltyCardPicked}
+                onConfirm={handlePenaltyConfirm} // Map your handler to onConfirm
+                setPenaltyConfirmOpen={setPenaltyConfirmOpen}
+                setPenaltyCardPicked={setPenaltyCardPicked}
+            />
         </ConfigProvider>
     );
 }
