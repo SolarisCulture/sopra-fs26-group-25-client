@@ -30,7 +30,7 @@ reason).
 
 ---
 
-## Contributions Week 1 - [23.03.2026] to [29.03.2026]
+## Contributions Week 1 - [23.03.2026] to [01.04.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -60,7 +60,7 @@ reason).
 
 ---
 
-## Contributions Week 2 - [30.03.2026] to [05.04.2026]
+## Contributions Week 2 - [01.04.2026] to [15.04.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -79,7 +79,7 @@ reason).
 |                    | [05.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/234/changes/fb38ca0f4b84eb3d97268c1054fed38cb59278b8] | [Implemented turn management service and enriched the game state response so the frontend has all the information needed to display the game — teams, roles, turn phase, clue and real-time updates via WebSocket.] | [This connects the game entities to actual player actions, turning a static board into a playable game where spymasters can submit clues and all players receive live updates.] |
 ---
 
-## Contributions Week 3 - [13.04] to [19.04]
+## Contributions Week 3 - [15.04.2026] to [24.04.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
