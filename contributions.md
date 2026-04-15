@@ -79,9 +79,12 @@ reason).
 |                    | [05.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/234/changes/fb38ca0f4b84eb3d97268c1054fed38cb59278b8] | [Implemented turn management service and enriched the game state response so the frontend has all the information needed to display the game — teams, roles, turn phase, clue and real-time updates via WebSocket.] | [This connects the game entities to actual player actions, turning a static board into a playable game where spymasters can submit clues and all players receive live updates.] |
 ---
 
-## Contributions Week 3 - [Begin Date] to [End Date]
+## Contributions Week 3 - [13.04] to [19.04]
 
-_Continue with the same table format as above._
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@serilia03]** | [13.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/9b34da638922d0fabc694ae1f614a96f1e3666d5, https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/5e748e473b919ad99d2b2217f51f0c425551a1d7] | [Task: Display "Make Host" button next to each player in the player list to transfer the host role. These buttons are only seen by the host #60, Task: Add a function that checks if the player was assigned by the host #69, Task: Add a button that starts the game but only when all the players are assigned and the needed roles are also assigned #71] | [This contribution is relevant, because it makes the host role transferable for when somebody would like to not be host anymore or has to leave the lobbs (automatic transfer not yet implemented). It also sets the stepping stones for playing the game by making sure everybody has a role and by adding a button to start the game.] |
+|                    | [14.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/f2244da1dd4cdfb4ffd63ff1504168c4514d34f2, https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/9abb533c3092e76a9d6ba2d2dfeacc2d5bfadac0] | [Task: Add a input field for the hint and the number of cards #91, Task: Add a button that sends the content of the input fields to the server #92, Task: Receive the history from the backend and display it #93] | [These contribution is relevant, because now a spymaster can publish hints and they get saved in the history - both crucial aspects of the game.] |
 
 ---
 
