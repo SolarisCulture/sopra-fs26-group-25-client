@@ -454,7 +454,7 @@ export default function GamePage() {
                     okText="End Turn"
                     cancelText="Cancel"
                 >
-                    <p>Are you sure you want to end your team's turn?</p>
+                    <p>Are you sure you want to end your team&apos;s turn?</p>
                 </Modal>
                 <Button
                     type="primary"
