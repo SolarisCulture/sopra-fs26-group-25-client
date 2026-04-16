@@ -395,7 +395,7 @@ export default function GamePage() {
 
 
                 {/*CLUE INPUT --> comment out role == "spymaster" to see the spy view*/}
-                {role == "SPYMASTER" && !penaltyPickMode && (
+                {role == "SPYMASTER" && isMyTurn && !penaltyPickMode && (
                     <ClueInput
                         clueWord={clueWord}
                         setClueWord={setClueWord}
