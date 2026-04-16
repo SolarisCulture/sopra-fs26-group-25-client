@@ -107,7 +107,15 @@ export default function LobbyPage() {
       const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
       setPlayers(data);
     } catch (error) {
-      message.error("Failed to fetch players!");
+      console.error("Failed to fetch players!", error);
+      if (error.status === 404) {
+        localStorage.removeItem(`playerId_${lobbyCode}`);
+        localStorage.removeItem("hostedLobby");
+        setUserID(null);
+        setShowUsernamePopUp(true);
+      } else {
+        message.error("Failed to fetch players");
+      }
     }
   };
 
@@ -116,7 +124,11 @@ export default function LobbyPage() {
     try {
       const lobbyData = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
       setLobby(lobbyData);
-
+      if(userID && lobbyData.hostId === userID){
+        setIsHost(true);
+      } else {
+        setIsHost(false);
+      }
       if (lobbyData.lobbyStatus === "IN_PROGRESS") {
         router.push(`/${lobbyCode}/game`);
       }
@@ -129,6 +141,7 @@ export default function LobbyPage() {
   // fetch player and lobby on startupt
   useEffect(() => {
     if (!userID) return;
+    console.log("Fetching players for userID:", userID);
     fetchPlayers();
     fetchLobby();
   }, [apiService, lobbyCode, userID]);
@@ -136,9 +149,9 @@ export default function LobbyPage() {
 
   // websocket
   useEffect(() => {
-    if(!lobbyCode || !userID) return;
-    if (!lobbyCode) return;
-    const socket = createLobbySocket(String(lobbyCode), async (event: LobbyEvent) => {
+    if(!lobbyCode) return;
+    if(!userID) return;
+    const socket = createLobbySocket(String(lobbyCode), userID, async (event: LobbyEvent) => {
       console.log("Lobby event received:", event);
 
       switch (event.type) {
@@ -169,7 +182,7 @@ export default function LobbyPage() {
 
     // has this browser already joined this lobby?
     const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
-
+    console.log("savedId from localStorage:", savedId);
     if (savedId) {
       setUserID(Number(savedId));
       setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
@@ -213,7 +226,8 @@ export default function LobbyPage() {
     setUsernameError("");
 
     try {
-      const newPlayerID = await apiService.post<number>(`/api/lobbies/${lobbyCode}/join`, username);
+      const response = await apiService.post<{ id: number}>(`/api/lobbies/${lobbyCode}/join`, username);
+      const newPlayerID = response.id; // Extract ID from JSON object
       localStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
       const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
 
@@ -226,6 +240,7 @@ export default function LobbyPage() {
       setUserID(newPlayerID);
       setShowUsernamePopUp(false);
     } catch {
+      console.error("Join request failed:", error);
       setUsernameError("There was an issue while joining. Username is already taken or the lobby may no longer exist.");
     } finally {
       setJoiningLobby(false);

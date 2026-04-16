@@ -18,6 +18,7 @@ export interface LobbyEvent {
 
 export function createLobbySocket(
   lobbyCode: string,
+  playerId: number | null,
   onMessage: (event: LobbyEvent) => void
 ) {
   const client = new Client({
@@ -30,7 +31,7 @@ export function createLobbySocket(
 
   client.onConnect = () => {
     subscription = client.subscribe(`/topic/lobbies/${lobbyCode}`, (message: IMessage) => {
-      const event: LobbyEvent = JSON.parse(message.body);
+      const event = JSON.parse(message.body);
       onMessage(event);
     });
 
@@ -39,7 +40,7 @@ export function createLobbySocket(
       body: JSON.stringify({
         type: "SUBSCRIBE",
         lobbyCode,
-        data: null,
+        data: playerId ? { id: playerId } : null,
       }),
     });
   };
