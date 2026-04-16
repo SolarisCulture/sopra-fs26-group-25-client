@@ -3,6 +3,6 @@ export interface User {
   username: string | null;
   token: string | null;
   isHost?: boolean;
-  team?: "red" | "blue" | null;
-  role: "spy" | "spymaster" | null;
+  team?: "RED" | "BLUE" | "UNASSIGNED";
+  role: "SPYMASTER" | "SPY" | "NONE";
 }

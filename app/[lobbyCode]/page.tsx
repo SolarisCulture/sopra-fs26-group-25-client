@@ -16,6 +16,7 @@ import LeaveModal from "../components/LeaveModal";
 import UsernameModal from "../components/UsernameModal";
 import SettingsModal from "../components/SettingsModal";
 import TeamTableModal from "@/components/TeamTableModal";
+import { log } from "console";
 
 export default function LobbyPage() {
   const { message } = App.useApp();
@@ -33,10 +34,10 @@ export default function LobbyPage() {
   const [players, setPlayers] = useState<User[]>([]);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
   const allAssigned =
-    players.length > 0
-    && players.every(p => p.team !== null)
-    && players.filter(p => p.team == "blue").some(p => p.role == "spymaster")
-    && players.filter(p => p.team == "red").some(p => p.role == "spymaster");
+    players.length >= 4
+    && players.every(p => p.team !== "UNASSIGNED" && p.team !== null)
+    && players.filter(p => p.team == "BLUE").some(p => p.role == "SPYMASTER")
+    && players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER");
 
   // username pop-up
   const [showUsernamePopUp, setShowUsernamePopUp] = useState(false);
@@ -86,7 +87,7 @@ export default function LobbyPage() {
             </span>
 
             {/* only allow host to assign players to teams and transfer host role*/}
-            {isHost && !player.team && (
+            {isHost && (player.team == "UNASSIGNED" || !player.team) && (
               <Button
                 size="small"
                 type="primary"
@@ -121,19 +122,43 @@ export default function LobbyPage() {
 
   // fetch lobby as a helper function
   const fetchLobby = async () => {
+    if (!lobbyCode || lobbyCode == "new") return;
     try {
       const lobbyData = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
       setLobby(lobbyData);
-      if(userID && lobbyData.hostId === userID){
-        setIsHost(true);
-      } else {
-        setIsHost(false);
-      }
+      if (lobbyData) {
+        const sanitizedPlayers: User[] = (lobbyData.players || []).map((player: User) => ({
+          ...player,
+
+          username: player.username ? player.username.replace(/^"|"$/g, '') : ""
+        }));
+        setLobby(lobbyData);
+
+        const playerList = lobbyData.players || [];
+        setPlayers(sanitizedPlayers);
+
+        const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
+        const me = playerList.find(p => Number(p.id) == Number(savedId));
+
+        if (me) {
+          setUserID(Number(me.id));
+          const currentHostStatus = !!me.isHost;
+          setIsHost(currentHostStatus);
+
+          if (currentHostStatus) {
+            localStorage.setItem(`isHost_${lobbyCode}`, "true");
+          } else {
+            localStorage.removeItem(`isHost_${lobbyCode}`);
+          }
+        }
       if (lobbyData.lobbyStatus === "IN_PROGRESS") {
-        router.push(`/${lobbyCode}/game`);
+          router.push(`/${lobbyCode}/game`);
+        }
       }
     } catch (error) {
-      message.error("Failed to fetch lobby data!");
+      if (lobbyCode !== "new") {
+        message.error("Failed to fetch lobby data!");
+      }
     }
   };
 
@@ -156,10 +181,10 @@ export default function LobbyPage() {
 
       switch (event.type) {
         case "PLAYER_JOINED":
-        case "PLAYER_LEFT": { await fetchPlayers(); break; }
+        case "PLAYER_LEFT":
         case "HOST_CHANGED":
         case "TEAM_UPDATED":
-        case "ROLE_UPDATED": { await fetchPlayers(); await fetchLobby(); break; }
+        case "ROLE_UPDATED":
         case "STATUS_UPDATED": {
           await fetchLobby();
           break;
@@ -174,7 +199,7 @@ export default function LobbyPage() {
     return () => {
       socket.disconnect();
     }
-  }, [lobbyCode, userID, router]);
+  }, [lobbyCode, userID]);
 
   // check on page load if user already joined this lobby (show pop-up otherwise)
   useEffect(() => {
@@ -215,6 +240,7 @@ export default function LobbyPage() {
       return;
     }
 
+    // TODO: Does this check anything?
     // make sure username is unique
     const alreadyTaken = players.some(p => p.username?.toLowerCase() == username.toLowerCase());
     if (alreadyTaken) {
@@ -239,7 +265,7 @@ export default function LobbyPage() {
 
       setUserID(newPlayerID);
       setShowUsernamePopUp(false);
-    } catch {
+    } catch (error) {
       console.error("Join request failed:", error);
       setUsernameError("There was an issue while joining. Username is already taken or the lobby may no longer exist.");
     } finally {
@@ -248,19 +274,20 @@ export default function LobbyPage() {
   };
 
   // assign players to teams (blue or red)
-  const handleAssignTeam = (playerId: string | null, team: "red" | "blue" | null): void => {
+  const handleAssignTeam = (playerId: string | null, team: "RED" | "BLUE" | "UNASSIGNED"): void => {
     if (playerId == null) return;
 
     (async () => {
       try {
-        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team });
+        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team: team });
 
-        if (team !== null) {
-          const alreadyOnTeam = players.filter(p => p.team == team);
-          const role = alreadyOnTeam.length == 0 ? "spymaster" : "spy";
-          await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, { role });
-        }
-        await fetchPlayers();
+        const teamCount = players.filter(p => p.team == team).length;
+        const roleValue = (team == "UNASSIGNED") ? "NONE" : (teamCount == 0 ? "SPYMASTER" : "SPY");
+
+        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
+          role: roleValue
+        });
+        await fetchLobby();
       } catch {
         message.error("Failed to assign team!");
       }
@@ -268,19 +295,17 @@ export default function LobbyPage() {
   };
 
   // handle assign role
-  const handleAssignRole = async (playerId: string) => {
+  const handleAssignRole = async (playerId: string, role: "SPYMASTER" | "SPY") => {
+    console.log("--------HANDLE ASSIGN ROLE 1--------")
     const player = players.find(p => p.id == playerId);
     if (!player?.team) return;
 
     try {
-
-      const currentSpymaster = players.find(p => p.team == player.team && p.role == "spymaster");
-      if (currentSpymaster?.id) {
-        await apiService.put(`/api/lobbies/${lobbyCode}/player/${currentSpymaster.id}/role`, {role: "spy"});
-      }
-
-      await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {role: "spymaster"});
-      await fetchPlayers();
+      await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
+        role: role
+      });
+      console.log("--------HANDLE ASSIGN ROLE 2--------")
+      await fetchLobby();
     } catch {
       message.error("Failed to assign role!");
     }
