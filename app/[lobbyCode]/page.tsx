@@ -33,7 +33,7 @@ export default function LobbyPage() {
   const [players, setPlayers] = useState<User[]>([]);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
   const allAssigned =
-    players.length > 0
+    players.length >= 4
     && players.every(p => p.team !== "UNASSIGNED" && p.team !== null)
     && players.filter(p => p.team == "BLUE").some(p => p.role == "SPYMASTER")
     && players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER");
@@ -469,7 +469,14 @@ export default function LobbyPage() {
                 opacity: allAssigned && isHost ? 1 : 0.4,
               }}
               disabled={!allAssigned || !isHost}
-              onClick={() => router.push(`/${lobbyCode}/game`)}
+              onClick={async () => {
+                try {
+                  await apiService.post(`/api/games/${lobbyCode}/start`, {});
+                  router.push(`/${lobbyCode}/game`);
+                } catch {
+                  message.error("Failed to start game!");
+                }
+              }}
             >
               Start Game
             </Button>

@@ -8,7 +8,7 @@ import { WordCard } from "@/types/wordCard";
 import { GuessEvent, ClueEvent } from "@/types/gameEvent";
 import { createGameSocket } from "@/utils/gameWebsocket";
 import styles from "@/styles/game.module.css";
-import { Button, message, ConfigProvider } from "antd";
+import { Button, message, ConfigProvider, Modal, Input } from "antd";
 import HowToPlayModal from "@/components/HowToPlayModal";
 import ClueHistory from "@/components/ClueHistory";
 import ClueInput from "@/components/ClueInputs";
@@ -55,17 +55,26 @@ export default function GamePage() {
     const teamCardType = currentTurn == "red" ? "AGENTRED" : "AGENTBLUE";
     const remainingTeamCards = board.filter((c) => c.cardType == teamCardType && !c.revealed).length;
 
-    const opposingSpymaster = players.find((p) => p.team !== currentTurn && p.role == "spymaster") ?? null;
+    const opposingSpymaster = players.find((p) => p.team !== currentTurn.toUpperCase() && p.role == "SPYMASTER") ?? null;
+
+    const [dictionaryOpen, setDictionaryOpen] = useState(false);
+    const [dictionarySearch, setDictionarySearch] = useState("");
+    const [endTurnConfirmOpen, setEndTurnConfirmOpen] = useState(false);
+
+    const [colorOverlayActive, setColorOverlayActive] = useState(false);
+
+    const isMyTurn = currentPlayer?.team?.toLowerCase() == currentTurn.toLowerCase();
+    const canEndTurn = isMyTurn && role !== "SPYMASTER";
 
     const isOpposingSpymaster = opposingSpymaster != null && String(opposingSpymaster.id) == String(storedPlayerId);
     // const isOpposingSpymaster = true;
 
-
     // fetch players as a helper function
     const fetchPlayers = async () => {
         try {
-            const players = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
-            setPlayers(players);
+            const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
+
+            setPlayers(lobbyData.players || []);
         } catch (error) {
             console.error("Failed to fetch players!");
         }
@@ -74,7 +83,7 @@ export default function GamePage() {
     const fetchBoard = async () => {
         try {
             const boardData = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE" }>(
-                `/api/games/${lobbyCode}/board?role=${role === "spymaster" ? "SPYMASTER" : "SPY"}`
+                `/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`
             );
             setBoard(boardData.cards);
             setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
@@ -142,6 +151,7 @@ export default function GamePage() {
                     setCurrentTurn(event.team);
                     setCluePublished(false);
                     setCurrentClue(null);
+                    setClueWord("");
                     break;
                 default: break;
             }
@@ -155,51 +165,6 @@ export default function GamePage() {
             socketRef.current = null;
         };
     }, [lobbyCode]);
-
-
-    // mock board
-    useEffect(() => {
-        const cards: WordCard[] = [
-            { word: "Apple", cardType: "CIVILIAN", revealed: false },
-            { word: "River", cardType: "AGENTBLUE", revealed: true },
-            { word: "Castle", cardType: "AGENTRED", revealed: false },
-            { word: "Moon", cardType: "ASSASSIN", revealed: true },
-            { word: "Tiger", cardType: "CIVILIAN", revealed: false },
-            { word: "Glass", cardType: "AGENTBLUE", revealed: false },
-            { word: "Train", cardType: "AGENTRED", revealed: true },
-            { word: "Cloud", cardType: "CIVILIAN", revealed: false },
-            { word: "Chair", cardType: "AGENTBLUE", revealed: false },
-            { word: "Book", cardType: "AGENTRED", revealed: false },
-            { word: "Bridge", cardType: "CIVILIAN", revealed: false },
-            { word: "Whale", cardType: "AGENTBLUE", revealed: false },
-            { word: "Snow", cardType: "AGENTRED", revealed: false },
-            { word: "Clock", cardType: "CIVILIAN", revealed: true },
-            { word: "Piano", cardType: "AGENTBLUE", revealed: false },
-            { word: "Bread", cardType: "AGENTRED", revealed: false },
-            { word: "Forest", cardType: "CIVILIAN", revealed: false },
-            { word: "Bottle", cardType: "AGENTBLUE", revealed: false },
-            { word: "Star", cardType: "AGENTRED", revealed: false },
-            { word: "Window", cardType: "CIVILIAN", revealed: false },
-            { word: "Rocket", cardType: "AGENTBLUE", revealed: true },
-            { word: "Lamp", cardType: "AGENTRED", revealed: false },
-            { word: "Beach", cardType: "CIVILIAN", revealed: false },
-            { word: "Ring", cardType: "AGENTBLUE", revealed: false },
-            { word: "Tower", cardType: "AGENTRED", revealed: false },
-        ];
-        setBoard(cards);
-        const MOCK_ID = "mock-player-1";
-        localStorage.setItem(`playerId_${lobbyCode}`, MOCK_ID);
-        setPlayers([
-            {
-                id: "mock-player-1", username: "Alice", team: "red", role: "spymaster",
-                token: null
-            },
-            {
-                id: "mock-player-2", username: "Bob", team: "blue", role: "spymaster",
-                token: null
-            },
-        ]);
-    }, []);
 
     // publish clue
     const handleSendClue = () => {
@@ -254,6 +219,15 @@ export default function GamePage() {
                     ? `${styles.card} ${styles.clickableCard}`
                     : `${styles.card}`;
             }
+            if (colorOverlayActive) {
+                switch (card.cardType) {
+                    case "AGENTRED": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayRed}`;
+                    case "AGENTBLUE": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayBlue}`;
+                    case "CIVILIAN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayCivilian}`;
+                    case "ASSASSIN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayAssassin}`;
+                }
+            }
+
             return `${styles.card} ${styles.clickableCard}`;
         }
 
@@ -296,6 +270,22 @@ export default function GamePage() {
 
     const teamClass = currentTurn === "red" ? styles.teamRed : styles.blueTeam;
 
+    const handleEndTurnConfirm = () => {
+        if (!socketRef.current || !currentPlayer) return;
+
+        const nextTeam = currentTurn == "red" ? "blue" : "red";
+
+        socketRef.current.sendTurnChange({
+            type: "TurnChanged",
+            timeStamp: new Date().toISOString(),
+            player: currentPlayer,
+            description: `${currentPlayer.username} ended the turn.`,
+            team: nextTeam,
+        });
+
+        setEndTurnConfirmOpen(false);
+        message.success(`Turn passed to ${nextTeam.toUpperCase()} team`);
+    };
 
 
     // report flow
@@ -380,7 +370,7 @@ export default function GamePage() {
                     Modal: { colorText: "#000", colorBgContainer: "#fff" },
                 },
             }}>
-                
+
             <PlayerList
                 currentTurn={currentTurn}
             />
@@ -405,7 +395,7 @@ export default function GamePage() {
 
 
                 {/*CLUE INPUT --> comment out role == "spymaster" to see the spy view*/}
-                {role == "spymaster" && !penaltyPickMode && (
+                {role == "SPYMASTER" && !penaltyPickMode && (
                     <ClueInput
                         clueWord={clueWord}
                         setClueWord={setClueWord}
@@ -418,19 +408,91 @@ export default function GamePage() {
                 )}
             </div>
 
-            {/*REPORT CLUE BUTTON*/}
-            <div style={{ position: "absolute", bottom: 75, right: 20 }}>
+            {/*VARIOUS BUTTONS*/}
+            <div style={{ position: "absolute", bottom: 185, right: 20 }}>
                 <Button
                     type="primary"
                     disabled={!cluePublished}
                     onClick={handleReportClick}
-                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8, fontWeight: 600 }}
+                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
                 >
                     Report Clue
                 </Button>
             </div>
 
-            {/*HOW TO PLAY*/}
+            <Button
+                type={colorOverlayActive ? "default" : "primary"}
+                onClick={() => setColorOverlayActive(prev => !prev)}
+                style={{
+                    position: "absolute",
+                    width: 125,
+                    bottom: 240,
+                    right: 20,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px"
+                }}
+            >
+                {colorOverlayActive ? "Hide Key" : "Show Key"}
+            </Button>
+
+            <div style={{
+                position: "absolute",
+                bottom: 75,
+                right: 20,
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px"
+            }}>
+
+                <Modal
+                    title="Confirm End Turn"
+                    open={endTurnConfirmOpen}
+                    onOk={handleEndTurnConfirm}
+                    onCancel={() => setEndTurnConfirmOpen(false)}
+                    closable={false}
+                    okText="End Turn"
+                    cancelText="Cancel"
+                >
+                    <p>Are you sure you want to end your team's turn?</p>
+                </Modal>
+                <Button
+                    type="primary"
+                    onClick={() => setEndTurnConfirmOpen(true)}
+                    disabled={!canEndTurn}
+                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
+                >
+                    End Turn
+                </Button>
+                <Modal
+                    title="Dictionary"
+                    open={dictionaryOpen}
+                    onCancel={() => setDictionaryOpen(false)}
+                    footer={null}
+                >
+                    <div style={{ padding: "10px 0" }}>
+                        <p style={{ marginBottom: "8px", fontWeight: 500 }}>Search for a word:</p>
+                        <Input
+                            placeholder="Enter word..."
+                            value={dictionarySearch}
+                            onChange={(e) => setDictionarySearch(e.target.value)}
+                            onPressEnter={() => {/*dictionary logic here --> best if one can only search for words currently on the board (display multiple manings if there is more than one)*/ }}
+                        />
+                        <p style={{ marginTop: "12px", fontSize: "12px", color: "#666" }}>
+                            Press Enter to search.
+                        </p>
+                    </div>
+                </Modal>
+                <Button
+                    type="primary"
+                    onClick={() => setDictionaryOpen(true)}
+                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
+                >
+                    Dictionary
+                </Button>
+
+
+            </div>
             <div style={{ position: "absolute", bottom: 20, right: 20 }}>
                 <Button
                     type="primary"

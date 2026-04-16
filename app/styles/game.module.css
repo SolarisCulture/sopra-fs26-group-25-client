@@ -7,7 +7,7 @@ background: radial-gradient(
     #5A1F6F 100%
   );
   
-  --civilian: #F9C74F;
+  --civilian: #C4B49A;
   --blue-agent: #1b9fd8;
   --red-agent: #E8401C;
   --assassin: black;
@@ -124,8 +124,8 @@ background: radial-gradient(
 .turnBadge {
   position: absolute;
   top: -10px;
-  background: #fff;
-  color: #000;
+  background: #fff; 
+  color: #000;      
   font-size: 10px;
   padding: 2px 12px;
   border-radius: 10px;
@@ -151,3 +151,22 @@ background: radial-gradient(
 
 .turnRed { border-color: rgba(232, 64, 28, 0.5); }
 .turnBlue { border-color: rgba(27, 159, 216, 0.5); }
+.cardOverlayCivilian {
+  background: rgba(196, 180, 154, 0.45);
+  border-color: rgba(196, 180, 154, 0.65);
+}
+
+.cardOverlayBlue {
+  background: rgba(27, 159, 216, 0.45);
+  border-color: rgba(27, 159, 216, 0.65);
+}
+
+.cardOverlayRed {
+  background: rgba(232, 64, 28, 0.45);
+  border-color: rgba(232, 64, 28, 0.65);
+}
+
+.cardOverlayAssassin {
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(0, 0, 0, 0.65);
+}
