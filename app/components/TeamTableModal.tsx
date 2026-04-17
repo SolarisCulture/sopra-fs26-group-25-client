@@ -28,10 +28,10 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
 
         {/*loop over all blue players and create row for them*/}
         {bluePlayers.map(p => (
-          <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff" }}>
+          <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
+            <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
               {p.role == "SPYMASTER" ? (
-                <span style={{ fontSize: 16 }}>🕵️</span>
+                <span style={{fontSize: 16}}>🕵️</span>
               ) : isHost ? (
                 <Tooltip title="Click to make spymaster" color="#1B9FD8">
                   <span
@@ -75,10 +75,10 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
 
         {/*loop over all red players and create row for them*/}
         {redPlayers.map(p => (
-          <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff" }}>
+          <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
+            <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
               {p.role == "SPYMASTER" ? (
-                <span style={{ fontSize: 16 }}>🕵️</span>
+                <span style={{fontSize: 16}}>🕵️</span>
               ) : isHost ? (
                 <Tooltip title="Click to make spymaster" color="#E8401C">
                   <span
@@ -125,7 +125,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
             style={{ background: "#1B9FD8", borderColor: "#1B9FD8", opacity: blueFull ? 0.4 : 1 }}
             disabled={blueFull}
             onClick={() => {
-              if (assignTarget?.id) {
+              if (assignTarget?.id) { 
                 onAssign(assignTarget.id, "BLUE");
                 setAssignTarget(null);
               }
@@ -138,7 +138,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
             style={{ background: "#E8401C", borderColor: "#E8401C", opacity: redFull ? 0.4 : 1 }}
             disabled={redFull}
             onClick={() => {
-              if (assignTarget?.id) {
+              if (assignTarget?.id) { 
                 onAssign(assignTarget.id, "RED");
                 setAssignTarget(null);
               }

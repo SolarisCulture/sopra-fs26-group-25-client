@@ -2,6 +2,7 @@ import { User } from "./user";
 
 export interface Lobby {
   lobbyCode: string;
+  players: User[];
   hostId: number;
   players: User[];
   lobbyStatus: "WAITING" | "IN_PROGRESS" | "FINISHED";
