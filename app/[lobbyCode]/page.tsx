@@ -103,24 +103,6 @@ export default function LobbyPage() {
     },
   ];
 
-  // fetch players as a helper function
-  const fetchPlayers = async () => {
-    try {
-      const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
-      setPlayers(data);
-    } catch (error: any) {
-      console.error("Failed to fetch players!", error);
-      if (error?.status === 404) {
-        localStorage.removeItem(`playerId_${lobbyCode}`);
-        localStorage.removeItem("hostedLobby");
-        setUserID(null);
-        setShowUsernamePopUp(true);
-      } else {
-        message.error("Failed to fetch players");
-      }
-    }
-  };
-
   // fetch lobby as a helper function
   const fetchLobby = async () => {
     if (!lobbyCode || lobbyCode == "new") return;
@@ -168,7 +150,6 @@ export default function LobbyPage() {
   useEffect(() => {
     if (!userID) return;
     console.log("Fetching players for userID:", userID);
-    fetchPlayers();
     fetchLobby();
   }, [apiService, lobbyCode, userID]);
 
