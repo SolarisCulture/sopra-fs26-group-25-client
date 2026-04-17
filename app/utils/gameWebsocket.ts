@@ -9,7 +9,7 @@ export function createGameSocket(
 ) {
   const client = new Client({
     webSocketFactory: () =>
-      new SockJS(`${process.env.NEXT_PUBLIC_API_URL}/ws`),
+      new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
     reconnectDelay: 5000,
   });
 
