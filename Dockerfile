@@ -1,5 +1,5 @@
 # Build image
-FROM node:22.14.0 as build
+FROM node:22.14.0 AS build
 # Set container working directory to /app
 WORKDIR /app
 # Copy npm instructions
@@ -13,22 +13,29 @@ COPY . .
 # Build the app
 RUN npm run build
 # Delete all non-production dependencies to make copy in line 28 more efficient
-RUN npm prune --production
+#RUN npm prune --production
 
 # Use small production image
 FROM node:22.14.0-alpine
 # Set the env to "production"
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Set npm cache to a directory the non-root user can access
-RUN npm config set cache /app/.npm-cache --global
+#RUN npm config set cache /app/.npm-cache --global
 # Get non-root user
 USER 3301
 # Set container working directory to /app
 WORKDIR /app
 # Copy node modules and app
-COPY --chown=node:node --from=build /app/node_modules /app/node_modules
-COPY --chown=node:node --from=build /app/build build
+#COPY --chown=node:node --from=build /app/node_modules /app/node_modules
+#COPY --chown=node:node --from=build /app/build build
+
+# the standalone build and static/public assets
+COPY --chown=node:node --from=build /app/.next/standalone ./
+COPY --chown=node:node --from=build /app/.next/static ./.next/static
+COPY --chown=node:node --from=build /app/public ./public
+
 # Expose port for serve
 EXPOSE 3000
 # Start app
-CMD [ "npx", "serve", "-s", "build" ]
+#CMD [ "npx", "serve", "-s", "build" ]
+CMD ["node", "server.js"]
