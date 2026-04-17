@@ -108,9 +108,9 @@ export default function LobbyPage() {
     try {
       const data = await apiService.get<User[]>(`/api/lobbies/${lobbyCode}/players`);
       setPlayers(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch players!", error);
-      if (error.status === 404) {
+      if (error?.status === 404) {
         localStorage.removeItem(`playerId_${lobbyCode}`);
         localStorage.removeItem("hostedLobby");
         setUserID(null);
