@@ -409,13 +409,20 @@ export default function GamePage() {
             </div>
 
             {/*VARIOUS BUTTONS*/}
-            <div style={{ position: "absolute", bottom: 185, right: 20 }}>
+            <div>
                 <Button
                     type="primary"
                     disabled={!cluePublished}
                     onClick={handleReportClick}
-                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
-                >
+                    style={{
+                        position: "absolute",
+                        width: 125,
+                        bottom: 130,
+                        right: 20,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "15px"
+                    }}                >
                     Report Clue
                 </Button>
             </div>
@@ -426,7 +433,7 @@ export default function GamePage() {
                 style={{
                     position: "absolute",
                     width: 125,
-                    bottom: 240,
+                    bottom: 185,
                     right: 20,
                     display: "flex",
                     flexDirection: "column",
@@ -456,14 +463,17 @@ export default function GamePage() {
                 >
                     <p>Are you sure you want to end your team&apos;s turn?</p>
                 </Modal>
-                <Button
-                    type="primary"
-                    onClick={() => setEndTurnConfirmOpen(true)}
-                    disabled={!canEndTurn}
-                    style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
-                >
-                    End Turn
-                </Button>
+                {role == "SPY" && (
+                    <Button
+                        type="primary"
+                        onClick={() => setEndTurnConfirmOpen(true)}
+                        disabled={!canEndTurn}
+                        style={{ bottom: 55, width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
+                    >
+                        End Turn
+                    </Button>
+                )
+                }
                 <Modal
                     title="Dictionary"
                     open={dictionaryOpen}
