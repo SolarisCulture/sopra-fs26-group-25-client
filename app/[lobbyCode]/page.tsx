@@ -67,13 +67,13 @@ export default function LobbyPage() {
 
       render: (username: string, player: User) => {
         return (
-          <span style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-            <span style={{display: "flex", alignItems: "center", gap: 4}}>
-              <span style={{width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2}}>
-                {player.isHost ? "👑" : isHost && player.id !== String(userID) ? (
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
+                {player.isHost ? ("👑") : (isHost && (
                   <Tooltip title="Click to make host" color="#7B2D8B">
                     <span
-                      style={{cursor: "pointer", fontSize: "16px", opacity: 0.5, transition: "opacity 0.2s"}}
+                      style={{ cursor: "pointer", fontSize: "16px", opacity: 0.5, transition: "opacity 0.2s" }}
                       onClick={() => handleTransferHost(player)}
                       onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
                       onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
@@ -81,7 +81,8 @@ export default function LobbyPage() {
                       👑
                     </span>
                   </Tooltip>
-                ) : ""}
+                )
+                )}
               </span>
               {username}
             </span>
@@ -210,7 +211,6 @@ export default function LobbyPage() {
     console.log("savedId from localStorage:", savedId);
     if (savedId) {
       setUserID(Number(savedId));
-      setIsHost(localStorage.getItem("hostedLobby") == lobbyCode);
     } else {
       setShowUsernamePopUp(true);
     }
@@ -296,15 +296,15 @@ export default function LobbyPage() {
 
   // handle assign role
   const handleAssignRole = async (playerId: string, role: "SPYMASTER" | "SPY") => {
-    console.log("--------HANDLE ASSIGN ROLE 1--------")
     const player = players.find(p => p.id == playerId);
     if (!player?.team) return;
 
     try {
+
+
       await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
         role: role
       });
-      console.log("--------HANDLE ASSIGN ROLE 2--------")
       await fetchLobby();
     } catch {
       message.error("Failed to assign role!");
@@ -319,7 +319,12 @@ export default function LobbyPage() {
         currentHostId: userID,
         newHostId: newHost.id,
       });
+
+      setIsHost(false);
+      localStorage.removeItem(`isHost_${lobbyCode}`);
+
       message.success(`${newHost.username} is now the host.`);
+      await fetchLobby();
     } catch {
       message.error("Failed to transfer host!");
     }
@@ -408,12 +413,12 @@ export default function LobbyPage() {
     <ConfigProvider
       theme={{
         components: {
-          Select: {colorText: "#000", colorBgContainer: "#fff"},
-          Input: {colorText: "#000", colorBgContainer: "#fff"},
-          InputNumber: {colorText: "#000", colorBgContainer: "#fff"},
-          Modal: {colorText: "#000", colorBgContainer: "#fff"},
-          Checkbox: {colorText: "#000", colorBgContainer: "#fff"},
-          Table: {colorText: "#fff", colorBgContainer: "rgba(250, 250, 250, 0.25)"}
+          Select: { colorText: "#000", colorBgContainer: "#fff" },
+          Input: { colorText: "#000", colorBgContainer: "#fff" },
+          InputNumber: { colorText: "#000", colorBgContainer: "#fff" },
+          Modal: { colorText: "#000", colorBgContainer: "#fff" },
+          Checkbox: { colorText: "#000", colorBgContainer: "#fff" },
+          Table: { colorText: "#fff", colorBgContainer: "rgba(250, 250, 250, 0.25)" }
         },
       }}>
 
@@ -423,7 +428,7 @@ export default function LobbyPage() {
 
           {/*INPUT USERNAME POP-UP*/}
           <Modal
-            title={<div style={{color: "#000", textAlign: "center"}}>Enter Username</div>}
+            title={<div style={{ color: "#000", textAlign: "center" }}>Enter Username</div>}
             open={showUsernamePopUp}
             closable={false}
             maskClosable={false}
@@ -440,13 +445,13 @@ export default function LobbyPage() {
           </Modal>
 
           <div>
-            <h1 style={{marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff"}}>Lobby</h1>
+            <h1 style={{ marginTop: "50px", fontSize: "48px", fontWeight: "700", color: "#fff" }}>Lobby</h1>
           </div>
 
 
           {/*LINK & CODE*/}
-          <div style={{position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-            <span style={{fontWeight: 600, color: "#fff"}}>{link}</span>
+          <div style={{ position: "absolute", top: 20, right: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px" }}>
+            <span style={{ fontWeight: 600, color: "#fff" }}>{link}</span>
             <Button
               type="primary"
               onClick={() => {
@@ -458,42 +463,49 @@ export default function LobbyPage() {
             </Button>
           </div>
 
-          <div style={{position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px"}}>
-            <span style={{fontWeight: 600, color: "#fff"}}>Lobby Code: {lobbyCode}</span>
+          <div style={{ position: "absolute", top: 20, left: 20, display: "flex", alignItems: "center", gap: "10px", background: "rgba(255, 255, 255, 0.2)", padding: "10px 14px", borderRadius: "8px" }}>
+            <span style={{ fontWeight: 600, color: "#fff" }}>Lobby Code: {lobbyCode}</span>
           </div>
 
 
           {/*PLAYER TABLE*/}
-          <div style={{position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px"}}>
+          <div style={{ position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px" }}>
             {players && (
               <Table<User>
                 columns={playerColumns}
                 dataSource={players}
                 rowKey="id"
                 pagination={false}
-                style={{borderRadius: "8px", overflow: "hidden"}}
+                style={{ borderRadius: "8px", overflow: "hidden" }}
               />
             )}
           </div>
 
           {/*START GAME*/}
-          <div style={{position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)"}}>
-          <Button
-            type="primary"
-            style={{
-              width: "200px",
-              height: "50px",
-              fontSize: "18px",
-              fontWeight: "600",
-              background: "#7B2D8B",
-              borderColor: "#7B2D8B",
-              opacity: allAssigned && isHost ? 1 : 0.4,
-            }}
-            disabled={!allAssigned || !isHost}
-            onClick={() => router.push(`/${lobbyCode}/game`)}
-          >
-            Start Game
-          </Button>
+          <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
+            <Button
+              type="primary"
+              style={{
+                width: "200px",
+                height: "50px",
+                fontSize: "18px",
+                fontWeight: "600",
+                background: "#7B2D8B",
+                borderColor: "#7B2D8B",
+                opacity: allAssigned && isHost ? 1 : 0.4,
+              }}
+              disabled={!allAssigned || !isHost}
+              onClick={async () => {
+                try {
+                  await apiService.post(`/api/games/${lobbyCode}/start`, {});
+                  router.push(`/${lobbyCode}/game`);
+                } catch {
+                  message.error("Failed to start game!");
+                }
+              }}
+            >
+              Start Game
+            </Button>
           </div>
 
           {/*TEAM TABLE*/}
@@ -508,10 +520,10 @@ export default function LobbyPage() {
 
 
           {/*HOW TO PLAY*/}
-          <div style={{position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center"}}>
+          <div style={{ position: "absolute", bottom: 75, right: 20, display: "flex", alignItems: "center" }}>
             <Button
               type="primary"
-              style={{width: "125px"}}
+              style={{ width: "125px" }}
               onClick={() => setHowToPlayOpen(true)}>
               How To Play
             </Button>
@@ -522,10 +534,10 @@ export default function LobbyPage() {
           />
 
           {/*LEAVE LOBBY*/}
-          <div style={{position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center"}}>
+          <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", alignItems: "center" }}>
             <Button
               type="primary"
-              style={{width: "125px"}}
+              style={{ width: "125px" }}
               onClick={() => setLeaveOpen(true)}
             >
               Leave Lobby
@@ -541,7 +553,7 @@ export default function LobbyPage() {
           <Button
             type="primary"
             onClick={() => setSettingsOpen(true)}
-            style={{position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px"}}
+            style={{ position: "absolute", bottom: 130, right: 20, display: "flex", alignItems: "center", width: "125px" }}
           >
             Settings
           </Button>
