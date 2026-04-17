@@ -30,17 +30,16 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
         {bluePlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
             <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
-              {p.role == "SPYMASTER" ? (
+              {p.role == "SPYMASTER" && (
                 <span style={{fontSize: 16}}>🕵️</span>
-              ) : isHost ? (
+              )} 
+              
+              {isHost && p.role !== "SPYMASTER" && (
                 <Tooltip title="Click to make spymaster" color="#1B9FD8">
                   <span
                     style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
                     onClick={() => {
-                      if (assignTarget?.id) {
-                        onAssign(assignTarget.id, "BLUE");
-                        setAssignTarget(null);
-                      }
+                      if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
                     }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
                     onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
@@ -48,8 +47,6 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
                     🕵️
                   </span>
                 </Tooltip>
-              ) : (
-                <span style={{ fontSize: 16, opacity: 0.3 }}>🕵️</span>
               )}
               {p.username}
             </span>
@@ -77,9 +74,11 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
         {redPlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
             <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
-              {p.role == "SPYMASTER" ? (
+              {p.role == "SPYMASTER" && (
                 <span style={{fontSize: 16}}>🕵️</span>
-              ) : isHost ? (
+              )}
+
+              {isHost && p.role !== "SPYMASTER" && (
                 <Tooltip title="Click to make spymaster" color="#E8401C">
                   <span
                     style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
@@ -92,11 +91,10 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
                     🕵️
                   </span>
                 </Tooltip>
-              ) : (
-                <span style={{ fontSize: 16, opacity: 0.3 }}>🕵️</span>
               )}
               {p.username}
             </span>
+            
             {isHost && (
               <Button
                 size="small"
