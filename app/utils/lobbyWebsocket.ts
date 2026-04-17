@@ -1,6 +1,7 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { getApiDomain } from "./domain";
+export type LobbyStatus = "IN_PROGRESS" | "WAITING" | "FINISHED";
 
 export interface LobbyEvent {
   type:
@@ -12,7 +13,7 @@ export interface LobbyEvent {
     | "ROLE_UPDATED"
     | "STATUS_UPDATED";
   lobbyCode: string;
-  data: unknown;
+  data: string | number | boolean | null;
   timestamp: string;
 }
 

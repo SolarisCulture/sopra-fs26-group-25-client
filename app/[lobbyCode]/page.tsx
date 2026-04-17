@@ -169,7 +169,12 @@ export default function LobbyPage() {
         case "ROLE_UPDATED":
         case "STATUS_UPDATED": {
           await fetchLobby();
-          break;
+
+          if (event.data === "IN_PROGRESS") {
+            router.push(`/${lobbyCode}/game`);
+          }
+
+        break;
         }
 
         default:
@@ -479,7 +484,6 @@ export default function LobbyPage() {
               onClick={async () => {
                 try {
                   await apiService.post(`/api/games/${lobbyCode}/start`, {});
-                  router.push(`/${lobbyCode}/game`);
                 } catch {
                   message.error("Failed to start game!");
                 }

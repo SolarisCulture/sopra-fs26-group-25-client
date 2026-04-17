@@ -4,6 +4,7 @@ import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, T
 
 export function createGameSocket(
   lobbyCode: string,
+  role: "SPYMASTER" | "SPY",
   onMessage: (event: GameEvent) => void
 ) {
   const client = new Client({
@@ -15,13 +16,16 @@ export function createGameSocket(
   let subscription: StompSubscription | null = null;
 
   client.onConnect = () => {
-    subscription = client.subscribe(
-      `/topic/game/${lobbyCode}/events`,
-      (message: IMessage) => {
-        const event: GameEvent = JSON.parse(message.body);
-        onMessage(event);
-      }
-    );
+    const topic =
+      role === "SPYMASTER"
+        ? `/topic/game/${lobbyCode}/spymaster`
+        : `/topic/game/${lobbyCode}/spy`;
+
+    subscription = client.subscribe(topic, (message: IMessage) => {
+      const event: GameEvent = JSON.parse(message.body);
+      console.log("Game event received:", event);
+      onMessage(event);
+    });
   };
 
   client.onStompError = (frame) => {

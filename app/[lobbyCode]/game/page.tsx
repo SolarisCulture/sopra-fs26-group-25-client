@@ -106,16 +106,21 @@ export default function GamePage() {
 
     // fetch user role
     useEffect(() => {
-        if (!lobbyCode) return;
+        if (!lobbyCode || players.length === 0) return;
 
         const storedPlayerId = localStorage.getItem(`playerId_${lobbyCode}`);
 
-        if (!storedPlayerId || players.length == 0) {
+        if (!storedPlayerId) {
             setLoadingRole(false);
             return;
         }
-        const found = players.find((p) => String(p.id) == String(storedPlayerId));
-        if (found) setRole(found.role);
+
+        const found = players.find((p) => String(p.id) === String(storedPlayerId));
+
+        if (found) {
+            setRole(found.role);
+        }
+
         setLoadingRole(false);
     }, [players, lobbyCode]);
 
@@ -123,8 +128,9 @@ export default function GamePage() {
     // subscribe to game websocket
     useEffect(() => {
         if (!lobbyCode) return;
+         if (!role || role === "NONE") return;
 
-        const socket = createGameSocket(String(lobbyCode), (event) => {
+        const socket = createGameSocket(String(lobbyCode), role, (event) => {
             switch (event.type) {
                 case "Clue":
                     setCurrentClue({ word: event.word, count: event.count });
@@ -164,7 +170,7 @@ export default function GamePage() {
             socket.disconnect();
             socketRef.current = null;
         };
-    }, [lobbyCode]);
+    }, [lobbyCode, role]);
 
     // publish clue
     const handleSendClue = () => {
