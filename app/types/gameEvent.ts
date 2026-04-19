@@ -33,7 +33,7 @@ export interface ClueRulingEvent extends GameEventBase {
 }
 
 export interface postGameScreen extends GameEventBase {
-  type: "GAME_OVER" | "RETURNING_TO_LOBBY";
+  type: "GameOver" | "RETURNING_TO_LOBBY";
 }
 
 export interface TurnChangedEvent {

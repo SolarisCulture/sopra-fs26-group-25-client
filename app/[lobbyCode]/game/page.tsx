@@ -162,7 +162,7 @@ export default function GamePage() {
                     setCurrentClue(null);
                     setClueWord("");
                     break;
-                case "GAME_OVER":
+                case "GameOver":
                     fetchBoard();
                     setFinished(true);
                     break;
