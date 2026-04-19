@@ -291,6 +291,7 @@ export default function LobbyPage() {
       await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
         role: role
       });
+      message.success(`${player.username} is now the ${role} for team ${player.team}.`);
       await fetchLobby();
     } catch {
       message.error("Failed to assign role!");
@@ -483,6 +484,7 @@ export default function LobbyPage() {
               disabled={!allAssigned || !isHost}
               onClick={async () => {
                 try {
+                  message.success(`The game is starting now, please wait!`);
                   await apiService.post(`/api/games/${lobbyCode}/start`, {});
                 } catch {
                   message.error("Failed to start game!");

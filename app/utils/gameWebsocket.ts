@@ -7,11 +7,27 @@ export function createGameSocket(
   role: "SPYMASTER" | "SPY",
   onMessage: (event: GameEvent) => void
 ) {
+
   const client = new Client({
     webSocketFactory: () =>
-      new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
+      new SockJS(`${process.env.NEXT_PUBLIC_WS_URL}/ws`),
+      // new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
     reconnectDelay: 5000,
   });
+
+  // sometimtes needed (more in testing) --> if an action happens rather quickly it can happen that the connection isnt established yet (1-2 sec after game start)
+  const waitForConnection = (fn: () => void, retries = 10) => {
+    console.log("waitForConnection called, connected:", client.connected, "retries:", retries);
+    if (client.connected) {
+      console.log("Connected! Calling fn...");
+      fn();
+    } else if (retries > 0) {
+      console.log("Not connected, retrying...");
+      setTimeout(() => waitForConnection(fn, retries - 1), 200);
+    } else {
+      console.error("STOMP still not connected after retries");
+    }
+  };
 
   let subscription: StompSubscription | null = null;
 
@@ -39,38 +55,51 @@ export function createGameSocket(
 
   return {
     connect: () => client.activate(),
+
+    isConnected: () => client.connected, 
+
     sendGuess: (event: GuessEvent) => {
-      client.publish({
-        destination: `/app/${lobbyCode}/guess`,
-        body: JSON.stringify(event),
-      })
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/guess`,
+          body: JSON.stringify({word: event.guessedCard.word}),
+        })
+      });
     },
 
     sendClue: (event: ClueEvent) => {
-      client.publish({
-        destination: `/app/${lobbyCode}/clue`,
-        body: JSON.stringify(event),
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/clue`,
+          body: JSON.stringify(event),
+        });
       });
     },
 
     sendClueReport: (event: ClueReportedEvent) => {
-      client.publish({
-          destination: `/app/${lobbyCode}/clue-report`,
-          body: JSON.stringify(event),
+      waitForConnection(() => {
+        client.publish({
+            destination: `/app/${lobbyCode}/clue-report`,
+            body: JSON.stringify(event),
+        });
       });
     },
 
     sendClueRuling: (event: ClueRulingEvent) => {
-      client.publish({
-          destination: `/app/${lobbyCode}/clue-ruling`,
-          body: JSON.stringify(event),
+      waitForConnection(() => {
+        client.publish({
+            destination: `/app/${lobbyCode}/clue-ruling`,
+            body: JSON.stringify(event),
+        });
       });
     },
 
-  sendTurnChange: (event: TurnChangedEvent) => {
-      client.publish({
-          destination: `/app/${lobbyCode}/turn-change`,
-          body: JSON.stringify(event),
+    sendTurnChange: (event: TurnChangedEvent) => {
+      waitForConnection(() => {
+        client.publish({
+            destination: `/app/${lobbyCode}/turn-change`,
+            body: JSON.stringify(event),
+        });
       });
   },
 
