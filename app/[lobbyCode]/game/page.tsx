@@ -7,6 +7,7 @@ import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
 import { GuessEvent, ClueEvent } from "@/types/gameEvent";
 import { createGameSocket } from "@/utils/gameWebsocket";
+import { useRouter } from "next/navigation";
 import styles from "@/styles/game.module.css";
 import { Button, message, ConfigProvider, Modal, Input } from "antd";
 import HowToPlayModal from "@/components/HowToPlayModal";
@@ -19,6 +20,7 @@ import PlayerList from "@/components/PlayerTable";
 
 export default function GamePage() {
     const apiService = useApi();
+    const router = useRouter();
     const { lobbyCode } = useParams();
     const socketRef = useRef<ReturnType<typeof createGameSocket> | null>(null);
 
@@ -40,6 +42,7 @@ export default function GamePage() {
     const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
     const [cluePublished, setCluePublished] = useState(false);
     const [clueHistory, setClueHistory] = useState<{ word: string; count: number; team: "red" | "blue" }[]>([]);
+    const [finished, setFinished] = useState(false);
 
     // penalty
     const [penaltyPickMode, setPenaltyPickMode] = useState(false);
@@ -158,6 +161,13 @@ export default function GamePage() {
                     setCluePublished(false);
                     setCurrentClue(null);
                     setClueWord("");
+                    break;
+                case "GAME_OVER":
+                    fetchBoard();
+                    setFinished(true);
+                    break;
+                case "RETURNING_TO_LOBBY":
+                    router.push(`/lobby/${lobbyCode}`);
                     break;
                 default: break;
             }
@@ -366,6 +376,33 @@ export default function GamePage() {
         setPenaltyConfirmOpen(false);
     };
 
+    // post game screen
+    const handleRestartGame = async () => {
+      try{
+        await apiService.post(`/api/games/${lobbyCode}/restart`, {});
+
+        setFinished(false);
+        setCurrentClue(null);
+        setCluePublished(false);
+        setPenaltyPickMode(false);
+        setPenaltyCardPicked(null);
+        setClueWord("");
+        setClueCount(1);
+      }
+      catch (error) {message.error("Failed to restart game.")}
+    }
+
+    const handleBackToLobby = async () => {
+      try{
+        await apiService.post(`/api/games/${lobbyCode}/return-to-lobby`, {});
+
+        socketRef.current?.disconnect();
+        router.push(`/lobby/${lobbyCode}`);
+
+      }
+      catch (error) {message.error("Failed to restart game.")}
+    }
+
 
     return (
         <ConfigProvider
@@ -549,6 +586,21 @@ export default function GamePage() {
                 setPenaltyConfirmOpen={setPenaltyConfirmOpen}
                 setPenaltyCardPicked={setPenaltyCardPicked}
             />
+          {finished && (
+            <div className={styles.finishedBackdrop}>
+                <div className={styles.finishedBox}>
+                    <h2 className={styles.finishedTitle}>Game Over</h2>
+                    <div className={styles.finishedButtons}>
+                        <Button onClick={handleRestartGame}>
+                            Restart
+                        </Button>
+                        <Button onClick={handleBackToLobby}>
+                            Return to Lobby
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        )}
         </ConfigProvider>
     );
 }

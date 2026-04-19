@@ -32,6 +32,10 @@ export interface ClueRulingEvent extends GameEventBase {
   type: "ClueApproved" | "ClueRuledInvalid";
 }
 
+export interface postGameScreen extends GameEventBase {
+  type: "GAME_OVER" | "RETURNING_TO_LOBBY";
+}
+
 export interface TurnChangedEvent {
     type: "TurnChanged";
     timeStamp: string;
@@ -40,4 +44,4 @@ export interface TurnChangedEvent {
     team: "red" | "blue";
 }
 
-export type GameEvent = ClueEvent | GuessEvent | ClueReportedEvent | ClueRulingEvent | TurnChangedEvent;
+export type GameEvent = ClueEvent | GuessEvent | ClueReportedEvent | ClueRulingEvent | TurnChangedEvent | postGameScreen;
