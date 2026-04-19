@@ -377,6 +377,7 @@ export default function GamePage() {
     };
 
     // post game screen
+    const isHost = currentPlayer?.isHost === true;
     const handleRestartGame = async () => {
       try{
         await apiService.post(`/api/games/${lobbyCode}/restart`, {});
@@ -586,18 +587,20 @@ export default function GamePage() {
                 setPenaltyConfirmOpen={setPenaltyConfirmOpen}
                 setPenaltyCardPicked={setPenaltyCardPicked}
             />
-          {finished && (
+          {(finished && isHost) || true && (
             <div className={styles.finishedBackdrop}>
                 <div className={styles.finishedBox}>
                     <h2 className={styles.finishedTitle}>Game Over</h2>
-                    <div className={styles.finishedButtons}>
-                        <Button onClick={handleRestartGame}>
-                            Restart
-                        </Button>
-                        <Button onClick={handleBackToLobby}>
-                            Return to Lobby
-                        </Button>
-                    </div>
+                    {isHost ? (
+                      <div className={styles.finishedButtons}>
+                          <Button onClick={handleRestartGame}>
+                              Restart
+                          </Button>
+                          <Button onClick={handleBackToLobby}>
+                              Return to Lobby
+                          </Button>
+                      </div>
+                    ):(<p className={styles.finishedText}>Waiting for the host to choose what happens next.</p>)}
                 </div>
             </div>
         )}
