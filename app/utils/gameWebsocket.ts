@@ -1,6 +1,7 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent } from "@/types/gameEvent";
+import { getApiDomain } from "./domain";
 
 export function createGameSocket(
   lobbyCode: string,
@@ -10,7 +11,7 @@ export function createGameSocket(
 
   const client = new Client({
     webSocketFactory: () =>
-      new SockJS(`${process.env.NEXT_PUBLIC_WS_URL}/ws`),
+      new SockJS(`${getApiDomain()}/ws`),
       // new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
     reconnectDelay: 5000,
   });
