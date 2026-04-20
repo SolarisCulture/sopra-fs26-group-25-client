@@ -31,7 +31,6 @@ export default function GamePage() {
     // players
     const [players, setPlayers] = useState<User[]>([]);
     const [role, setRole] = useState<User["role"] | null>(null);
-    const [loadingRole, setLoadingRole] = useState(true);
 
     // game flow
     const [currentTurn, setCurrentTurn] = useState<"red" | "blue">("red");
@@ -166,9 +165,17 @@ export default function GamePage() {
                     fetchBoard();
                     setFinished(true);
                     break;
-                case "RETURNING_TO_LOBBY":
+                case "ReturningToLobby":
                     router.push(`/lobby/${lobbyCode}`);
                     break;
+                case "GameRestarting":
+                    setFinished(false);
+                    setCurrentClue(null);
+                    setCluePublished(false);
+                    setPenaltyPickMode(false);
+                    setPenaltyCardPicked(null);
+                    setClueWord("");
+                    setClueCount(1);
                 default: break;
             }
         });
