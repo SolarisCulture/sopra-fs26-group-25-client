@@ -169,12 +169,20 @@ export default function LobbyPage() {
         case "ROLE_UPDATED":
         case "STATUS_UPDATED": {
           await fetchLobby();
-
           if (event.data === "IN_PROGRESS") {
             router.push(`/${lobbyCode}/game`);
           }
-
-        break;
+          break;
+        }
+        case "SETTINGS_UPDATED": {
+          setSettings(prev => ({
+            ...prev,
+            spymasterTimer: event.data?.spymasterTimeLimit ?? null,
+            spyTimer: event.data?.spyTimeLimit ?? null,
+            roundsNumber: event.data?.rounds,
+          }));
+          message.info("Game settings have been updated by the host.");
+          break;
         }
 
         default:
@@ -333,8 +341,14 @@ export default function LobbyPage() {
   // save settings 
   const handleSave = async () => {
     try {
-      await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
+      const payload = {
+        spymasterTimeLimit: settings.spymasterTimer === null ? 0 : settings.spymasterTimer, 
+        spyTimeLimit: settings.spyTimer === null ? 0 : settings.spyTimer,
+        rounds: settings.roundsNumber ?? 3, // Fallback if null
+      };
+      await apiService.put(`/api/lobbies/${lobbyCode}`, payload);
       message.success("Settings saved!");
+      await fetchLobby();
     } catch {
       message.error("Failed to save settings!");
     }

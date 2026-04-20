@@ -11,7 +11,8 @@ export interface LobbyEvent {
     | "HOST_CHANGED"
     | "TEAM_UPDATED"
     | "ROLE_UPDATED"
-    | "STATUS_UPDATED";
+    | "STATUS_UPDATED"
+    | "SETTINGS_UPDATED";
   lobbyCode: string;
   data: string | number | boolean | null;
   timestamp: string;
