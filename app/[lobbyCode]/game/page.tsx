@@ -24,6 +24,11 @@ export default function GamePage() {
     const { lobbyCode } = useParams();
     const socketRef = useRef<ReturnType<typeof createGameSocket> | null>(null);
 
+    // Doesn't update correctly else --> more consistent
+    const [currentPhase, setCurrentPhase] = useState<string>("");
+    const currentPhaseRef = useRef("");
+    useEffect(() => { currentPhaseRef.current = currentPhase; }, [currentPhase]);
+
     // page setup
     const [howToPlayOpen, setHowToPlayOpen] = useState(false);
     const [board, setBoard] = useState<WordCard[]>([]);
@@ -67,7 +72,7 @@ export default function GamePage() {
     const [colorOverlayActive, setColorOverlayActive] = useState(false);
 
     const isMyTurn = currentPlayer?.team?.toLowerCase() == currentTurn.toLowerCase();
-    const canEndTurn = isMyTurn && role !== "SPYMASTER";
+    const canEndTurn = isMyTurn && role !== "SPYMASTER" && cluePublished;
 
     const isOpposingSpymaster = opposingSpymaster != null && String(opposingSpymaster.id) == String(storedPlayerId);
     // const isOpposingSpymaster = true;
@@ -85,10 +90,11 @@ export default function GamePage() {
 
     const fetchBoard = async () => {
         try {
-            const boardData = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE" }>(
+            const boardData = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE"; currentPhase: string }>(
                 `/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`
             );
             setBoard(boardData.cards);
+            setCurrentPhase(boardData.currentPhase);
             setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
         } catch (error) {
             console.error("Failed to fetch board!");
@@ -127,6 +133,10 @@ export default function GamePage() {
         setLoadingRole(false);
     }, [players, lobbyCode]);
 
+    // Sometimes turn doesnt get updated in time:
+    useEffect(() => {
+        currentTurnRef.current = currentTurn;
+    }, [currentTurn]);
 
     // subscribe to game websocket
     useEffect(() => {
@@ -137,11 +147,16 @@ export default function GamePage() {
         const socket = createGameSocket(String(lobbyCode), role, (event) => {
             switch (event.type) {
                 case "Clue":
+                    setCurrentPhase(event.board.currentPhase);
                     setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
                     setClueHistory(prev => [{ word: event.board.clueWord ?? "", count: event.board.clueCount, team: currentTurnRef.current }, ...prev]);
                     setCluePublished(true);
                     break;
-                case "Guess": { fetchBoard(); break; }
+                case "Guess": 
+                    setBoard(event.board.cards);
+                    setCurrentPhase(event.board.currentPhase);
+                    setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+                    break;
                 case "ClueReported":
                     setClueReviewOpen(true);
                     break;
@@ -158,11 +173,19 @@ export default function GamePage() {
                     message.warning("Clue ruled invalid!");
                     break;
                 case "TurnChanged":
-                    setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+                    setCurrentPhase(event.board.currentPhase);
+                    console.log("Received turn: "+event.board.currentTurn);
+
+                    const newTurn = event.board.currentTurn === "RED" ? "red" : "blue";
+                    setCurrentTurn(newTurn);
+
+                    console.log("Changed turn: "+newTurn);
+
                     setCluePublished(false);
                     setCurrentClue(null);
                     setClueWord("");
-                    fetchBoard();
+                    setBoard(event.board.cards);
+                    console.log("Went through all!");
                     break;
                 case "GameOver":
                     fetchBoard();
@@ -280,7 +303,8 @@ export default function GamePage() {
         }
 
         if (!currentPlayer) return;
-        if (currentTurn.toUpperCase() != currentPlayer.team) return message.error("It is not your turn yet!");
+        if (currentPlayer.role == "SPYMASTER") return message.error("You are not a spy!");
+        if (currentTurnRef.current.toUpperCase() !== currentPlayer.team) return message.error("It is not your turn yet!");
 
         const guessEvent: GuessEvent = {
             type: "Guess",
@@ -387,6 +411,7 @@ export default function GamePage() {
         setPenaltyConfirmOpen(false);
     };
 
+
     // post game screen
     const isHost = currentPlayer?.isHost === true;
     const handleRestartGame = async () => {
@@ -463,6 +488,7 @@ export default function GamePage() {
                 )}
             </div>
 
+            
             {/*VARIOUS BUTTONS*/}
             <div>
                 <Button
@@ -482,21 +508,23 @@ export default function GamePage() {
                 </Button>
             </div>
 
-            <Button
-                type={colorOverlayActive ? "default" : "primary"}
-                onClick={() => setColorOverlayActive(prev => !prev)}
-                style={{
-                    position: "absolute",
-                    width: 125,
-                    bottom: 185,
-                    right: 20,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "15px"
-                }}
-            >
-                {colorOverlayActive ? "Hide Key" : "Show Key"}
-            </Button>
+            {currentPlayer?.role === "SPYMASTER" && (
+                <Button
+                    type={colorOverlayActive ? "default" : "primary"}
+                    onClick={() => setColorOverlayActive(prev => !prev)}
+                    style={{
+                        position: "absolute",
+                        width: 125,
+                        bottom: 185,
+                        right: 20,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "15px"
+                    }}
+                >
+                    {colorOverlayActive ? "Hide Key" : "Show Key"}
+                </Button>
+            )}
 
             <div style={{
                 position: "absolute",
@@ -598,7 +626,7 @@ export default function GamePage() {
                 setPenaltyConfirmOpen={setPenaltyConfirmOpen}
                 setPenaltyCardPicked={setPenaltyCardPicked}
             />
-          {(finished && isHost) || true && (
+          {(finished) && (  // removed && is host --> double check?
             <div className={styles.finishedBackdrop}>
                 <div className={styles.finishedBox}>
                     <h2 className={styles.finishedTitle}>Game Over</h2>
