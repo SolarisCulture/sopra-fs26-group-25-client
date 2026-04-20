@@ -30,25 +30,27 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
         {bluePlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
             <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
-              {p.role == "SPYMASTER" && (
-                <span style={{fontSize: 16}}>🕵️</span>
-              )} 
-              
-              {isHost && p.role !== "SPYMASTER" && (
-                <Tooltip title="Click to make spymaster" color="#1B9FD8">
-                  <span
-                    style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
-                    onClick={() => {
-                      if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
-                  >
-                    🕵️
-                  </span>
-                </Tooltip>
-              )}
-              {p.username}
+              <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
+                {p.role == "SPYMASTER" && (
+                  <span style={{fontSize: 16}}>🕵️</span>
+                )} 
+                
+                {isHost && p.role !== "SPYMASTER" && (
+                  <Tooltip title="Click to make spymaster" color="#1B9FD8">
+                    <span
+                      style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
+                      onClick={() => {
+                        if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                    >
+                      🕵️
+                    </span>
+                  </Tooltip>
+                )}
+                </span>
+                {p.username}
             </span>
 
             {isHost && (
@@ -74,24 +76,26 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
         {redPlayers.map(p => (
           <div key={p.id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6}}>
             <span style={{display: "flex", alignItems: "center", gap: 6, color: "#fff"}}>
-              {p.role == "SPYMASTER" && (
-                <span style={{fontSize: 16}}>🕵️</span>
-              )}
+              <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
+                {p.role == "SPYMASTER" && (
+                  <span style={{fontSize: 16}}>🕵️</span>
+                )}
 
-              {isHost && p.role !== "SPYMASTER" && (
-                <Tooltip title="Click to make spymaster" color="#E8401C">
-                  <span
-                    style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
-                    onClick={() => {
-                      if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
-                  >
-                    🕵️
-                  </span>
-                </Tooltip>
-              )}
+                {isHost && p.role !== "SPYMASTER" && (
+                  <Tooltip title="Click to make spymaster" color="#E8401C">
+                    <span
+                      style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
+                      onClick={() => {
+                        if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                    >
+                      🕵️
+                    </span>
+                  </Tooltip>
+                )}
+              </span>
               {p.username}
             </span>
             

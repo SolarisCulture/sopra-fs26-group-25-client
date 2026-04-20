@@ -131,13 +131,14 @@ export default function GamePage() {
     // subscribe to game websocket
     useEffect(() => {
         if (!lobbyCode) return;
-         if (!role || role === "NONE") return;
+        if (!role || role === "NONE") return;
+        if (socketRef.current) return; 
 
         const socket = createGameSocket(String(lobbyCode), role, (event) => {
             switch (event.type) {
                 case "Clue":
-                    setCurrentClue({ word: event.word, count: event.count });
-                    setClueHistory(prev => [{ word: event.word, count: event.count, team: currentTurnRef.current }, ...prev]);
+                    setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
+                    setClueHistory(prev => [{ word: event.board.clueWord ?? "", count: event.board.clueCount, team: currentTurnRef.current }, ...prev]);
                     setCluePublished(true);
                     break;
                 case "Guess": { fetchBoard(); break; }
@@ -157,10 +158,11 @@ export default function GamePage() {
                     message.warning("Clue ruled invalid!");
                     break;
                 case "TurnChanged":
-                    setCurrentTurn(event.team);
+                    setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
                     setCluePublished(false);
                     setCurrentClue(null);
                     setClueWord("");
+                    fetchBoard();
                     break;
                 case "GameOver":
                     fetchBoard();
@@ -278,6 +280,7 @@ export default function GamePage() {
         }
 
         if (!currentPlayer) return;
+        if (currentTurn.toUpperCase() != currentPlayer.team) return message.error("It is not your turn yet!");
 
         const guessEvent: GuessEvent = {
             type: "Guess",
