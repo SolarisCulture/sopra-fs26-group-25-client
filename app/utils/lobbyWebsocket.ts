@@ -14,7 +14,7 @@ export interface LobbyEvent {
     | "STATUS_UPDATED"
     | "SETTINGS_UPDATED";
   lobbyCode: string;
-  data: string | number | boolean | null;
+  data: any; // string | number | boolean | null
   timestamp: string;
 }
 
