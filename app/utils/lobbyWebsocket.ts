@@ -11,10 +11,17 @@ export interface LobbyEvent {
     | "HOST_CHANGED"
     | "TEAM_UPDATED"
     | "ROLE_UPDATED"
-    | "STATUS_UPDATED";
+    | "STATUS_UPDATED"
+    | "SETTINGS_UPDATED";
   lobbyCode: string;
-  data: string | number | boolean | null;
+  data: string | number | boolean | null | SettingsUpdateData;
   timestamp: string;
+}
+
+export interface SettingsUpdateData {
+  spymasterTimeLimit: number | null;
+  spyTimeLimit: number | null;
+  rounds: number;
 }
 
 export function createLobbySocket(

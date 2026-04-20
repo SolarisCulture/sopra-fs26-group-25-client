@@ -9,7 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 
 // websocket
-import { createLobbySocket, LobbyEvent } from "@/utils/lobbyWebsocket";
+import { createLobbySocket, LobbyEvent, SettingsUpdateData } from "@/utils/lobbyWebsocket";
 
 import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
@@ -169,12 +169,21 @@ export default function LobbyPage() {
         case "ROLE_UPDATED":
         case "STATUS_UPDATED": {
           await fetchLobby();
-
           if (event.data === "IN_PROGRESS") {
             router.push(`/${lobbyCode}/game`);
           }
-
-        break;
+          break;
+        }
+        case "SETTINGS_UPDATED": {
+          const settingsData = event.data as SettingsUpdateData;
+          setSettings(prev => ({
+            ...prev,
+            spymasterTimer: settingsData.spymasterTimeLimit ?? null,
+            spyTimer: settingsData.spyTimeLimit ?? null,
+            roundsNumber: settingsData.rounds,
+          }));
+          message.info("Game settings have been updated by the host.");
+          break;
         }
 
         default:
@@ -333,8 +342,14 @@ export default function LobbyPage() {
   // save settings 
   const handleSave = async () => {
     try {
-      await apiService.put(`/api/lobbies/${lobbyCode}`, settings);
+      const payload = {
+        spymasterTimeLimit: settings.spymasterTimer === null ? 0 : settings.spymasterTimer, 
+        spyTimeLimit: settings.spyTimer === null ? 0 : settings.spyTimer,
+        rounds: settings.roundsNumber ?? 3, // Fallback if null
+      };
+      await apiService.put(`/api/lobbies/${lobbyCode}`, payload);
       message.success("Settings saved!");
+      await fetchLobby();
     } catch {
       message.error("Failed to save settings!");
     }
