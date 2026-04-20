@@ -170,3 +170,40 @@ background: radial-gradient(
   background: rgba(0, 0, 0, 0.45);
   border-color: rgba(0, 0, 0, 0.65);
 }
+
+.finishedBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.finishedBox {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    min-width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.finishedTitle {
+    margin: 0 0 8px 0;
+    color: black;
+}
+
+.finishedText {
+    margin: 0 0 20px 0;
+    color: #444;
+    text-align: center;
+}
+
+.finishedButtons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
