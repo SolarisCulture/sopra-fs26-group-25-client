@@ -14,8 +14,14 @@ export interface LobbyEvent {
     | "STATUS_UPDATED"
     | "SETTINGS_UPDATED";
   lobbyCode: string;
-  data: any; // string | number | boolean | null
+  data: string | number | boolean | null | SettingsUpdateData;
   timestamp: string;
+}
+
+export interface SettingsUpdateData {
+  spymasterTimeLimit: number | null;
+  spyTimeLimit: number | null;
+  rounds: number;
 }
 
 export function createLobbySocket(

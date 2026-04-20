@@ -9,7 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 
 // websocket
-import { createLobbySocket, LobbyEvent } from "@/utils/lobbyWebsocket";
+import { createLobbySocket, LobbyEvent, SettingsUpdateData } from "@/utils/lobbyWebsocket";
 
 import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
@@ -175,11 +175,12 @@ export default function LobbyPage() {
           break;
         }
         case "SETTINGS_UPDATED": {
+          const settingsData = event.data as SettingsUpdateData;
           setSettings(prev => ({
             ...prev,
-            spymasterTimer: event.data?.spymasterTimeLimit ?? null,
-            spyTimer: event.data?.spyTimeLimit ?? null,
-            roundsNumber: event.data?.rounds,
+            spymasterTimer: settingsData.spymasterTimeLimit ?? null,
+            spyTimer: settingsData.spyTimeLimit ?? null,
+            roundsNumber: settingsData.rounds,
           }));
           message.info("Game settings have been updated by the host.");
           break;
