@@ -31,6 +31,7 @@ export default function GamePage() {
     // players
     const [players, setPlayers] = useState<User[]>([]);
     const [role, setRole] = useState<User["role"] | null>(null);
+    const [loadingRole, setLoadingRole] = useState(true);
 
     // game flow
     const [currentTurn, setCurrentTurn] = useState<"red" | "blue">("red");
