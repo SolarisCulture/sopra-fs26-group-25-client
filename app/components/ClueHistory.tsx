@@ -7,7 +7,7 @@ export default function ClueHistory({ clueHistory }: Props) {
         <div style={{
             position: "absolute",
             left: "2vw",
-            top: "15vh",
+            top: "24px",
             width: "18vw",
             minWidth: 140,
             maxWidth: 320,
