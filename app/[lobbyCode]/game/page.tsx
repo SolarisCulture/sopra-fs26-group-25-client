@@ -151,6 +151,8 @@ export default function GamePage() {
                     setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
                     setClueHistory(prev => [{ word: event.board.clueWord ?? "", count: event.board.clueCount, team: currentTurnRef.current }, ...prev]);
                     setCluePublished(true);
+                    setBoard(event.board.cards);
+                    setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
                     break;
                 case "Guess": 
                     setBoard(event.board.cards);
@@ -204,7 +206,14 @@ export default function GamePage() {
                     setClueCount(1);
                 default: break;
             }
-        });
+        },
+        // reconnect handler
+        () => {
+            console.log("Reconnected → refetching state");
+            fetchBoard();
+            fetchPlayers();
+        }
+    );
 
         socketRef.current = socket;
         socket.connect();

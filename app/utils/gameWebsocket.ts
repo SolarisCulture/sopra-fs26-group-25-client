@@ -6,8 +6,9 @@ import { getApiDomain } from "./domain";
 export function createGameSocket(
   lobbyCode: string,
   role: "SPYMASTER" | "SPY",
-  onMessage: (event: GameEvent) => void
-) {
+  onMessage: (event: GameEvent) => void,
+  onReconnect: () => void
+  ) {
 
   const client = new Client({
     webSocketFactory: () =>
@@ -20,7 +21,7 @@ export function createGameSocket(
   const waitForConnection = (fn: () => void, retries = 10) => {
     console.log("waitForConnection called, connected:", client.connected, "retries:", retries);
     if (client.connected) {
-      console.log("Connected! Calling fn...");
+      console.log("The connection is there! Calling fn...");
       fn();
     } else if (retries > 0) {
       console.log("Not connected, retrying...");
@@ -33,6 +34,8 @@ export function createGameSocket(
   let subscription: StompSubscription | null = null;
 
   client.onConnect = () => {
+    console.log("STOMP CONNECTED / RECONNECTED")
+
     const topic =
       role === "SPYMASTER"
         ? `/topic/game/${lobbyCode}/spymaster`
@@ -43,6 +46,9 @@ export function createGameSocket(
       console.log("Game event received:", event);
       onMessage(event);
     });
+
+    console.log("Reconnected → resyncing state");
+    onReconnect();
   };
 
   client.onStompError = (frame) => {
