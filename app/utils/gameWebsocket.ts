@@ -7,8 +7,10 @@ export function createGameSocket(
   lobbyCode: string,
   role: "SPYMASTER" | "SPY",
   onMessage: (event: GameEvent) => void,
-  onReconnect: () => void
+  onReconnect: () => void,
   ) {
+
+  let isSubscribed = false;
 
   const client = new Client({
     webSocketFactory: () =>
@@ -19,8 +21,8 @@ export function createGameSocket(
 
   // sometimtes needed (more in testing) --> if an action happens rather quickly it can happen that the connection isnt established yet (1-2 sec after game start)
   const waitForConnection = (fn: () => void, retries = 10) => {
-    console.log("waitForConnection called, connected:", client.connected, "retries:", retries);
-    if (client.connected) {
+    console.log("waitForConnection called, connected:", client.connected,"subscribed: ", isSubscribed, "retries:", retries);
+    if (client.connected && isSubscribed) {
       console.log("The connection is there! Calling fn...");
       fn();
     } else if (retries > 0) {
@@ -47,8 +49,14 @@ export function createGameSocket(
       onMessage(event);
     });
 
-    console.log("Reconnected → resyncing state");
+  console.log("Reconnected → resyncing state");
+    isSubscribed = true;
     onReconnect();
+  };
+
+  client.onDisconnect = () => {
+    console.log("STOMP DISCONNECTED");
+    isSubscribed = false;
   };
 
   client.onStompError = (frame) => {
@@ -120,6 +128,7 @@ export function createGameSocket(
       if (subscription !== null) {
         subscription.unsubscribe();
       }
+      isSubscribed = false;
       await client.deactivate();
     },
   };
