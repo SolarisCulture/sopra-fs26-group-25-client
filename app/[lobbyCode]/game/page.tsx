@@ -16,7 +16,7 @@ import ClueInput from "@/components/ClueInputs";
 import ReportConfirmationModal from "@/components/ReportConfirmationModal";
 import ClueReviewModal from "@/components/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
-import PlayerList from "@/components/PlayerTable";
+import PlayerTable from "@/components/PlayerTable";
 
 export default function GamePage() {
     const apiService = useApi();
@@ -35,6 +35,10 @@ export default function GamePage() {
 
     // players
     const [players, setPlayers] = useState<User[]>([]);
+    const [blueSpymaster, setBlueSpymaster] = useState<User | null>(null);
+    const [redSpymaster, setRedSpymaster] = useState<User | null>(null);
+    const [blueSpies, setBlueSpies] = useState<User[]>([]);
+    const [redSpies, setRedSpies] = useState<User[]>([]);
     const [role, setRole] = useState<User["role"] | null>(null);
     const [loadingRole, setLoadingRole] = useState(true);
 
@@ -57,7 +61,7 @@ export default function GamePage() {
     const [clueReviewOpen, setClueReviewOpen] = useState(false);
     const [penaltyConfirmOpen, setPenaltyConfirmOpen] = useState(false);
 
-    const storedPlayerId = typeof window !== "undefined" ? localStorage.getItem(`playerId_${lobbyCode}`) : null;
+    const storedPlayerId = typeof window !== "undefined" ? sessionStorage.getItem(`playerId_${lobbyCode}`) : null;
     const currentPlayer = players.find((p) => String(p.id) == String(storedPlayerId)) ?? null;
 
     const teamCardType = currentTurn == "red" ? "AGENTRED" : "AGENTBLUE";
@@ -79,13 +83,28 @@ export default function GamePage() {
 
     // fetch players as a helper function
     const fetchPlayers = async () => {
-        try {
-            const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
+      try {
+        const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
+        const data = lobbyData.players || [];
+        console.log("got here");
+        setPlayers(data);
 
-            setPlayers(lobbyData.players || []);
-        } catch (error) {
-            console.error("Failed to fetch players!");
-        }
+        setBlueSpymaster(
+          data.find((player) => player.role === "SPYMASTER" && player.team === "BLUE") ?? null
+        );
+        setRedSpymaster(
+          data.find((player) => player.role === "SPYMASTER" && player.team === "RED") ?? null
+        );
+        setBlueSpies(
+          data.filter((player) => player.role === "SPY" && player.team === "BLUE")
+        );
+        setRedSpies(
+          data.filter((player) => player.role === "SPY" && player.team === "RED")
+        );
+
+      } catch {
+        console.error("Failed to fetch players!");
+      }
     };
 
     const fetchBoard = async () => {
@@ -117,7 +136,7 @@ export default function GamePage() {
     useEffect(() => {
         if (!lobbyCode || players.length === 0) return;
 
-        const storedPlayerId = localStorage.getItem(`playerId_${lobbyCode}`);
+        const storedPlayerId = sessionStorage.getItem(`playerId_${lobbyCode}`);
 
         if (!storedPlayerId) {
             setLoadingRole(false);
@@ -451,8 +470,12 @@ export default function GamePage() {
                 },
             }}>
 
-            <PlayerList
+            <PlayerTable
                 currentTurn={currentTurn}
+                blueSpymaster={blueSpymaster}
+                redSpymaster={redSpymaster}
+                blueSpies={blueSpies}
+                redSpies={redSpies}
             />
 
             <div className={`${styles.page} ${teamClass}`}>
