@@ -1,9 +1,9 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/page.module.css";
-import { App, Button, ConfigProvider, message, Modal, Table, TableProps, Tooltip } from "antd";
+import { App, Button, ConfigProvider, message, Modal, Table, TableProps, Tooltip, InputRef } from "antd";
 import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
@@ -44,6 +44,7 @@ export default function LobbyPage() {
   const [usernameInput, setUsernameInput] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [joiningLobby, setJoiningLobby] = useState(false);
+  const usernameInputRef = useRef<InputRef>(null);
 
   // other pop-ups
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
@@ -120,7 +121,7 @@ export default function LobbyPage() {
         const playerList = lobbyData.players || [];
         setPlayers(sanitizedPlayers);
 
-        const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
+        const savedId = sessionStorage.getItem(`playerId_${lobbyCode}`);
         const me = playerList.find(p => Number(p.id) == Number(savedId));
 
         if (me) {
@@ -129,9 +130,9 @@ export default function LobbyPage() {
           setIsHost(currentHostStatus);
 
           if (currentHostStatus) {
-            localStorage.setItem(`isHost_${lobbyCode}`, "true");
+            sessionStorage.setItem(`isHost_${lobbyCode}`, "true");
           } else {
-            localStorage.removeItem(`isHost_${lobbyCode}`);
+            sessionStorage.removeItem(`isHost_${lobbyCode}`);
           }
         }
       if (lobbyData.lobbyStatus === "IN_PROGRESS") {
@@ -145,6 +146,16 @@ export default function LobbyPage() {
     }
   };
 
+
+  // focus username input
+  useEffect(() => {
+    if (!showUsernamePopUp) return;
+    const timer = setTimeout(() => {
+      usernameInputRef.current?.focus();
+  }, 0);
+
+  return () => clearTimeout(timer);
+}, [showUsernamePopUp]);
 
   // fetch player and lobby on startupt
   useEffect(() => {
@@ -202,8 +213,8 @@ export default function LobbyPage() {
     setLink(`${window.location.origin}/${lobbyCode}`);
 
     // has this browser already joined this lobby?
-    const savedId = localStorage.getItem(`playerId_${lobbyCode}`);
-    console.log("savedId from localStorage:", savedId);
+    const savedId = sessionStorage.getItem(`playerId_${lobbyCode}`);
+    console.log("savedId from sessionStorage:", savedId);
     if (savedId) {
       setUserID(Number(savedId));
     } else {
@@ -224,8 +235,8 @@ export default function LobbyPage() {
       setJoiningLobby(true);
       try {
         const lobby = await apiService.post<Lobby>("/api/lobbies", { hostUsername: username });
-        localStorage.setItem("hostedLobby", lobby.lobbyCode);
-        localStorage.setItem(`playerId_${lobby.lobbyCode}`, String(lobby.hostId));
+        sessionStorage.setItem("hostedLobby", lobby.lobbyCode);
+        sessionStorage.setItem(`playerId_${lobby.lobbyCode}`, String(lobby.hostId));
         router.push(`/${lobby.lobbyCode}`);
       } catch {
         setUsernameError("Failed to create lobby. Please try again.");
@@ -249,12 +260,12 @@ export default function LobbyPage() {
     try {
       const response = await apiService.post<{ id: number}>(`/api/lobbies/${lobbyCode}/join`, username);
       const newPlayerID = response.id; // Extract ID from JSON object
-      localStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
-      const createdThisLobby = localStorage.getItem("hostedLobby") == lobbyCode;
+      sessionStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
+      const createdThisLobby = sessionStorage.getItem("hostedLobby") == lobbyCode;
 
       if (createdThisLobby) {
-        localStorage.setItem(`isHost_${lobbyCode}`, "true");
-        localStorage.removeItem("hostedLobby"); // not needed anymore
+        sessionStorage.setItem(`isHost_${lobbyCode}`, "true");
+        sessionStorage.removeItem("hostedLobby"); // not needed anymore
         setIsHost(true);
       }
 
@@ -317,7 +328,7 @@ export default function LobbyPage() {
       });
 
       setIsHost(false);
-      localStorage.removeItem(`isHost_${lobbyCode}`);
+      sessionStorage.removeItem(`isHost_${lobbyCode}`);
 
       message.success(`${newHost.username} is now the host.`);
       await fetchLobby();
@@ -331,8 +342,8 @@ export default function LobbyPage() {
     if (userID == null) return;
     try {
       await apiService.delete(`/api/lobbies/${lobbyCode}/players/${userID}`);
-      localStorage.removeItem(`playerId_${lobbyCode}`);
-      localStorage.removeItem(`isHost_${lobbyCode}`);
+      sessionStorage.removeItem(`playerId_${lobbyCode}`);
+      sessionStorage.removeItem(`isHost_${lobbyCode}`);
       router.push("/");
     } catch {
       message.error("Failed to leave lobby!");
@@ -441,6 +452,7 @@ export default function LobbyPage() {
               usernameInput={usernameInput}
               usernameError={usernameError}
               joiningLobby={joiningLobby}
+              inputRef={usernameInputRef}
               onChange={(val: string) => { setUsernameInput(val); setUsernameError(""); }}
               onJoin={handleJoin}
             />
