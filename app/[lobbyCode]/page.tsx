@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/page.module.css";
-import { App, Button, ConfigProvider, message, Modal, Table, TableProps, Tooltip } from "antd";
+import { App, Button, ConfigProvider, message, Modal, Table, TableProps, Tooltip, InputRef } from "antd";
 import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
