@@ -504,8 +504,6 @@ export default function LobbyPage() {
                 height: "50px",
                 fontSize: "18px",
                 fontWeight: "600",
-                background: "#7B2D8B",
-                borderColor: "#7B2D8B",
                 opacity: allAssigned && isHost ? 1 : 0.4,
               }}
               disabled={!allAssigned || !isHost}
