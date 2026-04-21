@@ -21,6 +21,7 @@ export default function UsernameModal(
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 12, padding: "8px 0",}}>
         <Input
+            autoFocus
             placeholder="Username (must be between 1 and 50 characters)"
             value={usernameInput}
             maxLength={50}

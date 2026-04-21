@@ -1,7 +1,7 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/page.module.css";
 import { App, Button, ConfigProvider, message, Modal, Table, TableProps, Tooltip } from "antd";
 import { Lobby, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
@@ -44,6 +44,7 @@ export default function LobbyPage() {
   const [usernameInput, setUsernameInput] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [joiningLobby, setJoiningLobby] = useState(false);
+  const usernameInputRef = useRef<InputRef>(null);
 
   // other pop-ups
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
@@ -145,6 +146,16 @@ export default function LobbyPage() {
     }
   };
 
+
+  // focus username input
+  useEffect(() => {
+    if (!showUsernamePopUp) return;
+    const timer = setTimeout(() => {
+      usernameInputRef.current?.focus();
+  }, 0);
+
+  return () => clearTimeout(timer);
+}, [showUsernamePopUp]);
 
   // fetch player and lobby on startupt
   useEffect(() => {
@@ -441,6 +452,7 @@ export default function LobbyPage() {
               usernameInput={usernameInput}
               usernameError={usernameError}
               joiningLobby={joiningLobby}
+              inputRef={usernameInputRef}
               onChange={(val: string) => { setUsernameInput(val); setUsernameError(""); }}
               onJoin={handleJoin}
             />
