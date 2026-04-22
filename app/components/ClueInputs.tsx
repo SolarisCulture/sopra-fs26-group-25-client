@@ -47,6 +47,7 @@ export default function ClueInput({ clueWord, setClueWord, clueCount, setClueCou
             <Button
                 type="primary"
                 onClick={onSend}
+                disabled={disabled}
                 style={{ height: 40, padding: "0 20px", borderRadius: 8, fontWeight: 600 }}
             >
                 Publish Clue

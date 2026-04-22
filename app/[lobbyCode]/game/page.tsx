@@ -53,7 +53,10 @@ export default function GamePage() {
     const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
     const [cluePublished, setCluePublished] = useState(false);
     const [clueHistory, setClueHistory] = useState<{ word: string; count: number; team: "red" | "blue" }[]>([]);
+    
     const [finished, setFinished] = useState(false);
+    const [isRestarting, setIsRestarting] = useState(false);
+    const [winningTeam, setWinningTeam] = useState<string | null>(null);
 
     // penalty
     const [penaltyPickMode, setPenaltyPickMode] = useState(false);
@@ -110,13 +113,20 @@ export default function GamePage() {
 
     const fetchBoard = async () => {
         try {
-            const boardData = await apiService.get<{id: number; cards: WordCard[]; currentTurn: "RED" | "BLUE"; currentPhase: string }>(
+            const boardData = await apiService.get<{
+                id: number;
+                cards: WordCard[];
+                currentTurn: "RED" | "BLUE";
+                currentPhase: string;
+                clueHistory: { word: string; count: number; team: "red" | "blue" }[];
+            }>(
                 `/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`
             );
             setGameId(boardData.id);
             setBoard(boardData.cards);
             setCurrentPhase(boardData.currentPhase);
             setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
+            setClueHistory(boardData.clueHistory ?? []);
         } catch (error) {
             console.error("Failed to fetch board!");
         }
@@ -163,16 +173,27 @@ export default function GamePage() {
     useEffect(() => {
         if (gameId == null) return;
 
-        console.log("New game instance detected:", gameId);
+        const previousGameId = previousGameIdRef.current;
 
-        setFinished(false);
-        setCurrentClue(null);
-        setCluePublished(false);
-        setPenaltyPickMode(false);
-        setPenaltyCardPicked(null);
-        setClueWord("");
-        setClueCount(1);
-        setClueHistory([]);
+        if (previousGameId == null) {
+            previousGameIdRef.current = gameId;
+            return;
+        }
+
+        if (previousGameId !== gameId) {
+            console.log("New game instance detected:", gameId);
+
+            setFinished(false);
+            setCurrentClue(null);
+            setCluePublished(false);
+            setPenaltyPickMode(false);
+            setPenaltyCardPicked(null);
+            setClueWord("");
+            setClueCount(1);
+            setClueHistory([]);
+        }
+
+        previousGameIdRef.current = gameId;
     }, [gameId]);
 
     // subscribe to game websocket
@@ -224,12 +245,16 @@ export default function GamePage() {
                 case "GameOver":
                     fetchBoard();
                     setFinished(true);
+                    fetchGameStatistics();
                     break;
                 case "ReturningToLobby":
+                    setWinningTeam(null);
                     socketRef.current?.disconnect();
                     router.push(`/${lobbyCode}`);
                     break;
                 case "GameRestarting":
+                    setWinningTeam(null);
+                    setIsRestarting(false);
                     if (event.board) {
                         setGameId(event.board.id);
                         setBoard(event.board.cards);
@@ -459,6 +484,7 @@ export default function GamePage() {
     const handleRestartGame = async () => {
       try{
         console.log("Starting new game (restart)!");
+        setIsRestarting(true);
         await apiService.post(`/api/games/${lobbyCode}/restart`, {});
       }
       catch (error) {message.error("Failed to restart game.")}
@@ -470,6 +496,16 @@ export default function GamePage() {
       }
       catch (error) {message.error("Failed to restart game.")}
     }
+
+    const fetchGameStatistics = async () => {
+    try {
+        const stats = await apiService.get<{ winningTeam: string }>(`/api/games/${lobbyCode}/statistics`);
+        setWinningTeam(stats.winningTeam);
+    } catch (error) {
+        console.error("Failed to fetch game statistics!");
+        setWinningTeam(null);
+    }
+};
 
 
     return (
@@ -510,7 +546,7 @@ export default function GamePage() {
 
 
                 {/*CLUE INPUT --> comment out role == "spymaster" to see the spy view*/}
-                {role == "SPYMASTER" && isMyTurn && !penaltyPickMode && (
+                {role == "SPYMASTER" && isMyTurn && !penaltyPickMode && currentPhase === "SPYMASTER_TURN" && (
                     <ClueInput
                         clueWord={clueWord}
                         setClueWord={setClueWord}
@@ -665,15 +701,18 @@ export default function GamePage() {
             <div className={styles.finishedBackdrop}>
                 <div className={styles.finishedBox}>
                     <h2 className={styles.finishedTitle}>Game Over</h2>
+                        <p className={styles.finishedText}>
+                            {winningTeam ? `Team ${winningTeam} has won the game!` : "The game has ended."}
+                        </p>
                     {isHost ? (
-                      <div className={styles.finishedButtons}>
-                          <Button onClick={handleRestartGame}>
-                              Restart
-                          </Button>
-                          <Button onClick={handleBackToLobby}>
-                              Return to Lobby
-                          </Button>
-                      </div>
+                        <div className={styles.finishedButtons}>
+                            <Button onClick={handleRestartGame} loading={isRestarting} disabled={isRestarting}>
+                                {isRestarting ? "Restarting..." : "Restart"}
+                            </Button>
+                            <Button onClick={handleBackToLobby} disabled={isRestarting}>
+                                Return to Lobby
+                            </Button>
+                        </div>
                     ):(<p className={styles.finishedText}>Waiting for the host to choose what happens next.</p>)}
                 </div>
             </div>

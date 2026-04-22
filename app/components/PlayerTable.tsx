@@ -79,7 +79,7 @@ function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
           textShadow: "0 2px 8px rgba(0,0,0,0.25)"
         }}
       >
-        {spymaster?.username ?? "Waiting for spymaster..."}
+        {spymaster ? `🕵️ ${spymaster.username}` : "Waiting for spymaster..."}
       </h3>
 
       <div

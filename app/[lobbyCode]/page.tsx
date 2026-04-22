@@ -29,6 +29,7 @@ export default function LobbyPage() {
   const [isHost, setIsHost] = useState(false);
   const [userID, setUserID] = useState<number | null>(null);
   const [lobby, setLobby] = useState<Lobby | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
 
   // player list
   const [players, setPlayers] = useState<User[]>([]);
@@ -180,6 +181,7 @@ export default function LobbyPage() {
         case "ROLE_UPDATED":
         case "STATUS_UPDATED": {
           await fetchLobby();
+          setIsStarting(false);
           if (event.data === "IN_PROGRESS") {
             router.push(`/${lobbyCode}/game`);
           }
@@ -506,10 +508,12 @@ export default function LobbyPage() {
                 fontWeight: "600",
                 opacity: allAssigned && isHost ? 1 : 0.4,
               }}
-              disabled={!allAssigned || !isHost}
+              loading={isStarting}
+              disabled={!allAssigned || !isHost || isStarting}
               onClick={async () => {
                 try {
                   message.success(`The game is starting now, please wait!`);
+                  setIsStarting(true);
                   await apiService.post(`/api/games/${lobbyCode}/start`, {});
                 } catch {
                   message.error("Failed to start game!");
