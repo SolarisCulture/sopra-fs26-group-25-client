@@ -459,7 +459,7 @@ export default function GamePage() {
 
     const handleBackToLobby = async () => {
       try{
-        await apiService.post(`/api/games/${lobbyCode}/return-to-lobby`, {});
+        await apiService.post(`/api/games/${lobbyCode}/backToLobby`, {});
 
         socketRef.current?.disconnect();
         router.push(`/lobby/${lobbyCode}`);
