@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: LobbySettings = {
   customTheme: "",
   customWordList: "",
   difficulty: "all",
-  spymasterTimer: 90,
+  spymasterTimer: null,
   spyTimer: null,
-  roundsNumber: null,
+  roundsNumber: 1000,
 };

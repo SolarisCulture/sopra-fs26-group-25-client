@@ -53,7 +53,7 @@ export default function LobbyPage() {
 
   // settings
   const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
-  const [spymasterTimerDisabled, setSpymasterTimerDisabled] = useState(false);
+  const [spymasterTimerDisabled, setSpymasterTimerDisabled] = useState(true);
   const [spyTimerDisabled, setSpyTimerDisabled] = useState(true);
   const [spymasterTimerDraft, setSpymasterTimerDraft] = useState<number | null>(DEFAULT_SETTINGS.spymasterTimer);
   const [spyTimerDraft, setSpyTimerDraft] = useState<number | null>(null);
@@ -356,7 +356,7 @@ export default function LobbyPage() {
       const payload = {
         spymasterTimeLimit: settings.spymasterTimer === null ? 0 : settings.spymasterTimer, 
         spyTimeLimit: settings.spyTimer === null ? 0 : settings.spyTimer,
-        rounds: settings.roundsNumber ?? 3, // Fallback if null
+        rounds: settings.roundsNumber ?? 1000, // Fallback if null
       };
       await apiService.put(`/api/lobbies/${lobbyCode}`, payload);
       message.success("Settings saved!");
@@ -370,7 +370,7 @@ export default function LobbyPage() {
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
     setSpyTimerDisabled(true);
-    setSpymasterTimerDisabled(false);
+    setSpymasterTimerDisabled(true);
     setRoundsNumberDisabled(true);
     message.info("Reset to default.");
   };

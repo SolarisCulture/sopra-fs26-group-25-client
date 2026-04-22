@@ -232,7 +232,7 @@ export default function SettingsModal({
         <InputNumber
           style={{ width: 200 }}
           min={1}
-          max={100}
+          max={1000}
           value={settings.roundsNumber}
           disabled={!isHost || roundsNumberDisabled}
           onChange={onRoundsNumberChange}
