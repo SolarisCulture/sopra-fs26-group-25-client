@@ -32,6 +32,8 @@ export default function GamePage() {
     // page setup
     const [howToPlayOpen, setHowToPlayOpen] = useState(false);
     const [board, setBoard] = useState<WordCard[]>([]);
+    const [gameId, setGameId] = useState<number | null>(null);
+    const previousGameIdRef = useRef<number | null>(null);
 
     // players
     const [players, setPlayers] = useState<User[]>([]);
@@ -86,7 +88,6 @@ export default function GamePage() {
       try {
         const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
         const data = lobbyData.players || [];
-        console.log("got here");
         setPlayers(data);
 
         setBlueSpymaster(
@@ -109,9 +110,10 @@ export default function GamePage() {
 
     const fetchBoard = async () => {
         try {
-            const boardData = await apiService.get<{ cards: WordCard[]; currentTurn: "RED" | "BLUE"; currentPhase: string }>(
+            const boardData = await apiService.get<{id: number; cards: WordCard[]; currentTurn: "RED" | "BLUE"; currentPhase: string }>(
                 `/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`
             );
+            setGameId(boardData.id);
             setBoard(boardData.cards);
             setCurrentPhase(boardData.currentPhase);
             setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
@@ -157,6 +159,22 @@ export default function GamePage() {
         currentTurnRef.current = currentTurn;
     }, [currentTurn]);
 
+    // For game restarting
+    useEffect(() => {
+        if (gameId == null) return;
+
+        console.log("New game instance detected:", gameId);
+
+        setFinished(false);
+        setCurrentClue(null);
+        setCluePublished(false);
+        setPenaltyPickMode(false);
+        setPenaltyCardPicked(null);
+        setClueWord("");
+        setClueCount(1);
+        setClueHistory([]);
+    }, [gameId]);
+
     // subscribe to game websocket
     useEffect(() => {
         if (!lobbyCode) return;
@@ -195,34 +213,30 @@ export default function GamePage() {
                     break;
                 case "TurnChanged":
                     setCurrentPhase(event.board.currentPhase);
-                    console.log("Received turn: "+event.board.currentTurn);
-
                     const newTurn = event.board.currentTurn === "RED" ? "red" : "blue";
                     setCurrentTurn(newTurn);
-
-                    console.log("Changed turn: "+newTurn);
 
                     setCluePublished(false);
                     setCurrentClue(null);
                     setClueWord("");
                     setBoard(event.board.cards);
-                    console.log("Went through all!");
                     break;
                 case "GameOver":
                     fetchBoard();
                     setFinished(true);
                     break;
                 case "ReturningToLobby":
-                    router.push(`/lobby/${lobbyCode}`);
+                    socketRef.current?.disconnect();
+                    router.push(`/${lobbyCode}`);
                     break;
                 case "GameRestarting":
-                    setFinished(false);
-                    setCurrentClue(null);
-                    setCluePublished(false);
-                    setPenaltyPickMode(false);
-                    setPenaltyCardPicked(null);
-                    setClueWord("");
-                    setClueCount(1);
+                    if (event.board) {
+                        setGameId(event.board.id);
+                        setBoard(event.board.cards);
+                        setCurrentPhase(event.board.currentPhase);
+                        setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+                    }
+                    break;
                 default: break;
             }
         },
@@ -444,15 +458,8 @@ export default function GamePage() {
     const isHost = currentPlayer?.isHost === true;
     const handleRestartGame = async () => {
       try{
+        console.log("Starting new game (restart)!");
         await apiService.post(`/api/games/${lobbyCode}/restart`, {});
-
-        setFinished(false);
-        setCurrentClue(null);
-        setCluePublished(false);
-        setPenaltyPickMode(false);
-        setPenaltyCardPicked(null);
-        setClueWord("");
-        setClueCount(1);
       }
       catch (error) {message.error("Failed to restart game.")}
     }
@@ -460,10 +467,6 @@ export default function GamePage() {
     const handleBackToLobby = async () => {
       try{
         await apiService.post(`/api/games/${lobbyCode}/backToLobby`, {});
-
-        socketRef.current?.disconnect();
-        router.push(`/lobby/${lobbyCode}`);
-
       }
       catch (error) {message.error("Failed to restart game.")}
     }

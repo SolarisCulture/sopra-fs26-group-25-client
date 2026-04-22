@@ -75,23 +75,19 @@ export function createGameSocket(
 
     sendGuess: (event: GuessEvent) => {
       waitForConnection(() => {
-        console.log("Before publish guess");
         client.publish({
           destination: `/app/${lobbyCode}/guess`,
           body: JSON.stringify({word: event.guessedCard.word}),
         })
-        console.log("After publish guess");
       });
     },
 
     sendClue: (event: ClueEvent) => {
       waitForConnection(() => {
-        console.log("Before publish clue");
         client.publish({
           destination: `/app/${lobbyCode}/clue`,
           body: JSON.stringify({word: event.word, count: event.count}),
         });
-        console.log("After publish clue");
       });
     },
 
@@ -115,12 +111,10 @@ export function createGameSocket(
 
     sendTurnChange: (event: TurnChangedEvent) => {
       waitForConnection(() => {
-        console.log("Before publish turn change");
         client.publish({
             destination: `/app/${lobbyCode}/turn-change`,
             body: JSON.stringify(event),
         });
-        console.log("Before publish turn change");
       });
   },
 

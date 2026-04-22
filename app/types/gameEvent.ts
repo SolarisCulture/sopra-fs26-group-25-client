@@ -17,6 +17,7 @@ export interface Guess {
 }
 
 export interface GameBoardPayload {
+  id: number;
   clueWord: string | null;
   clueCount: number;
   currentTurn: "RED" | "BLUE";
