@@ -86,6 +86,42 @@ export default function GamePage() {
     const isOpposingSpymaster = opposingSpymaster != null && String(opposingSpymaster.id) == String(storedPlayerId);
     // const isOpposingSpymaster = true;
 
+    const [dictionaryResult, setDictionaryResult] = useState<{ word: string; meanings: string[] } | null>(null);
+    const [dictionaryResultOpen, setDictionaryResultOpen] = useState(false);
+    const [dictionaryLoading, setDictionaryLoading] = useState(false);
+
+    const handleDictionarySearch = async () => {
+        if (!dictionarySearch.trim()) return;
+
+        setDictionaryLoading(true);
+
+        try {
+            const response = await fetch(
+                `https://api.dictionaryapi.dev/api/v2/entries/en/${dictionarySearch.trim()}`
+            );
+
+            if (!response.ok) {
+                message.error("Word not found.");
+                setDictionaryLoading(false);
+                return;
+            }
+
+            const data = await response.json();
+            const meanings = data[0].meanings.map(
+                (m: { partOfSpeech: string; definitions: { definition: string }[] }) =>
+                    `${m.partOfSpeech}: ${m.definitions[0].definition}`
+            );
+
+            setDictionaryResult({ word: dictionarySearch.trim(), meanings });
+            setDictionaryOpen(false);        // close input modal
+            setDictionaryResultOpen(true);   // open result modal
+        } catch {
+            message.error("Failed to look up word.");
+        } finally {
+            setDictionaryLoading(false);
+        }
+    };
+
     // fetch players as a helper function
     const fetchPlayers = async () => {
       try {
@@ -628,10 +664,14 @@ export default function GamePage() {
                     </Button>
                 )
                 }
+                {/* Dictionary Input Modal */}
                 <Modal
                     title="Dictionary"
                     open={dictionaryOpen}
-                    onCancel={() => setDictionaryOpen(false)}
+                    onCancel={() => {
+                        setDictionaryOpen(false);
+                        setDictionarySearch("");
+                    }}
                     footer={null}
                 >
                     <div style={{ padding: "10px 0" }}>
@@ -640,20 +680,38 @@ export default function GamePage() {
                             placeholder="Enter word..."
                             value={dictionarySearch}
                             onChange={(e) => setDictionarySearch(e.target.value)}
-                            onPressEnter={() => {/*dictionary logic here --> best if one can only search for words currently on the board (display multiple manings if there is more than one)*/ }}
+                            onPressEnter={handleDictionarySearch}
+                            //onPressEnter={() => {/*dictionary logic here --> best if one can only search for words currently on the board (display multiple manings if there is more than one)*/ }}
                         />
                         <p style={{ marginTop: "12px", fontSize: "12px", color: "#666" }}>
                             Press Enter to search.
                         </p>
                     </div>
-                </Modal>
+                </Modal> 
                 <Button
                     type="primary"
                     onClick={() => setDictionaryOpen(true)}
+                    loading={dictionaryLoading}
                     style={{ width: 125, height: 40, padding: "0 20px", borderRadius: 8 }}
                 >
                     Dictionary
                 </Button>
+
+                {/* Dictionary Result Modal */}
+                <Modal
+                    title={`Definition: ${dictionaryResult?.word}`}
+                    open={dictionaryResultOpen}
+                    onCancel={() => {
+                        setDictionaryResultOpen(false);
+                        setDictionaryResult(null);
+                        setDictionarySearch("");
+                    }}
+                    footer={null}
+                >
+                    {dictionaryResult?.meanings.map((meaning, index) => (
+                        <p key={index} style={{ marginBottom: 8 }}>{meaning}</p>
+                    ))}
+                </Modal>
 
 
             </div>
