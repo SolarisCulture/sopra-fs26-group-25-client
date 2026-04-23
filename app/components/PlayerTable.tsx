@@ -1,9 +1,11 @@
 "use client";
 
+import { Turn } from "@/types/turn";
 import { User } from "@/types/user"
 
 interface PlayerTableProps {
   currentTurn: "red" | "blue"
+  currentPhase: string
   blueSpymaster: User | null
   redSpymaster: User | null
   blueSpies: User[]
@@ -12,12 +14,13 @@ interface PlayerTableProps {
 
 interface TeamCardProps {
   team: "BLUE" | "RED"
+  currentPhase: string
   currentTurn: "red" | "blue"
   spymaster: User | null
   spies: User[]
 }
 
-function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
+function TeamCard({ team, currentTurn, currentPhase, spymaster, spies }: TeamCardProps) {
   const isCurrentTurn =
     (team === "RED" && currentTurn === "red") ||
     (team === "BLUE" && currentTurn === "blue")
@@ -62,7 +65,7 @@ function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
           zIndex: 10
         }}
       >
-        {team} {isCurrentTurn ? "• CURRENT TURN" : ""}
+        {team} {isCurrentTurn ? `• CURRENT TURN • ${currentPhase == "SPYMASTER_TURN" ? "SPYMASTER-PHASE" : "SPY-PHASE"}` : ""}
       </span>
 
       <h3
@@ -152,6 +155,7 @@ function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
 
 export default function PlayerTable({
   currentTurn,
+  currentPhase,
   blueSpymaster,
   redSpymaster,
   blueSpies,
@@ -174,6 +178,7 @@ export default function PlayerTable({
       <TeamCard
         team="BLUE"
         currentTurn={currentTurn}
+        currentPhase={currentPhase}
         spymaster={blueSpymaster}
         spies={blueSpies}
       />
@@ -181,6 +186,7 @@ export default function PlayerTable({
       <TeamCard
         team="RED"
         currentTurn={currentTurn}
+        currentPhase={currentPhase}
         spymaster={redSpymaster}
         spies={redSpies}
       />

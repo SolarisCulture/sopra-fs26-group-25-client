@@ -556,6 +556,7 @@ export default function GamePage() {
 
             <PlayerTable
                 currentTurn={currentTurn}
+                currentPhase={currentPhase}
                 blueSpymaster={blueSpymaster}
                 redSpymaster={redSpymaster}
                 blueSpies={blueSpies}
