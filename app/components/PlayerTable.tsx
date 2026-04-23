@@ -79,7 +79,12 @@ function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
           textShadow: "0 2px 8px rgba(0,0,0,0.25)"
         }}
       >
-        {spymaster ? `🕵️ ${spymaster.username}` : "Waiting for spymaster..."}
+        {spymaster ? (
+          <>
+            {spymaster.isHost && <span>👑 </span>}
+            🕵️ <span style={{ wordBreak: "break-all" }}>{spymaster.username}</span>
+          </>
+        ) : "Waiting for spymaster..."}
       </h3>
 
       <div
@@ -121,7 +126,8 @@ function TeamCard({ team, currentTurn, spymaster, spies }: TeamCardProps) {
                   padding: "0 10px"
                 }}
               >
-                {spy.username}
+                {spy.isHost && <span style={{ marginRight: 6 }}>👑</span>}
+                <span style={{ flex: 1, textAlign: "center", wordBreak: "break-all" }}>{spy.username}</span>
               </div>
             ))}
           </div>

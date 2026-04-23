@@ -287,6 +287,15 @@ export default function LobbyPage() {
 
     (async () => {
       try {
+        if (team == "UNASSIGNED") {
+          const player = players.find(p => String(p.id) == String(playerId));
+          if (player?.role == "SPYMASTER") {
+            const next = players.find(p => p.team == player.team && String(p.id) !== String(playerId));
+            if (next?.id) {
+              await apiService.put(`/api/lobbies/${lobbyCode}/player/${next.id}/role`, { role: "SPYMASTER" });
+            }
+          }
+        }
         await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team: team });
 
         const teamCount = players.filter(p => p.team == team).length;
@@ -499,31 +508,33 @@ export default function LobbyPage() {
           </div>
 
           {/*START GAME*/}
-          <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
-            <Button
-              type="primary"
-              style={{
-                width: "200px",
-                height: "50px",
-                fontSize: "18px",
-                fontWeight: "600",
-                opacity: allAssigned && isHost ? 1 : 0.4,
-              }}
-              loading={isStarting}
-              disabled={!allAssigned || !isHost || isStarting}
-              onClick={async () => {
-                try {
-                  message.success(`The game is starting now, please wait!`);
-                  setIsStarting(true);
-                  await apiService.post(`/api/games/${lobbyCode}/start`, {});
-                } catch {
-                  message.error("Failed to start game!");
-                }
-              }}
-            >
-              Start Game
-            </Button>
-          </div>
+          {isHost &&
+            <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
+              <Button
+                type="primary"
+                style={{
+                  width: "200px",
+                  height: "50px",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  opacity: allAssigned && isHost ? 1 : 0.4,
+                }}
+                loading={isStarting}
+                disabled={!allAssigned || !isHost || isStarting}
+                onClick={async () => {
+                  try {
+                    message.success(`The game is starting now, please wait!`);
+                    setIsStarting(true);
+                    await apiService.post(`/api/games/${lobbyCode}/start`, {});
+                  } catch {
+                    message.error("Failed to start game!");
+                  }
+                }}
+              >
+                Start Game
+              </Button>
+            </div>
+          }
 
           {/*TEAM TABLE*/}
           <TeamTableModal

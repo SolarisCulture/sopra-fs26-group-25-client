@@ -86,6 +86,7 @@ export default function ClueHistory({ clueHistory }: Props) {
                         }}>
                             <span style={{
                                 fontWeight: 800,
+                                wordBreak: "break-all",
                                 fontSize: isLatest ? 18 : 16,
                                 color: "#fff",
                                 flex: 1
