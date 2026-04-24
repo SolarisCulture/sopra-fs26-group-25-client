@@ -16,7 +16,6 @@ import LeaveModal from "../components/LeaveModal";
 import UsernameModal from "../components/UsernameModal";
 import SettingsModal from "../components/SettingsModal";
 import TeamTableModal from "@/components/TeamTableModal";
-import { log } from "console";
 
 export default function LobbyPage() {
   const { message } = App.useApp();
@@ -86,14 +85,15 @@ export default function LobbyPage() {
                 )
                 )}
               </span>
-              {username}
+              <span style={{ wordBreak: "break-all" }}>{username}</span>
             </span>
 
             {/* only allow host to assign players to teams and transfer host role*/}
-            {isHost && (player.team == "UNASSIGNED" || !player.team) && (
+            {isHost && (
               <Button
                 size="small"
                 type="primary"
+                style={{ visibility: (player.team == "UNASSIGNED" || !player.team) ? "visible" : "hidden" }}
                 onClick={() => setAssignTarget(player)}
               >
                 Assign
@@ -136,7 +136,7 @@ export default function LobbyPage() {
             sessionStorage.removeItem(`isHost_${lobbyCode}`);
           }
         }
-      if (lobbyData.lobbyStatus === "IN_PROGRESS") {
+        if (lobbyData.lobbyStatus === "IN_PROGRESS") {
           router.push(`/${lobbyCode}/game`);
         }
       }
@@ -153,10 +153,10 @@ export default function LobbyPage() {
     if (!showUsernamePopUp) return;
     const timer = setTimeout(() => {
       usernameInputRef.current?.focus();
-  }, 0);
+    }, 0);
 
-  return () => clearTimeout(timer);
-}, [showUsernamePopUp]);
+    return () => clearTimeout(timer);
+  }, [showUsernamePopUp]);
 
   // fetch player and lobby on startupt
   useEffect(() => {
@@ -168,8 +168,8 @@ export default function LobbyPage() {
 
   // websocket
   useEffect(() => {
-    if(!lobbyCode) return;
-    if(!userID) return;
+    if (!lobbyCode) return;
+    if (!userID) return;
     const socket = createLobbySocket(String(lobbyCode), userID, async (event: LobbyEvent) => {
       console.log("Lobby event received:", event);
 
@@ -260,7 +260,7 @@ export default function LobbyPage() {
     setUsernameError("");
 
     try {
-      const response = await apiService.post<{ id: number}>(`/api/lobbies/${lobbyCode}/join`, username);
+      const response = await apiService.post<{ id: number }>(`/api/lobbies/${lobbyCode}/join`, username);
       const newPlayerID = response.id; // Extract ID from JSON object
       sessionStorage.setItem(`playerId_${lobbyCode}`, String(newPlayerID));
       const createdThisLobby = sessionStorage.getItem("hostedLobby") == lobbyCode;
@@ -287,6 +287,15 @@ export default function LobbyPage() {
 
     (async () => {
       try {
+        if (team == "UNASSIGNED") {
+          const player = players.find(p => String(p.id) == String(playerId));
+          if (player?.role == "SPYMASTER") {
+            const next = players.find(p => p.team == player.team && String(p.id) !== String(playerId));
+            if (next?.id) {
+              await apiService.put(`/api/lobbies/${lobbyCode}/player/${next.id}/role`, { role: "SPYMASTER" });
+            }
+          }
+        }
         await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team: team });
 
         const teamCount = players.filter(p => p.team == team).length;
@@ -356,7 +365,7 @@ export default function LobbyPage() {
   const handleSave = async () => {
     try {
       const payload = {
-        spymasterTimeLimit: settings.spymasterTimer === null ? 0 : settings.spymasterTimer, 
+        spymasterTimeLimit: settings.spymasterTimer === null ? 0 : settings.spymasterTimer,
         spyTimeLimit: settings.spyTimer === null ? 0 : settings.spyTimer,
         rounds: settings.roundsNumber ?? 1000, // Fallback if null
       };
@@ -485,44 +494,47 @@ export default function LobbyPage() {
 
 
           {/*PLAYER TABLE*/}
-          <div style={{ position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "350px" }}>
+          <div style={{ position: "absolute", display: "flex", flexDirection: "column", gap: "10px", width: "450px" }}>
             {players && (
               <Table<User>
                 columns={playerColumns}
                 dataSource={players}
                 rowKey="id"
                 pagination={false}
+                scroll={{ y: 450 }}
                 style={{ borderRadius: "8px", overflow: "hidden" }}
               />
             )}
           </div>
 
           {/*START GAME*/}
-          <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
-            <Button
-              type="primary"
-              style={{
-                width: "200px",
-                height: "50px",
-                fontSize: "18px",
-                fontWeight: "600",
-                opacity: allAssigned && isHost ? 1 : 0.4,
-              }}
-              loading={isStarting}
-              disabled={!allAssigned || !isHost || isStarting}
-              onClick={async () => {
-                try {
-                  message.success(`The game is starting now, please wait!`);
-                  setIsStarting(true);
-                  await apiService.post(`/api/games/${lobbyCode}/start`, {});
-                } catch {
-                  message.error("Failed to start game!");
-                }
-              }}
-            >
-              Start Game
-            </Button>
-          </div>
+          {isHost &&
+            <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
+              <Button
+                type="primary"
+                style={{
+                  width: "200px",
+                  height: "50px",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  opacity: allAssigned && isHost ? 1 : 0.4,
+                }}
+                loading={isStarting}
+                disabled={!allAssigned || !isHost || isStarting}
+                onClick={async () => {
+                  try {
+                    message.success(`The game is starting now, please wait!`);
+                    setIsStarting(true);
+                    await apiService.post(`/api/games/${lobbyCode}/start`, {});
+                  } catch {
+                    message.error("Failed to start game!");
+                  }
+                }}
+              >
+                Start Game
+              </Button>
+            </div>
+          }
 
           {/*TEAM TABLE*/}
           <TeamTableModal
