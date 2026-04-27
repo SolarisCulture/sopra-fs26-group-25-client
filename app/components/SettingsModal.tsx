@@ -91,13 +91,21 @@ export default function SettingsModal({
         <label>Select a theme:</label>
 
         <Select
+          mode="multiple"
           style={{ width: 200 }}
           value={settings.theme}
           disabled={!isHost}
           onChange={handleThemeChange}
           options={[
-            { value: "", label: "Select..." },
             { value: "standard", label: "Standard" },
+            { value: "nature", label: "Nature" },
+            { value: "history", label: "History" },
+            { value: "medieval", label: "Medieval" },
+            { value: "food & drink", label: "Food & Drink" },
+            { value: "disney", label: "Disney" },
+            { value: "movies & tv shows", label: "Movies & TV Shows" },
+            { value: "science", label: "Science" },
+            { value: "computer science", label: "Computer Science" },
             { value: "customTheme", label: "Custom Theme" },
             { value: "customWordList", label: "Custom Word List" }
           ]}

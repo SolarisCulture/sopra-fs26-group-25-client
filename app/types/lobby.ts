@@ -18,7 +18,7 @@ export interface LobbySettings {
 }
 
 export const DEFAULT_SETTINGS: LobbySettings = {
-  theme: "",
+  theme: "standard",
   customTheme: "",
   customWordList: "",
   difficulty: "all",

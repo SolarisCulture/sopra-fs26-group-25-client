@@ -4,13 +4,14 @@ import { User } from "@/types/user";
 interface ScriptProps {
   players: User[];
   isHost: boolean;
+  currentUserID: number | null;
   onAssign: (playerId: string, team: "RED" | "BLUE" | "UNASSIGNED") => void;
   onMakeSpymaster: (playerId: string, role: "SPYMASTER" | "SPY") => void;
   assignTarget: User | null;
   setAssignTarget: (user: User | null) => void;
 }
 
-export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, assignTarget, setAssignTarget }: ScriptProps) {
+export default function TeamTable({ players, isHost, currentUserID, onAssign, onMakeSpymaster, assignTarget, setAssignTarget }: ScriptProps) {
   const bluePlayers = players.filter(p => p.team == "BLUE");
   const redPlayers = players.filter(p => p.team == "RED");
 
@@ -53,7 +54,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
                 <span style={{ wordBreak: "break-all" }}>{p.username}</span>
               </span>
 
-              {isHost && (
+              {(isHost || String(p.id) == String(currentUserID)) && (
                 <Button
                   size="small"
                   style={{ borderColor: "#1B9FD8", color: "#1B9FD8" }}
@@ -100,7 +101,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
                 <span style={{ wordBreak: "break-all" }}>{p.username}</span>
               </span>
 
-              {isHost && (
+              {(isHost || String(p.id) == String(currentUserID)) && (
                 <Button
                   size="small"
                   style={{ borderColor: "#E8401C", color: "#E8401C" }}

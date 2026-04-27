@@ -9,7 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 
 // websocket
-import { createLobbySocket, LobbyEvent, SettingsUpdateData } from "@/utils/lobbyWebsocket";
+import { createLobbySocket, JoinRequestData, LobbyEvent, SettingsUpdateData } from "@/utils/lobbyWebsocket";
 
 import HowToPlayModal from "../components/HowToPlayModal";
 import LeaveModal from "../components/LeaveModal";
@@ -39,6 +39,7 @@ export default function LobbyPage() {
     && players.filter(p => p.team == "BLUE").some(p => p.role == "SPYMASTER")
     && players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER");
 
+
   // username pop-up
   const [showUsernamePopUp, setShowUsernamePopUp] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
@@ -67,6 +68,7 @@ export default function LobbyPage() {
       key: "username",
 
       render: (username: string, player: User) => {
+        const isMe = Number(player.id) == userID;
         return (
           <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -87,18 +89,33 @@ export default function LobbyPage() {
               </span>
               <span style={{ wordBreak: "break-all" }}>{username}</span>
             </span>
-
-            {/* only allow host to assign players to teams and transfer host role*/}
-            {isHost && (
-              <Button
-                size="small"
-                type="primary"
-                style={{ visibility: (player.team == "UNASSIGNED" || !player.team) ? "visible" : "hidden" }}
-                onClick={() => setAssignTarget(player)}
-              >
-                Assign
-              </Button>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {/* only allow host to assign players to teams and transfer host role*/}
+              {(isHost || isMe) && (
+                <Button
+                  size="small"
+                  type="primary"
+                  style={{ visibility: (player.team == "UNASSIGNED" || !player.team) ? "visible" : "hidden" }}
+                  onClick={() => setAssignTarget(player)}
+                >
+                  Assign
+                </Button>
+              )}
+              <div style={{ width: "24px", display: "flex", justifyContent: "center" }}>
+                {isHost && !isMe && (
+                  <Tooltip title="Click to kick player" color="#7B2D8B">
+                    <span
+                      style={{ cursor: "pointer", fontSize: "16px", opacity: 0.5, transition: "opacity 0.2s" }}
+                      onClick={() => setKickTarget(player)}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
+                    >
+                      🗑️
+                    </span>
+                  </Tooltip>
+                )}
+              </div>
+            </div>
           </span>
         );
       },
@@ -110,6 +127,14 @@ export default function LobbyPage() {
     if (!lobbyCode || lobbyCode == "new") return;
     try {
       const lobbyData = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
+      const savedId = sessionStorage.getItem(`playerId_${lobbyCode}`);
+      const isStillInLobby = lobbyData.players?.some(p => Number(p.id) == Number(savedId));
+      if (savedId && !isStillInLobby) {
+        sessionStorage.removeItem(`playerId_${lobbyCode}`);
+        sessionStorage.removeItem(`isHost_${lobbyCode}`);
+        router.push("/");
+        return;
+      }
       setLobby(lobbyData);
       if (lobbyData) {
         const sanitizedPlayers: User[] = (lobbyData.players || []).map((player: User) => ({
@@ -174,8 +199,31 @@ export default function LobbyPage() {
       console.log("Lobby event received:", event);
 
       switch (event.type) {
+        case "PLAYER_KICKED": {
+          const kickedId = Number(event.data);
+          if (kickedId === userID) {
+            message.error("You have been kicked from the lobby.");
+            sessionStorage.removeItem(`playerId_${lobbyCode}`);
+            sessionStorage.removeItem(`isHost_${lobbyCode}`);
+            router.push("/");
+            return;
+          }
+          await fetchLobby();
+          break;
+        }
+
+        case "PLAYER_LEFT": {
+          const leftId = Number(event.data);
+          if (leftId === userID) {
+            sessionStorage.removeItem(`playerId_${lobbyCode}`);
+            sessionStorage.removeItem(`isHost_${lobbyCode}`);
+            router.push("/");
+            return;
+          }
+          await fetchLobby();
+          break;
+        }
         case "PLAYER_JOINED":
-        case "PLAYER_LEFT":
         case "HOST_CHANGED":
         case "TEAM_UPDATED":
         case "ROLE_UPDATED":
@@ -196,6 +244,19 @@ export default function LobbyPage() {
             roundsNumber: settingsData.rounds,
           }));
           message.info("Game settings have been updated by the host.");
+          break;
+        }
+        case "JOIN_REQUEST_RECEIVED": {
+          if (isHost) {
+            const request = event.data as JoinRequestData;
+            Modal.confirm({
+              title: 'Join Request',
+              content: `${request.requesterName} wants to join Team ${request.requestedTeam}.`,
+              onOk: () => handleAssignTeam(request.requesterId, request.requestedTeam),
+              okText: "Accept",
+              cancelText: "Deny"
+            });
+          }
           break;
         }
 
@@ -282,33 +343,31 @@ export default function LobbyPage() {
   };
 
   // assign players to teams (blue or red)
-  const handleAssignTeam = (playerId: string | null, team: "RED" | "BLUE" | "UNASSIGNED"): void => {
+  const handleAssignTeam = async (playerId: string | null, team: "RED" | "BLUE" | "UNASSIGNED") => {
     if (playerId == null) return;
 
-    (async () => {
-      try {
-        if (team == "UNASSIGNED") {
-          const player = players.find(p => String(p.id) == String(playerId));
-          if (player?.role == "SPYMASTER") {
-            const next = players.find(p => p.team == player.team && String(p.id) !== String(playerId));
-            if (next?.id) {
-              await apiService.put(`/api/lobbies/${lobbyCode}/player/${next.id}/role`, { role: "SPYMASTER" });
-            }
+    try {
+      if (team == "UNASSIGNED") {
+        const player = players.find(p => String(p.id) == String(playerId));
+        if (player?.role == "SPYMASTER") {
+          const next = players.find(p => p.team == player.team && String(p.id) !== String(playerId));
+          if (next?.id) {
+            await apiService.put(`/api/lobbies/${lobbyCode}/player/${next.id}/role`, { role: "SPYMASTER" });
           }
         }
-        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team: team });
-
-        const teamCount = players.filter(p => p.team == team).length;
-        const roleValue = (team == "UNASSIGNED") ? "NONE" : (teamCount == 0 ? "SPYMASTER" : "SPY");
-
-        await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
-          role: roleValue
-        });
-        await fetchLobby();
-      } catch {
-        message.error("Failed to assign team!");
       }
-    })();
+      await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/team`, { team: team });
+
+      const teamCount = players.filter(p => p.team == team).length;
+      const roleValue = (team == "UNASSIGNED") ? "NONE" : (teamCount == 0 ? "SPYMASTER" : "SPY");
+
+      await apiService.put(`/api/lobbies/${lobbyCode}/player/${playerId}/role`, {
+        role: roleValue
+      });
+      await fetchLobby();
+    } catch {
+      message.error("Failed to assign team!");
+    }
   };
 
   // handle assign role
@@ -326,6 +385,23 @@ export default function LobbyPage() {
       await fetchLobby();
     } catch {
       message.error("Failed to assign role!");
+    }
+  };
+
+  const [kickTarget, setKickTarget] = useState<User | null>(null);
+
+  // kick players
+  const handleKick = async () => {
+    if (!kickTarget) return;
+    try {
+      await apiService.delete(`/api/lobbies/${lobbyCode}/players/${kickTarget.id}`);
+      message.success(`${kickTarget.username} has been removed.`);
+
+      setPlayers(prev => prev.filter(p => p.id !== kickTarget.id));
+    } catch {
+      message.error("Failed to kick player.");
+    } finally {
+      setKickTarget(null);
     }
   };
 
@@ -507,6 +583,25 @@ export default function LobbyPage() {
             )}
           </div>
 
+          {/*KICK PLAYER*/}
+          <Modal
+            title={<div style={{ color: "#000" }}>Are you sure you want to kick this player?</div>}
+            open={kickTarget !== null}
+            closable={false}
+            footer={null}
+          >
+            <p>This will remove {kickTarget?.username} from the lobby.</p>
+            <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "10px" }}>
+              <Button
+                onClick={() => setKickTarget(null)}>No, keep them.
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleKick}>Yes, kick.
+              </Button>
+            </div>
+          </Modal>
+
           {/*START GAME*/}
           {isHost &&
             <div style={{ position: "absolute", bottom: 45, left: "50%", transform: "translateX(-50%)" }}>
@@ -540,6 +635,7 @@ export default function LobbyPage() {
           <TeamTableModal
             players={players}
             isHost={isHost}
+            currentUserID={userID}
             onAssign={handleAssignTeam}
             onMakeSpymaster={handleAssignRole}
             assignTarget={assignTarget}
