@@ -17,6 +17,7 @@ import ReportConfirmationModal from "@/components/ReportConfirmationModal";
 import ClueReviewModal from "@/components/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
 import PlayerTable from "@/components/PlayerTable";
+import QuitGameModal from "@/components/QuitGameModal";
 
 export default function GamePage() {
     const apiService = useApi();
@@ -53,7 +54,7 @@ export default function GamePage() {
     const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
     const [cluePublished, setCluePublished] = useState(false);
     const [clueHistory, setClueHistory] = useState<{ word: string; count: number; team: "red" | "blue" }[]>([]);
-    
+
     const [finished, setFinished] = useState(false);
     const [isRestarting, setIsRestarting] = useState(false);
     const [winningTeam, setWinningTeam] = useState<string | null>(null);
@@ -79,6 +80,8 @@ export default function GamePage() {
     const [endTurnConfirmOpen, setEndTurnConfirmOpen] = useState(false);
 
     const [colorOverlayActive, setColorOverlayActive] = useState(false);
+
+    const [quitFromPause, setQuitFromPause] = useState(false);
 
     const isMyTurn = currentPlayer?.team?.toLowerCase() == currentTurn.toLowerCase();
     const canEndTurn = isMyTurn && role !== "SPYMASTER" && cluePublished;
@@ -124,27 +127,27 @@ export default function GamePage() {
 
     // fetch players as a helper function
     const fetchPlayers = async () => {
-      try {
-        const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
-        const data = lobbyData.players || [];
-        setPlayers(data);
+        try {
+            const lobbyData = await apiService.get<{ players: User[] }>(`/api/lobbies/${lobbyCode}`);
+            const data = lobbyData.players || [];
+            setPlayers(data);
 
-        setBlueSpymaster(
-          data.find((player) => player.role === "SPYMASTER" && player.team === "BLUE") ?? null
-        );
-        setRedSpymaster(
-          data.find((player) => player.role === "SPYMASTER" && player.team === "RED") ?? null
-        );
-        setBlueSpies(
-          data.filter((player) => player.role === "SPY" && player.team === "BLUE")
-        );
-        setRedSpies(
-          data.filter((player) => player.role === "SPY" && player.team === "RED")
-        );
+            setBlueSpymaster(
+                data.find((player) => player.role === "SPYMASTER" && player.team === "BLUE") ?? null
+            );
+            setRedSpymaster(
+                data.find((player) => player.role === "SPYMASTER" && player.team === "RED") ?? null
+            );
+            setBlueSpies(
+                data.filter((player) => player.role === "SPY" && player.team === "BLUE")
+            );
+            setRedSpies(
+                data.filter((player) => player.role === "SPY" && player.team === "RED")
+            );
 
-      } catch {
-        console.error("Failed to fetch players!");
-      }
+        } catch {
+            console.error("Failed to fetch players!");
+        }
     };
 
     const fetchBoard = async () => {
@@ -236,7 +239,7 @@ export default function GamePage() {
     useEffect(() => {
         if (!lobbyCode) return;
         if (!role || role === "NONE") return;
-        if (socketRef.current) return; 
+        if (socketRef.current) return;
 
         const socket = createGameSocket(String(lobbyCode), role, (event) => {
             switch (event.type) {
@@ -248,7 +251,7 @@ export default function GamePage() {
                     setBoard(event.board.cards);
                     setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
                     break;
-                case "Guess": 
+                case "Guess":
                     setBoard(event.board.cards);
                     setCurrentPhase(event.board.currentPhase);
                     setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
@@ -298,16 +301,22 @@ export default function GamePage() {
                         setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
                     }
                     break;
+                case "GamePaused":
+                    setPauseModalOpen(true);
+                    break;
+                case "GameResumed":
+                    setPauseModalOpen(false);
+                    break;
                 default: break;
             }
         },
-        // reconnect handler
-        () => {
-            console.log("Reconnected → refetching state");
-            fetchBoard();
-            fetchPlayers();
-        }
-    );
+            // reconnect handler
+            () => {
+                console.log("Reconnected → refetching state");
+                fetchBoard();
+                fetchPlayers();
+            }
+        );
 
         socketRef.current = socket;
         socket.connect();
@@ -518,30 +527,42 @@ export default function GamePage() {
     // post game screen
     const isHost = currentPlayer?.isHost === true;
     const handleRestartGame = async () => {
-      try{
-        console.log("Starting new game (restart)!");
-        setIsRestarting(true);
-        await apiService.post(`/api/games/${lobbyCode}/restart`, {});
-      }
-      catch (error) {message.error("Failed to restart game.")}
+        try {
+            console.log("Starting new game (restart)!");
+            setIsRestarting(true);
+            await apiService.post(`/api/games/${lobbyCode}/restart`, {});
+        }
+        catch (error) { message.error("Failed to restart game.") }
     }
 
     const handleBackToLobby = async () => {
-      try{
-        await apiService.post(`/api/games/${lobbyCode}/backToLobby`, {});
-      }
-      catch (error) {message.error("Failed to restart game.")}
+        try {
+            await apiService.post(`/api/games/${lobbyCode}/backToLobby`, {});
+        }
+        catch (error) { message.error("Failed to restart game.") }
     }
 
+    const [pauseModalOpen, setPauseModalOpen] = useState(false);
+    const [quitModalOpen, setQuitModalOpen] = useState(false);
+
+    const handleConfirmQuit = async () => {
+        try {
+            await apiService.post(`/api/games/${lobbyCode}/backToLobby`, {});
+            setQuitModalOpen(false);
+        } catch (error) {
+            message.error("Failed to quit the game.");
+        }
+    };
+
     const fetchGameStatistics = async () => {
-    try {
-        const stats = await apiService.get<{ winningTeam: string }>(`/api/games/${lobbyCode}/statistics`);
-        setWinningTeam(stats.winningTeam);
-    } catch (error) {
-        console.error("Failed to fetch game statistics!");
-        setWinningTeam(null);
-    }
-};
+        try {
+            const stats = await apiService.get<{ winningTeam: string }>(`/api/games/${lobbyCode}/statistics`);
+            setWinningTeam(stats.winningTeam);
+        } catch (error) {
+            console.error("Failed to fetch game statistics!");
+            setWinningTeam(null);
+        }
+    };
 
 
     return (
@@ -596,7 +617,7 @@ export default function GamePage() {
                 )}
             </div>
 
-            
+
             {/*VARIOUS BUTTONS*/}
             <div>
                 <Button
@@ -682,13 +703,13 @@ export default function GamePage() {
                             value={dictionarySearch}
                             onChange={(e) => setDictionarySearch(e.target.value)}
                             onPressEnter={handleDictionarySearch}
-                            //onPressEnter={() => {/*dictionary logic here --> best if one can only search for words currently on the board (display multiple manings if there is more than one)*/ }}
+                        //onPressEnter={() => {/*dictionary logic here --> best if one can only search for words currently on the board (display multiple manings if there is more than one)*/ }}
                         />
                         <p style={{ marginTop: "12px", fontSize: "12px", color: "#666" }}>
                             Press Enter to search.
                         </p>
                     </div>
-                </Modal> 
+                </Modal>
                 <Button
                     type="primary"
                     onClick={() => setDictionaryOpen(true)}
@@ -756,26 +777,103 @@ export default function GamePage() {
                 setPenaltyConfirmOpen={setPenaltyConfirmOpen}
                 setPenaltyCardPicked={setPenaltyCardPicked}
             />
-          {(finished) && (  // removed && is host --> double check?
-            <div className={styles.finishedBackdrop}>
-                <div className={styles.finishedBox}>
-                    <h2 className={styles.finishedTitle}>Game Over</h2>
+            {(finished) && (  // removed && is host --> double check?
+                <div className={styles.finishedBackdrop}>
+                    <div className={styles.finishedBox}>
+                        <h2 className={styles.finishedTitle}>Game Over</h2>
                         <p className={styles.finishedText}>
                             {winningTeam ? `Team ${winningTeam} has won the game!` : "The game has ended."}
                         </p>
-                    {isHost ? (
-                        <div className={styles.finishedButtons}>
-                            <Button onClick={handleRestartGame} loading={isRestarting} disabled={isRestarting}>
-                                {isRestarting ? "Restarting..." : "Restart"}
+                        {isHost ? (
+                            <div className={styles.finishedButtons}>
+                                <Button onClick={handleRestartGame} loading={isRestarting} disabled={isRestarting}>
+                                    {isRestarting ? "Restarting..." : "Restart"}
+                                </Button>
+                                <Button onClick={handleBackToLobby} disabled={isRestarting}>
+                                    Return to Lobby
+                                </Button>
+                            </div>
+                        ) : (<p className={styles.finishedText}>Please wait for host action...</p>)}
+                    </div>
+                </div>
+            )}
+            {/*PAUSE MODAL*/}
+            <Modal
+                title={<div style={{ color: "#000" }}>Game Paused ⏸️</div>}
+                open={pauseModalOpen}
+                closable={false}
+                footer={null}
+                centered
+                maskClosable={false}
+            >
+                {isHost ? (
+                    <>
+                        <p>The game is currently paused. What would you like to do?</p>
+                        <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "20px" }}>
+                            <Button type="primary" onClick={() => socketRef.current?.sendPause(false)}>
+                                Resume Game
                             </Button>
-                            <Button onClick={handleBackToLobby} disabled={isRestarting}>
-                                Return to Lobby
+                            <Button
+                                onClick={() => {
+                                    setPauseModalOpen(false);
+                                    setQuitFromPause(true);
+                                    setQuitModalOpen(true);
+                                }}>
+                                Quit Game
                             </Button>
                         </div>
-                    ):(<p className={styles.finishedText}>Waiting for the host to choose what happens next.</p>)}
+                    </>
+                ) : (
+                    <div className={styles.finishedBox}>
+                        <h2 className={styles.finishedTitle}>Game Paused</h2>
+                        <p className={styles.finishedText}>Please wait for host action...</p>
+                    </div>
+                )}
+            </Modal>
+
+            {/*QUIT CONFIRMATION MODAL*/}
+            <QuitGameModal
+                open={quitModalOpen}
+                onStay={() => {
+                    setQuitModalOpen(false);
+                    if (quitFromPause) {
+                        setPauseModalOpen(true);
+                    }
+                    setQuitFromPause(false);
+                }}
+                onQuit={handleConfirmQuit}
+            />
+
+            {isHost && (
+                <div style={{
+                    position: "absolute",
+                    bottom: 75,
+                    left: 20,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px",
+                    zIndex: 100
+                }}>
+                    <Button
+                        type="primary"
+                        onClick={() => socketRef.current?.sendPause(true)}
+                        style={{ width: 125, height: 40, borderRadius: 8 }}
+                    >
+                        Pause Game
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            setQuitFromPause(false);
+                            setQuitModalOpen(true);
+                        }}
+                        style={{ width: 125, height: 40, borderRadius: 8 }}
+                    >
+                        Quit Game
+                    </Button>
                 </div>
-            </div>
-        )}
+
+            )}
         </ConfigProvider>
     );
 }

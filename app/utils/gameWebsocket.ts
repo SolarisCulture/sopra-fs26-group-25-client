@@ -8,20 +8,20 @@ export function createGameSocket(
   role: "SPYMASTER" | "SPY",
   onMessage: (event: GameEvent) => void,
   onReconnect: () => void,
-  ) {
+) {
 
   let isSubscribed = false;
 
   const client = new Client({
     webSocketFactory: () =>
       new SockJS(`${getApiDomain()}/ws`),
-      // new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
+    // new SockJS(`https://sopra-fs26-group-25-server.oa.r.appspot.com/ws`),
     reconnectDelay: 5000,
   });
 
   // sometimtes needed (more in testing) --> if an action happens rather quickly it can happen that the connection isnt established yet (1-2 sec after game start)
   const waitForConnection = (fn: () => void, retries = 10) => {
-    console.log("waitForConnection called, connected:", client.connected,"subscribed: ", isSubscribed, "retries:", retries);
+    console.log("waitForConnection called, connected:", client.connected, "subscribed: ", isSubscribed, "retries:", retries);
     if (client.connected && isSubscribed) {
       console.log("The connection is there! Calling fn...");
       fn();
@@ -49,7 +49,7 @@ export function createGameSocket(
       onMessage(event);
     });
 
-  console.log("Reconnected → resyncing state");
+    console.log("Reconnected → resyncing state");
     isSubscribed = true;
     onReconnect();
   };
@@ -71,13 +71,13 @@ export function createGameSocket(
   return {
     connect: () => client.activate(),
 
-    isConnected: () => client.connected, 
+    isConnected: () => client.connected,
 
     sendGuess: (event: GuessEvent) => {
       waitForConnection(() => {
         client.publish({
           destination: `/app/${lobbyCode}/guess`,
-          body: JSON.stringify({word: event.guessedCard.word}),
+          body: JSON.stringify({ word: event.guessedCard.word }),
         })
       });
     },
@@ -86,7 +86,7 @@ export function createGameSocket(
       waitForConnection(() => {
         client.publish({
           destination: `/app/${lobbyCode}/clue`,
-          body: JSON.stringify({word: event.word, count: event.count}),
+          body: JSON.stringify({ word: event.word, count: event.count }),
         });
       });
     },
@@ -94,8 +94,8 @@ export function createGameSocket(
     sendClueReport: (event: ClueReportedEvent) => {
       waitForConnection(() => {
         client.publish({
-            destination: `/app/${lobbyCode}/clue-report`,
-            body: JSON.stringify(event),
+          destination: `/app/${lobbyCode}/clue-report`,
+          body: JSON.stringify(event),
         });
       });
     },
@@ -103,8 +103,8 @@ export function createGameSocket(
     sendClueRuling: (event: ClueRulingEvent) => {
       waitForConnection(() => {
         client.publish({
-            destination: `/app/${lobbyCode}/clue-ruling`,
-            body: JSON.stringify(event),
+          destination: `/app/${lobbyCode}/clue-ruling`,
+          body: JSON.stringify(event),
         });
       });
     },
@@ -112,11 +112,20 @@ export function createGameSocket(
     sendTurnChange: (event: TurnChangedEvent) => {
       waitForConnection(() => {
         client.publish({
-            destination: `/app/${lobbyCode}/turn-change`,
-            body: JSON.stringify(event),
+          destination: `/app/${lobbyCode}/turn-change`,
+          body: JSON.stringify(event),
         });
       });
-  },
+    },
+    
+    sendPause: (isPaused: boolean) => {
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/pause`,
+          body: JSON.stringify({ paused: isPaused }),
+        });
+      });
+    },
 
     disconnect: async () => {
       if (subscription !== null) {
