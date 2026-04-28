@@ -109,9 +109,12 @@ reason).
 
 ## Contributions Week 4 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
-
----
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@serilia03]** | [27.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/e66d46574ee1373abdc60c59da11cbe46cfc72fd] | [The host can select multiple topics. #269, If no topic is selected, the game uses a default topic list. #270, Unassigned players see a “Join Team” button next to themselves. Clicking it opens the same Pop-Up as if a host assigned them. #258, the restrictions on which team can be joined are the same as if a host did it. #259, A player can also unassign themselves. #260,Add Kick Button for Host next to Players #254, Clicking the button removes the player from the lobby #255, Host cannot kick themselves #256
+] | [This contribution is relevant, because it allows for more flexibility regarding the cards, as specific topics can now be selected and used simultaneusly. Also, a user can now assign / unassign themselves (but not assign themselves spymaster unless they happen to be the first one in the team), which gives the players more autonomy and prevents the host getting overrun with requests to change the teams. On top of all that, the host can now kick players, allowing for more control, as the host does not have to rely on the players leaving themselves (which can be useful for example when a player has stepped away from the screen).] |
+|                    | [27.04.2026 ]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/4bccabd0f89ebc5ea44b37410890dfbb17679908] | [Quitting returns all players to the lobby. #283, The host can quit the game from the pause menu. #282, The host can resume the game. #281, The host can click a “Pause” button during the game. #278, A message appears indicating the game is paused. #280] | [This contribution is relevant, because it makes the game more flexible as it can be paused when needed and abandoned if the host wishe so. It gives the host more control and makes the game more adaptive to the players' needs.] |
+|                    | [28.04.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/165fec1a31b94900b6f65a413bac373465c50ed6] | [Everyone sees the full game grid. #286, The game grid shows the type of each card to reveal which cards belonged to team blue, team red, were civilians and where was the assassin. #285] | [This contribution is relevant, because it allows the players to see the "solution" after the game, giving them a chance to see / reflect on what clues they missed. This was a suggestion provided to us after the M3 presentation, and we thought it would be a useful and since we design for the users we felt this should be integrated.] |
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
