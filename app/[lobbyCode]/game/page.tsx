@@ -282,8 +282,8 @@ export default function GamePage() {
                     setBoard(event.board.cards);
                     break;
                 case "GameOver":
-                    fetchBoard();
                     setFinished(true);
+                    fetchFinalBoard();
                     fetchGameStatistics();
                     break;
                 case "ReturningToLobby":
@@ -564,6 +564,20 @@ export default function GamePage() {
         }
     };
 
+    const [finalBoard, setFinalBoard] = useState<WordCard[]>([]);
+
+    const fetchFinalBoard = async () => {
+        try {
+            const boardData = await apiService.get<{ cards: WordCard[] }>(
+                `/api/games/${lobbyCode}/board?role=SPYMASTER`
+            );
+            console.log("finalBoard result:", boardData);
+            setFinalBoard(boardData.cards);
+        } catch (error) {
+            console.error("Failed to fetch final board!", error);
+        }
+    };
+
 
     return (
         <ConfigProvider
@@ -773,17 +787,77 @@ export default function GamePage() {
             <PenaltyConfirmModal
                 open={penaltyConfirmOpen}
                 penaltyCardPicked={penaltyCardPicked}
-                onConfirm={handlePenaltyConfirm} // Map your handler to onConfirm
+                onConfirm={handlePenaltyConfirm}
                 setPenaltyConfirmOpen={setPenaltyConfirmOpen}
                 setPenaltyCardPicked={setPenaltyCardPicked}
             />
-            {(finished) && (  // removed && is host --> double check?
+            {(finished) && (
                 <div className={styles.finishedBackdrop}>
                     <div className={styles.finishedBox}>
                         <h2 className={styles.finishedTitle}>Game Over</h2>
                         <p className={styles.finishedText}>
                             {winningTeam ? `Team ${winningTeam} has won the game!` : "The game has ended."}
                         </p>
+                        {/* Mini Board */}
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(5, 1fr)",
+                            gap: "6px",
+                            margin: "16px 0",
+                            width: "100%",
+                        }}>
+                            {finalBoard.map((card, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        background:
+                                            !card.revealed
+                                                ? (
+                                                    card.cardType == "AGENTRED" ? "rgba(232, 64, 28, 0.4)" :
+                                                        card.cardType == "AGENTBLUE" ? "rgba(27, 159, 216, 0.4)" :
+                                                            card.cardType == "ASSASSIN" ? "rgba(0, 0, 0, 0.4)" :
+                                                                "rgba(196, 180, 154, 0.4)"
+                                                )
+                                                : (
+                                                    card.cardType == "AGENTRED" ? "#E8401C" :
+                                                        card.cardType == "AGENTBLUE" ? "#1b9fd8" :
+                                                            card.cardType == "ASSASSIN" ? "#222222" :
+                                                                "#C4B49A"
+                                                ),
+
+                                        border: `3px solid ${!card.revealed
+                                            ? (
+                                                card.cardType == "AGENTRED" ? "rgba(232, 64, 28, 0.35)" :
+                                                    card.cardType == "AGENTBLUE" ? "rgba(27, 159, 216, 0.35)" :
+                                                        card.cardType == "ASSASSIN" ? "rgba(0, 0, 0, 0.35)" :
+                                                            "rgba(196, 180, 154, 0.35)"
+                                            )
+                                            : (
+                                                card.cardType == "AGENTRED" ? "#FF8A70" :
+                                                    card.cardType == "AGENTBLUE" ? "#7BD3FF" :
+                                                        card.cardType == "ASSASSIN" ? "#666666" :
+                                                            "#F0E8D0"
+                                            )
+                                            }`,
+
+                                        borderRadius: "8px",
+                                        aspectRatio: "1.55 / 1",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        textAlign: "center" as const,
+                                        padding: "4px",
+
+                                        boxSizing: "border-box" as const,
+                                        color: "#fff",
+                                        fontWeight: 600,
+                                        fontSize: "0.65rem",
+                                    }}
+                                >
+                                    {card.word}
+                                </div>
+                            ))}
+                        </div>
                         {isHost ? (
                             <div className={styles.finishedButtons}>
                                 <Button onClick={handleRestartGame} loading={isRestarting} disabled={isRestarting}>
