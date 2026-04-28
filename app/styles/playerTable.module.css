@@ -1,0 +1,184 @@
+/* Desktop — absolute right sidebar */
+.container {
+  width: 18vw;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: absolute;
+  right: 2vw;
+  top: 24px;
+  z-index: 100;
+}
+
+.teamCard {
+  position: relative;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid;
+  padding: 18px 16px 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.teamBadge {
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  color: #fff;
+  font-size: clamp(8px, 0.8vw, 10px);
+  font-weight: 800;
+  padding: 2px 12px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.teamTitle {
+  font-size: clamp(14px, 1.3vw, 24px);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 10px;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  line-height: 1.2;
+}
+
+.breakName {
+  word-break: break-all;
+}
+
+.spyList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 168px;
+  overflow-y: auto;
+}
+
+.spyRow {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 500;
+  font-size: clamp(11px, 1vw, 14px);
+  text-align: center;
+  padding: 0 10px;
+}
+
+.noSpies {
+  opacity: 0.6;
+  font-style: italic;
+  text-align: center;
+  padding: 12px 0;
+  color: white;
+  font-size: clamp(11px, 1vw, 14px);
+}
+
+.expandButton {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 12px !important;
+  padding: 0 !important;
+  height: auto !important;
+  align-self: center;
+}
+
+.expandButton:hover {
+  color: #fff !important;
+}
+
+/* Tablet/Phone — collapsed: horizontal bar at top */
+.containerCollapsed {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.containerCollapsed .teamCard {
+  flex: 1;
+  min-width: 150px;
+  max-width: 300px;
+  padding: 12px 10px 8px;
+  border-radius: 10px;
+  min-height: auto;
+}
+
+.containerCollapsed .teamTitle {
+  font-size: 13px;
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.containerCollapsed .teamBadge {
+  font-size: 8px;
+  padding: 1px 8px;
+  top: -8px;
+  right: 8px;
+}
+
+/* Tablet/Phone — expanded: stacked cards */
+.containerExpanded {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 12px;
+  align-items: center;
+}
+
+.containerExpanded .teamCard {
+  width: 100%;
+  max-width: 350px;
+  padding: 14px 12px 10px;
+  border-radius: 10px;
+}
+
+.containerExpanded .teamTitle {
+  font-size: 14px;
+}
+
+.containerExpanded .teamBadge {
+  font-size: 8px;
+  padding: 1px 8px;
+}
+
+.containerExpanded .spyRow {
+  height: 30px;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .containerCollapsed {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .containerCollapsed .teamCard {
+    padding: 10px 8px 6px;
+    min-width: 130px;
+  }
+
+  .containerCollapsed .teamTitle {
+    font-size: 12px;
+  }
+}

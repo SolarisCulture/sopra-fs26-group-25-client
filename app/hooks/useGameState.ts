@@ -1,0 +1,133 @@
+import { useState, useEffect, useRef } from "react";
+import { useApi } from "@/hooks/useApi";
+import { User } from "@/types/user";
+import { WordCard } from "@/types/wordCard";
+
+export function useGameState(lobbyCode: string) {
+  const apiService = useApi();
+
+  // board
+  const [board, setBoard] = useState<WordCard[]>([]);
+  const [gameId, setGameId] = useState<number | null>(null);
+  const previousGameIdRef = useRef<number | null>(null);
+
+  // players
+  const [players, setPlayers] = useState<User[]>([]);
+  const [blueSpymaster, setBlueSpymaster] = useState<User | null>(null);
+  const [redSpymaster, setRedSpymaster] = useState<User | null>(null);
+  const [blueSpies, setBlueSpies] = useState<User[]>([]);
+  const [redSpies, setRedSpies] = useState<User[]>([]);
+  const [role, setRole] = useState<User["role"] | null>(null);
+  const [loadingRole, setLoadingRole] = useState(true);
+
+  // turn
+  const [currentTurn, setCurrentTurn] = useState<"red" | "blue">("red");
+  const currentTurnRef = useRef<"red" | "blue">("red");
+  const [currentPhase, setCurrentPhase] = useState<string>("");
+  const currentPhaseRef = useRef("");
+
+  // sync refs
+  useEffect(() => { currentTurnRef.current = currentTurn; }, [currentTurn]);
+  useEffect(() => { currentPhaseRef.current = currentPhase; }, [currentPhase]);
+
+  // game over
+  const [finished, setFinished] = useState(false);
+  const [winningTeam, setWinningTeam] = useState<string | null>(null);
+
+  // current player
+  const storedPlayerId = typeof window !== "undefined"
+    ? sessionStorage.getItem(`playerId_${lobbyCode}`) : null;
+  const currentPlayer = players.find(
+    (p) => String(p.id) === String(storedPlayerId)
+  ) ?? null;
+
+  const fetchPlayers = async () => {
+    try {
+      const lobbyData = await apiService.get<{ players: User[] }>(
+        `/api/lobbies/${lobbyCode}`
+      );
+      const data = lobbyData.players || [];
+      setPlayers(data);
+      setBlueSpymaster(data.find(p => p.role === "SPYMASTER" && p.team === "BLUE") ?? null);
+      setRedSpymaster(data.find(p => p.role === "SPYMASTER" && p.team === "RED") ?? null);
+      setBlueSpies(data.filter(p => p.role === "SPY" && p.team === "BLUE"));
+      setRedSpies(data.filter(p => p.role === "SPY" && p.team === "RED"));
+    } catch {
+      console.error("Failed to fetch players!");
+    }
+  };
+
+  const fetchBoard = async () => {
+    try {
+      const boardData = await apiService.get<{
+        id: number;
+        cards: WordCard[];
+        currentTurn: "RED" | "BLUE";
+        currentPhase: string;
+        clueHistory: { word: string; count: number; team: "red" | "blue" }[];
+      }>(`/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`);
+      setGameId(boardData.id);
+      setBoard(boardData.cards);
+      setCurrentPhase(boardData.currentPhase);
+      setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
+      return boardData;
+    } catch {
+      console.error("Failed to fetch board!");
+      return null;
+    }
+  };
+
+  const fetchGameStatistics = async () => {
+    try {
+      const stats = await apiService.get<{ winningTeam: string }>(
+        `/api/games/${lobbyCode}/statistics`
+      );
+      setWinningTeam(stats.winningTeam);
+    } catch {
+      console.error("Failed to fetch game statistics!");
+      setWinningTeam(null);
+    }
+  };
+
+  // fetch players on mount
+  useEffect(() => {
+    if (lobbyCode) fetchPlayers();
+  }, [lobbyCode]);
+
+  // fetch board when role is known
+  useEffect(() => {
+    if (lobbyCode && role) fetchBoard();
+  }, [lobbyCode, role]);
+
+  // resolve role from players
+  useEffect(() => {
+    if (!lobbyCode || players.length === 0) return;
+    const id = sessionStorage.getItem(`playerId_${lobbyCode}`);
+    if (!id) { setLoadingRole(false); return; }
+    const found = players.find(p => String(p.id) === String(id));
+    if (found) setRole(found.role);
+    setLoadingRole(false);
+  }, [players, lobbyCode]);
+
+  // detect game restart (new gameId)
+  useEffect(() => {
+    if (gameId == null) return;
+    const prev = previousGameIdRef.current;
+    if (prev != null && prev !== gameId) {
+      setFinished(false);
+    }
+    previousGameIdRef.current = gameId;
+  }, [gameId]);
+
+  return {
+    board, setBoard, gameId, setGameId,
+    players, currentPlayer,
+    blueSpymaster, redSpymaster, blueSpies, redSpies,
+    role, loadingRole,
+    currentTurn, setCurrentTurn, currentTurnRef,
+    currentPhase, setCurrentPhase, currentPhaseRef,
+    finished, setFinished,
+    winningTeam, setWinningTeam,
+    fetchPlayers, fetchBoard, fetchGameStatistics,
+  };
+}

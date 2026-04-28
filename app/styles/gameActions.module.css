@@ -1,0 +1,55 @@
+.container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+}
+
+.actionButton {
+  width: 125px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .container {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  .actionButton {
+    width: auto;
+    min-width: 90px;
+    flex: 1;
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  .container {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .actionButton {
+    min-width: 70px;
+    height: 32px;
+    font-size: 11px;
+    padding: 0 8px;
+  }
+}
