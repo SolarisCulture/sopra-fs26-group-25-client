@@ -21,6 +21,7 @@ import HowToPlayModal from "@/components/HowToPlayModal";
 import LeaveModal from "@/components/LeaveModal";
 import UsernameModal from "@/components/UsernameModal";
 import SettingsModal from "@/components/SettingsModal";
+import { Lobby } from "@/types/lobby";
 
 import styles from "@/styles/lobby.module.css";
 
@@ -56,15 +57,18 @@ export default function LobbyPage() {
   const usernameInputRef = useRef<InputRef>(null);
 
   // Check if user already joined on mount
+  const lobbyRef = useRef(lobby);
+  lobbyRef.current = lobby;
+
   useEffect(() => {
     const savedId = sessionStorage.getItem(`playerId_${code}`);
     if (savedId) {
-      lobby.setUserID(Number(savedId));
+      lobbyRef.current.setUserID(Number(savedId));
     } else {
       setShowUsernamePopUp(true);
     }
   }, [code]);
-
+  
   // Focus username input when popup opens
   useEffect(() => {
     if (!showUsernamePopUp) return;
@@ -85,7 +89,7 @@ export default function LobbyPage() {
     if (code === "new") {
       setJoiningLobby(true);
       try {
-        const newLobby = await apiService.post<any>("/api/lobbies", { hostUsername: username });
+        const newLobby = await apiService.post<Lobby>("/api/lobbies", { hostUsername: username });
         sessionStorage.setItem("hostedLobby", newLobby.lobbyCode);
         sessionStorage.setItem(`playerId_${newLobby.lobbyCode}`, String(newLobby.hostId));
         router.push(`/${newLobby.lobbyCode}`);

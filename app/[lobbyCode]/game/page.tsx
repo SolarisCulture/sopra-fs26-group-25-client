@@ -21,6 +21,7 @@ import HowToPlayModal from "@/components/HowToPlayModal";
 import ReportConfirmationModal from "@/components/ReportConfirmationModal";
 import ClueReviewModal from "@/components/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
+import { WordCard } from "@/types/wordCard";
 
 import styles from "@/styles/game.module.css";
 
@@ -86,7 +87,7 @@ export default function GamePage() {
     String(opposingSpymaster.id) === String(game.currentPlayer?.id);
   const teamClass = game.currentTurn === "red" ? styles.teamRed : styles.blueTeam;
 
-  const handleCardClick = (card: any) => {
+  const handleCardClick = (card: WordCard) => {
     if (card.revealed || !game.currentPlayer) return;
     if (clueFlow.penaltyPickMode) { clueFlow.handlePenaltyCardClick(card); return; }
     if (isSpymaster) { message.error("You are not a spy!"); return; }

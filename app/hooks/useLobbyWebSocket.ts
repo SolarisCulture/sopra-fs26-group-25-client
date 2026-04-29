@@ -10,7 +10,7 @@ import type { MessageInstance } from "antd/es/message/interface";
 interface UseLobbySocketOptions {
   lobbyCode: string;
   userID: number | null;
-  fetchLobby: () => Promise<void>;
+  fetchLobby: () => Promise<unknown>;
   setSettings: (fn: (prev: LobbySettings) => LobbySettings) => void;
   setIsStarting: (val: boolean) => void;
   onGameStart: () => void;
