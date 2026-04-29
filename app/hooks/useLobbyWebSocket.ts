@@ -1,32 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   createLobbySocket,
   LobbyEvent,
   SettingsUpdateData,
 } from "@/utils/lobbyWebsocket";
 import { LobbySettings } from "@/types/lobby";
+import type { MessageInstance } from "antd/es/message/interface";
 
 interface UseLobbySocketOptions {
   lobbyCode: string;
   userID: number | null;
-  fetchLobby: () => Promise<any>;
+  fetchLobby: () => Promise<void>;
   setSettings: (fn: (prev: LobbySettings) => LobbySettings) => void;
   setIsStarting: (val: boolean) => void;
   onGameStart: () => void;
-  message: any;
+  message: MessageInstance;
 }
 
-export function useLobbyWebSocket({
-  lobbyCode, userID, fetchLobby,
-  setSettings, setIsStarting, onGameStart, message,
-}: UseLobbySocketOptions) {
+export function useLobbyWebSocket(opts: UseLobbySocketOptions) {
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
+
   useEffect(() => {
-    if (!lobbyCode || !userID) return;
+    if (!optsRef.current.lobbyCode || !optsRef.current.userID) return;
 
     const socket = createLobbySocket(
-      lobbyCode,
-      userID,
+      optsRef.current.lobbyCode,
+      optsRef.current.userID,
       async (event: LobbyEvent) => {
+        const o = optsRef.current;
         switch (event.type) {
           case "PLAYER_JOINED":
           case "PLAYER_LEFT":
@@ -34,20 +36,20 @@ export function useLobbyWebSocket({
           case "TEAM_UPDATED":
           case "ROLE_UPDATED":
           case "STATUS_UPDATED":
-            await fetchLobby();
-            setIsStarting(false);
-            if (event.data === "IN_PROGRESS") onGameStart();
+            await o.fetchLobby();
+            o.setIsStarting(false);
+            if (event.data === "IN_PROGRESS") o.onGameStart();
             break;
 
           case "SETTINGS_UPDATED": {
             const d = event.data as SettingsUpdateData;
-            setSettings((prev) => ({
+            o.setSettings((prev) => ({
               ...prev,
               spymasterTimer: d.spymasterTimeLimit ?? null,
               spyTimer: d.spyTimeLimit ?? null,
               roundsNumber: d.rounds,
             }));
-            message.info("Game settings updated by the host.");
+            o.message.info("Game settings updated by the host.");
             break;
           }
         }
@@ -55,6 +57,6 @@ export function useLobbyWebSocket({
     );
 
     socket.connect();
-    return () => {socket.disconnect()};
-  }, [lobbyCode, userID]);
+    return () => { void socket.disconnect(); };
+  }, [opts.lobbyCode, opts.userID]);
 }

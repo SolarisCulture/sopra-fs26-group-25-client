@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
+import type { MessageInstance } from "antd/es/message/interface";
 
-export function useLobbySettings(lobbyCode: string, message: any) {
+export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   const apiService = useApi();
   const [settings, setSettings] = useState<LobbySettings>(DEFAULT_SETTINGS);
   const [spymasterTimerDisabled, setSpymasterTimerDisabled] = useState(true);

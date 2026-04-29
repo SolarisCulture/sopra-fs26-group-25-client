@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { createGameSocket } from "@/utils/gameWebsocket";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
+import type { MessageInstance } from "antd/es/message/interface";
 
 interface GameSocketOptions {
   lobbyCode: string;
@@ -18,88 +19,93 @@ interface GameSocketOptions {
   setClueReviewOpen: (val: boolean) => void;
   setPenaltyPickMode: (val: boolean) => void;
   setWinningTeam: (team: string | null) => void;
-  fetchBoard: () => Promise<any>;
+  fetchBoard: () => Promise<ReturnType<typeof Object> | null>;
   fetchPlayers: () => Promise<void>;
   fetchGameStatistics: () => Promise<void>;
   onReturnToLobby: () => void;
-  message: any;
+  message: MessageInstance;
 }
 
 export function useGameSocket(opts: GameSocketOptions) {
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
   const socketRef = useRef<ReturnType<typeof createGameSocket> | null>(null);
 
   useEffect(() => {
-    if (!opts.lobbyCode || !opts.role || opts.role === "NONE") return;
+    const { lobbyCode, role } = optsRef.current;
+    if (!lobbyCode || !role || role === "NONE") return;
     if (socketRef.current) return;
 
     const socket = createGameSocket(
-      opts.lobbyCode,
-      opts.role,
+      lobbyCode,
+      role,
       (event) => {
+        const o = optsRef.current;
         switch (event.type) {
           case "Clue":
-            opts.setCurrentPhase(event.board.currentPhase);
-            opts.setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
-            opts.setClueHistory(prev => [{
+            o.setCurrentPhase(event.board.currentPhase);
+            o.setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
+            o.setClueHistory(prev => [{
               word: event.board.clueWord ?? "",
               count: event.board.clueCount,
-              team: opts.currentTurnRef.current,
+              team: o.currentTurnRef.current,
             }, ...prev]);
-            opts.setCluePublished(true);
-            opts.setBoard(event.board.cards);
-            opts.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            o.setCluePublished(true);
+            o.setBoard(event.board.cards);
+            o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             break;
           case "Guess":
-            opts.setBoard(event.board.cards);
-            opts.setCurrentPhase(event.board.currentPhase);
-            opts.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            o.setBoard(event.board.cards);
+            o.setCurrentPhase(event.board.currentPhase);
+            o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             break;
           case "ClueReported":
-            opts.setClueReviewOpen(true);
+            o.setClueReviewOpen(true);
             break;
           case "ClueApproved":
-            opts.setClueReviewOpen(false);
-            opts.message.success("Clue approved!");
+            o.setClueReviewOpen(false);
+            o.message.success("Clue approved!");
             break;
           case "ClueRuledInvalid":
-            opts.setClueReviewOpen(false);
-            opts.setClueHistory(prev => prev.slice(1));
-            opts.setCurrentClue(null);
-            opts.setCluePublished(false);
-            opts.setPenaltyPickMode(true);
-            opts.message.warning("Clue ruled invalid!");
+            o.setClueReviewOpen(false);
+            o.setClueHistory(prev => prev.slice(1));
+            o.setCurrentClue(null);
+            o.setCluePublished(false);
+            o.setPenaltyPickMode(true);
+            o.message.warning("Clue ruled invalid!");
             break;
           case "TurnChanged":
-            opts.setCurrentPhase(event.board.currentPhase);
-            opts.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
-            opts.setCluePublished(false);
-            opts.setCurrentClue(null);
-            opts.setBoard(event.board.cards);
+            o.setCurrentPhase(event.board.currentPhase);
+            o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            o.setCluePublished(false);
+            o.setCurrentClue(null);
+            o.setBoard(event.board.cards);
             break;
           case "GameOver":
-            opts.fetchBoard();
-            opts.setFinished(true);
-            opts.fetchGameStatistics();
+            o.fetchBoard();
+            o.setFinished(true);
+            o.fetchGameStatistics();
             break;
           case "ReturningToLobby":
-            opts.setWinningTeam(null);
+            o.setWinningTeam(null);
             socketRef.current?.disconnect();
-            opts.onReturnToLobby();
+            o.onReturnToLobby();
             break;
           case "GameRestarting":
-            opts.setWinningTeam(null);
+            o.setWinningTeam(null);
             if (event.board) {
-              opts.setGameId(event.board.id);
-              opts.setBoard(event.board.cards);
-              opts.setCurrentPhase(event.board.currentPhase);
-              opts.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+              o.setGameId(event.board.id);
+              o.setBoard(event.board.cards);
+              o.setCurrentPhase(event.board.currentPhase);
+              o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             }
             break;
         }
       },
       () => {
-        opts.fetchBoard();
-        opts.fetchPlayers();
+        const o = optsRef.current;
+        o.fetchBoard();
+        o.fetchPlayers();
       }
     );
 

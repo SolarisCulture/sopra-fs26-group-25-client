@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback  } from "react";
 import { useApi } from "@/hooks/useApi";
 import { Lobby } from "@/types/lobby";
 import { User } from "@/types/user";
+import type { MessageInstance } from "antd/es/message/interface";
 
-export function useLobby(lobbyCode: string, message: any) {
+export function useLobby(lobbyCode: string, message: MessageInstance) {
   const apiService = useApi();
   const [lobby, setLobby] = useState<Lobby | null>(null);
   const [players, setPlayers] = useState<User[]>([]);
   const [isHost, setIsHost] = useState(false);
   const [userID, setUserID] = useState<number | null>(null);
 
-  const fetchLobby = async () => {
+  const fetchLobby = useCallback(async () => {
     if (!lobbyCode || lobbyCode === "new") return;
     try {
       const data = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
@@ -33,7 +34,7 @@ export function useLobby(lobbyCode: string, message: any) {
     } catch {
       message.error("Failed to fetch lobby data!");
     }
-  };
+  }, [[apiService, lobbyCode, message]]);
 
   const handleAssignTeam = async (
     playerId: string | null,
@@ -130,7 +131,7 @@ export function useLobby(lobbyCode: string, message: any) {
   // Fetch lobby when userID is set
   useEffect(() => {
     if (userID) fetchLobby();
-  }, [userID]);
+  }, [userID, fetchLobby]);
 
   return {
     lobby, players, isHost, userID, setUserID, setIsHost,

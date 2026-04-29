@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
@@ -41,7 +41,7 @@ export function useGameState(lobbyCode: string) {
     (p) => String(p.id) === String(storedPlayerId)
   ) ?? null;
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     try {
       const lobbyData = await apiService.get<{ players: User[] }>(
         `/api/lobbies/${lobbyCode}`
@@ -55,9 +55,9 @@ export function useGameState(lobbyCode: string) {
     } catch {
       console.error("Failed to fetch players!");
     }
-  };
+  }, [apiService, lobbyCode]);
 
-  const fetchBoard = async () => {
+  const fetchBoard = useCallback(async () => {
     try {
       const boardData = await apiService.get<{
         id: number;
@@ -75,7 +75,7 @@ export function useGameState(lobbyCode: string) {
       console.error("Failed to fetch board!");
       return null;
     }
-  };
+  }, [apiService, lobbyCode, role]);
 
   const fetchGameStatistics = async () => {
     try {
@@ -90,14 +90,14 @@ export function useGameState(lobbyCode: string) {
   };
 
   // fetch players on mount
-  useEffect(() => {
+   useEffect(() => {
     if (lobbyCode) fetchPlayers();
-  }, [lobbyCode]);
+  }, [lobbyCode, fetchPlayers]);
 
   // fetch board when role is known
   useEffect(() => {
     if (lobbyCode && role) fetchBoard();
-  }, [lobbyCode, role]);
+  }, [lobbyCode, role, fetchBoard]);
 
   // resolve role from players
   useEffect(() => {
