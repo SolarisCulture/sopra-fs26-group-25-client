@@ -74,9 +74,9 @@ export default function PlayerTable({
   const activeTeam = currentTurn === "blue" ? "BLUE" : "RED";
   const activeSpymaster = activeTeam === "BLUE" ? blueSpymaster : redSpymaster;
   const activeSpies = activeTeam === "BLUE" ? blueSpies : redSpies;
-  const inactiveTeam = activeTeam === "BLUE" ? "RED" : "BLUE";
-  const inactiveSpymaster = activeTeam === "BLUE" ? redSpymaster : blueSpymaster;
-  const inactiveSpies = activeTeam === "BLUE" ? redSpies : blueSpies;
+  //const inactiveTeam = activeTeam === "BLUE" ? "RED" : "BLUE";
+  //const inactiveSpymaster = activeTeam === "BLUE" ? redSpymaster : blueSpymaster;
+  //const inactiveSpies = activeTeam === "BLUE" ? redSpies : blueSpies;
 
   if (isMobile && !expanded) {
     return (

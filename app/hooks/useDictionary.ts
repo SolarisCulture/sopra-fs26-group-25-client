@@ -1,6 +1,7 @@
 import { useState } from "react";
+import type { MessageInstance } from "antd/es/message/interface";
 
-export function useDictionary(message: any) {
+export function useDictionary(message: MessageInstance) {
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
   const [dictionarySearch, setDictionarySearch] = useState("");
   const [dictionaryResult, setDictionaryResult] = useState<{

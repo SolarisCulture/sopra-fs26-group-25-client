@@ -11,7 +11,7 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
   const [isHost, setIsHost] = useState(false);
   const [userID, setUserID] = useState<number | null>(null);
 
-  const fetchLobby = useCallback(async () => {
+    const fetchLobby = useCallback(async () => {
     if (!lobbyCode || lobbyCode === "new") return;
     try {
       const data = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
@@ -34,7 +34,8 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
     } catch {
       message.error("Failed to fetch lobby data!");
     }
-  }, [[apiService, lobbyCode, message]]);
+  }, [apiService, lobbyCode, message]);
+
 
   const handleAssignTeam = async (
     playerId: string | null,

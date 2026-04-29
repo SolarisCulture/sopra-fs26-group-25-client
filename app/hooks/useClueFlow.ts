@@ -1,15 +1,16 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { WordCard } from "@/types/wordCard";
-import { ClueEvent, GuessEvent } from "@/types/gameEvent";
+import { ClueEvent } from "@/types/gameEvent";
 import { User } from "@/types/user";
 import { createGameSocket } from "@/utils/gameWebsocket";
+import type { MessageInstance } from "antd/es/message/interface";
 
 interface ClueFlowOptions {
   currentPlayer: User | null;
   currentTurn: "red" | "blue";
   board: WordCard[];
   socketRef: React.MutableRefObject<ReturnType<typeof createGameSocket> | null>;
-  message: any;
+  message: MessageInstance;
   // shared state from parent
   currentClue: { word: string; count: number } | null;
   setCurrentClue: (clue: { word: string; count: number } | null) => void;
