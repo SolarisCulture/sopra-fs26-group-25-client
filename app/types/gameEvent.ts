@@ -101,6 +101,16 @@ export interface ServerGameRestartingEvent {
   board: GameBoardPayload;
 }
 
+export interface ServerGamePausedEvent {
+  type: "GamePaused";
+  lobbyCode: string;
+}
+
+export interface ServerGameResumedEvent {
+  type: "GameResumed";
+  lobbyCode: string;
+}
+
 // GameEvent is only inbound events (what the socket receives)
 export type GameEvent =
   | ServerClueEvent
@@ -111,5 +121,7 @@ export type GameEvent =
   | ServerGameOverEvent
   | ServerReturningToLobbyEvent 
   | ServerGameRestartingEvent
+  | ServerGamePausedEvent
+  | ServerGameResumedEvent
   | ClueReportedEvent
   | ClueRulingEvent;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
-import { App, ConfigProvider } from "antd";
+import { useCallback, useState, useEffect, useRef } from "react";
+import { App, Button, ConfigProvider } from "antd";
 
 import { useLobby } from "@/hooks/useLobby";
 import { useLobbySettings } from "@/hooks/useLobbySettings";
@@ -22,6 +22,7 @@ import LeaveModal from "@/components/LeaveModal";
 import UsernameModal from "@/components/UsernameModal";
 import SettingsModal from "@/components/SettingsModal";
 import { Lobby } from "@/types/lobby";
+import { JoinRequestData } from "@/utils/lobbyWebsocket";
 
 import styles from "@/styles/lobby.module.css";
 
@@ -35,14 +36,22 @@ export default function LobbyPage() {
   const [link, setLink] = useState("");
 
   useEffect(() => {
-    setLink(`${window.location.origin}/${code}`);
+    setLink(`${globalThis.location.origin}/${code}`);
   }, [code]);
 
   // hooks
-  const lobby = useLobby(code, message);
+  const handleCurrentPlayerRemoved = useCallback((messageText?: string) => {
+    if (messageText) message.error(messageText);
+    sessionStorage.removeItem(`playerId_${code}`);
+    sessionStorage.removeItem(`isHost_${code}`);
+    router.push("/");
+  }, [code, message, router]);
+
+  const lobby = useLobby(code, message, handleCurrentPlayerRemoved);
   const lobbySettings = useLobbySettings(code, message);
   const [isStarting, setIsStarting] = useState(false);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
+  const [kickTarget, setKickTarget] = useState<User | null>(null);
   
 
   // modals
@@ -132,7 +141,18 @@ export default function LobbyPage() {
     fetchLobby: lobby.fetchLobby,
     setSettings: lobbySettings.setSettings,
     setIsStarting,
+    isHost: lobby.isHost,
+    onCurrentPlayerRemoved: handleCurrentPlayerRemoved,
     onGameStart: () => router.push(`/${code}/game`),
+    onJoinRequest: (request: JoinRequestData) => {
+      Modal.confirm({
+        title: "Join Request",
+        content: `${request.requesterName} wants to join Team ${request.requestedTeam}.`,
+        onOk: () => lobby.handleAssignTeam(request.requesterId, request.requestedTeam),
+        okText: "Accept",
+        cancelText: "Deny",
+      });
+    },
     message,
   });
 
@@ -189,12 +209,15 @@ export default function LobbyPage() {
             <PlayerList
               players={lobby.players}
               isHost={lobby.isHost}
+              currentUserID={lobby.userID}
               onAssign={setAssignTarget}
               onTransferHost={lobby.handleTransferHost}
+              onKick={setKickTarget}
             />
             <TeamTableModal
               players={lobby.players}
               isHost={lobby.isHost}
+              currentUserID={lobby.userID}
               onAssign={lobby.handleAssignTeam}
               onMakeSpymaster={lobby.handleAssignRole}
               assignTarget={assignTarget}
@@ -225,7 +248,34 @@ export default function LobbyPage() {
           />
 
           <HowToPlayModal open={howToPlayOpen} onClose={() => setHowToPlayOpen(false)} />
-          <LeaveModal open={leaveOpen} onStay={() => setLeaveOpen(false)} onLeave={lobby.handleLeave} />
+          <LeaveModal
+            open={leaveOpen}
+            onStay={() => setLeaveOpen(false)}
+            onLeave={async () => {
+              await lobby.handleLeave();
+              router.push("/");
+            }}
+          />
+          <Modal
+            title={<div style={{ color: "#000" }}>Are you sure you want to kick this player?</div>}
+            open={kickTarget !== null}
+            closable={false}
+            footer={null}
+          >
+            <p>This will remove {kickTarget?.username} from the lobby.</p>
+            <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "10px" }}>
+              <Button onClick={() => setKickTarget(null)}>No, keep them.</Button>
+              <Button
+                type="primary"
+                onClick={async () => {
+                  if (kickTarget) await lobby.handleKick(kickTarget);
+                  setKickTarget(null);
+                }}
+              >
+                Yes, kick.
+              </Button>
+            </div>
+          </Modal>
           <SettingsModal
             open={settingsOpen}
             onClose={() => setSettingsOpen(false)}

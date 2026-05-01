@@ -9,12 +9,14 @@ import styles from "@/styles/playerList.module.css";
 interface PlayerListProps {
   players: User[];
   isHost: boolean;
+  currentUserID: number | null;
   onAssign: (player: User) => void;
   onTransferHost: (player: User) => void;
+  onKick: (player: User) => void;
 }
 
 export default function PlayerList({
-  players, isHost, onAssign, onTransferHost,
+  players, isHost, currentUserID, onAssign, onTransferHost, onKick,
 }: PlayerListProps) {
   const isMobile = useMediaQuery("(max-width: 600px)");
 
@@ -23,28 +25,45 @@ export default function PlayerList({
       title: <span style={{ color: "#fff", fontSize: "22px" }}>Players</span>,
       dataIndex: "username",
       key: "username",
-      render: (username: string, player: User) => (
-        <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ width: 20, display: "inline-block", textAlign: "center" }}>
-              {player.isHost ? "👑" : isHost && (
-                <Tooltip title="Click to make host" color="#7B2D8B">
-                  <span
-                    style={{ cursor: "pointer", fontSize: "16px", opacity: 0.5 }}
-                    onClick={() => onTransferHost(player)}
-                  >👑</span>
-                </Tooltip>
-              )}
+      render: (username: string, player: User) => {
+        const isMe = Number(player.id) === Number(currentUserID);
+        return (
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 20, display: "inline-block", textAlign: "center" }}>
+                {player.isHost ? "👑" : isHost && (
+                  <Tooltip title="Click to make host" color="#7B2D8B">
+                    <span
+                      style={{ cursor: "pointer", fontSize: "16px", opacity: 0.5 }}
+                      onClick={() => onTransferHost(player)}
+                    >👑</span>
+                  </Tooltip>
+                )}
+              </span>
+              <span style={{ wordBreak: "break-all" }}>{username}</span>
             </span>
-            <span style={{ wordBreak: "break-all" }}>{username}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {(isHost || isMe) && (!player.team || player.team === "UNASSIGNED") && (
+                <Button size="small" type="primary" onClick={() => onAssign(player)}>
+                  Assign
+                </Button>
+              )}
+              <span style={{ width: 24, display: "flex", justifyContent: "center" }}>
+                {isHost && !isMe && (
+                  <Tooltip title="Click to kick player" color="#7B2D8B">
+                    <span
+                      style={{ cursor: "pointer", fontSize: "16px", opacity: 0.5 }}
+                      onClick={() => onKick(player)}
+                    >
+                      X
+                    </span>
+                  </Tooltip>
+                )}
+              </span>
+            </span>
           </span>
-          {isHost && (!player.team || player.team === "UNASSIGNED") && (
-            <Button size="small" type="primary" onClick={() => onAssign(player)}>
-              Assign
-            </Button>
-          )}
-        </span>
-      ),
+        );
+      },
     },
   ];
 
@@ -56,8 +75,10 @@ export default function PlayerList({
             key={p.id}
             player={p}
             isHost={isHost}
+            currentUserID={currentUserID}
             onAssign={onAssign}
             onTransferHost={onTransferHost}
+            onKick={onKick}
           />
         ))}
       </div>

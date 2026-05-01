@@ -8,6 +8,16 @@
   z-index: 50;
 }
 
+.hostControls {
+  position: fixed;
+  bottom: 75px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+}
+
 .actionButton {
   width: 125px;
   height: 40px;
@@ -30,6 +40,16 @@
     backdrop-filter: blur(8px);
   }
 
+  .hostControls {
+    left: 0;
+    right: 0;
+    bottom: 58px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+  }
+
   .actionButton {
     width: auto;
     min-width: 90px;
@@ -43,6 +63,12 @@
 @media (max-width: 480px) {
   .container {
     padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .hostControls {
+    bottom: 55px;
+    padding: 0 8px;
     gap: 4px;
   }
 

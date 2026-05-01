@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import {
   createLobbySocket,
+  JoinRequestData,
   LobbyEvent,
   SettingsUpdateData,
 } from "@/utils/lobbyWebsocket";
@@ -13,7 +14,10 @@ interface UseLobbySocketOptions {
   fetchLobby: () => Promise<unknown>;
   setSettings: (fn: (prev: LobbySettings) => LobbySettings) => void;
   setIsStarting: (val: boolean) => void;
+  isHost: boolean;
+  onCurrentPlayerRemoved: (messageText?: string) => void;
   onGameStart: () => void;
+  onJoinRequest: (request: JoinRequestData) => void;
   message: MessageInstance;
 }
 
@@ -30,8 +34,27 @@ export function useLobbyWebSocket(opts: UseLobbySocketOptions) {
       async (event: LobbyEvent) => {
         const o = optsRef.current;
         switch (event.type) {
+          case "PLAYER_KICKED": {
+            const kickedId = Number(event.data);
+            if (kickedId === o.userID) {
+              o.onCurrentPlayerRemoved("You have been kicked from the lobby.");
+              return;
+            }
+            await o.fetchLobby();
+            break;
+          }
+
+          case "PLAYER_LEFT": {
+            const leftId = Number(event.data);
+            if (leftId === o.userID) {
+              o.onCurrentPlayerRemoved();
+              return;
+            }
+            await o.fetchLobby();
+            break;
+          }
+
           case "PLAYER_JOINED":
-          case "PLAYER_LEFT":
           case "HOST_CHANGED":
           case "TEAM_UPDATED":
           case "ROLE_UPDATED":
@@ -52,6 +75,12 @@ export function useLobbyWebSocket(opts: UseLobbySocketOptions) {
             o.message.info("Game settings updated by the host.");
             break;
           }
+
+          case "JOIN_REQUEST_RECEIVED":
+            if (o.isHost) {
+              o.onJoinRequest(event.data as JoinRequestData);
+            }
+            break;
         }
       }
     );

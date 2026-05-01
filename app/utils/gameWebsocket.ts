@@ -116,7 +116,16 @@ export function createGameSocket(
             body: JSON.stringify(event),
         });
       });
-  },
+    },
+
+    sendPause: (isPaused: boolean) => {
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/pause`,
+          body: JSON.stringify({ paused: isPaused }),
+        });
+      });
+    },
 
     disconnect: async () => {
       if (subscription !== null) {

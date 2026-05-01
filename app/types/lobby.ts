@@ -8,7 +8,7 @@ export interface Lobby {
 }
 
 export interface LobbySettings {
-  theme: string;
+  theme: string[];
   customTheme: string;
   customWordList: string,
   difficulty: "easy" | "medium" | "hard" | "all";
@@ -18,7 +18,7 @@ export interface LobbySettings {
 }
 
 export const DEFAULT_SETTINGS: LobbySettings = {
-  theme: "",
+  theme: ["standard"],
   customTheme: "",
   customWordList: "",
   difficulty: "all",

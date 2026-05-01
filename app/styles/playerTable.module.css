@@ -100,15 +100,19 @@
 
 /* Tablet/Phone — collapsed: horizontal bar at top */
 .containerCollapsed {
-  position: relative;
+  position: absolute;
   z-index: 100;
-  width: 100%;
+  left: 0;
+  right: 0;
+  width: auto;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
   flex-wrap: wrap;
   justify-content: center;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.95);
 }
 
 .containerCollapsed .teamCard {
@@ -136,14 +140,18 @@
 
 /* Tablet/Phone — expanded: stacked cards */
 .containerExpanded {
-  position: relative;
+  position: absolute;
   z-index: 100;
-  width: 100%;
+  left: 0;
+  right: 0;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 8px 12px;
   align-items: center;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.95);
 }
 
 .containerExpanded .teamCard {

@@ -1,5 +1,5 @@
 .container {
-  position: absolute;
+  position: fixed;
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
@@ -39,30 +39,38 @@
 /* Tablet */
 @media (max-width: 768px) {
   .container {
-    bottom: 60px;
-    padding: 12px 14px;
-    gap: 8px;
+    bottom: 100px;
+    left: 5%;
+    right: 5%;
+    transform: none;
+    width: auto;
+    padding: 10px;
+    gap: 6px;
+    border-radius: 10px;
   }
 
   .wordInput {
-    width: 140px;
+    flex: 1;
+    width: auto;
+    min-width: 80px;
   }
 
   .countInput {
-    width: 60px;
+    width: 50px;
+    min-width: 45px;
   }
 
   .sendButton {
-    height: 36px;
-    padding: 0 14px;
-    font-size: 13px;
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
   }
 }
 
 /* Phone */
 @media (max-width: 480px) {
   .container {
-    bottom: 50px;
+    bottom: 100px;
     left: 5%;
     right: 5%;
     transform: none;

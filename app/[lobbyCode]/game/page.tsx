@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { App, ConfigProvider, Modal } from "antd";
+import { App, Button, ConfigProvider, Modal } from "antd";
 import { useApi } from "@/hooks/useApi";
 
 import { useGameState } from "@/hooks/useGameState";
@@ -21,6 +21,7 @@ import HowToPlayModal from "@/components/HowToPlayModal";
 import ReportConfirmationModal from "@/components/ReportConfirmationModal";
 import ClueReviewModal from "@/components/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
+import QuitGameModal from "@/components/QuitGameModal";
 import { WordCard } from "@/types/wordCard";
 
 import styles from "@/styles/game.module.css";
@@ -37,6 +38,9 @@ export default function GamePage() {
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [reportConfirmOpen, setReportConfirmOpen] = useState(false);
   const [endTurnConfirmOpen, setEndTurnConfirmOpen] = useState(false);
+  const [pauseModalOpen, setPauseModalOpen] = useState(false);
+  const [quitModalOpen, setQuitModalOpen] = useState(false);
+  const [quitFromPause, setQuitFromPause] = useState(false);
 
   const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
   const [cluePublished, setCluePublished] = useState(false);
@@ -55,7 +59,9 @@ export default function GamePage() {
     setClueHistory,
     setClueReviewOpen,
     setPenaltyPickMode,
+    setPauseModalOpen,
     fetchBoard: game.fetchBoard, fetchPlayers: game.fetchPlayers,
+    fetchFinalBoard: game.fetchFinalBoard,
     fetchGameStatistics: game.fetchGameStatistics,
     onReturnToLobby: () => router.push(`/${code}`),
     message,
@@ -114,6 +120,15 @@ export default function GamePage() {
     message.success(`Turn passed to ${game.currentTurn === "red" ? "BLUE" : "RED"} team`);
   };
 
+  const handleConfirmQuit = async () => {
+    try {
+      await apiService.post(`/api/games/${code}/backToLobby`, {});
+      setQuitModalOpen(false);
+    } catch {
+      message.error("Failed to quit the game.");
+    }
+  };
+
   return (
     <ConfigProvider theme={{
       components: {
@@ -152,7 +167,7 @@ export default function GamePage() {
 
       <GameActions
         role={game.role} cluePublished={clueFlow.cluePublished}
-        canEndTurn={canEndTurn} isSpymaster={isSpymaster}
+        canEndTurn={canEndTurn} isHost={isHost} isSpymaster={isSpymaster}
         colorOverlayActive={clueFlow.colorOverlayActive}
         dictionaryLoading={dictionary.dictionaryLoading}
         onReport={() => { if (clueFlow.cluePublished) setReportConfirmOpen(true); }}
@@ -160,6 +175,11 @@ export default function GamePage() {
         onToggleOverlay={() => clueFlow.setColorOverlayActive(prev => !prev)}
         onDictionary={() => dictionary.setDictionaryOpen(true)}
         onHowToPlay={() => setHowToPlayOpen(true)}
+        onPause={() => socketRef.current?.sendPause(true)}
+        onQuit={() => {
+          setQuitFromPause(false);
+          setQuitModalOpen(true);
+        }}
       />
 
       <Modal title="Confirm End Turn" open={endTurnConfirmOpen}
@@ -198,9 +218,53 @@ export default function GamePage() {
         setPenaltyCardPicked={clueFlow.setPenaltyCardPicked}
       />
 
+      <Modal
+        title={<div style={{ color: "#000" }}>Game Paused</div>}
+        open={pauseModalOpen}
+        closable={false}
+        footer={null}
+        centered
+        maskClosable={false}
+      >
+        {isHost ? (
+          <>
+            <p>The game is currently paused. What would you like to do?</p>
+            <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "20px" }}>
+              <Button type="primary" onClick={() => socketRef.current?.sendPause(false)}>
+                Resume Game
+              </Button>
+              <Button
+                onClick={() => {
+                  setPauseModalOpen(false);
+                  setQuitFromPause(true);
+                  setQuitModalOpen(true);
+                }}
+              >
+                Quit Game
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className={styles.finishedBox}>
+            <h2 className={styles.finishedTitle}>Game Paused</h2>
+            <p className={styles.finishedText}>Please wait for host action...</p>
+          </div>
+        )}
+      </Modal>
+
+      <QuitGameModal
+        open={quitModalOpen}
+        onStay={() => {
+          setQuitModalOpen(false);
+          if (quitFromPause) setPauseModalOpen(true);
+          setQuitFromPause(false);
+        }}
+        onQuit={handleConfirmQuit}
+      />
+
       {game.finished && (
         <GameOverScreen
-          winningTeam={game.winningTeam} isHost={isHost}
+          winningTeam={game.winningTeam} finalBoard={game.finalBoard} isHost={isHost}
           isRestarting={isRestarting}
           onRestart={async () => {
             try { setIsRestarting(true); await apiService.post(`/api/games/${code}/restart`, {}); }

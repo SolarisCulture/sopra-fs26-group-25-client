@@ -1,17 +1,17 @@
-.container {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-}
-
 .teamBox {
-  flex: 1;
   min-width: 0;
-  max-width: 350px;
   border-radius: 8px;
   padding: 12px;
+}
+
+.blueTeamBox {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.redTeamBox {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .teamTitle {
@@ -77,12 +77,6 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-  }
-
   .teamBox {
     max-width: 100%;
   }

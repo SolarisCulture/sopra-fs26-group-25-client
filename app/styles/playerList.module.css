@@ -52,6 +52,12 @@
   font-size: clamp(13px, 2.5vw, 16px);
 }
 
+.playerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 @media (max-width: 768px) {
   .tableWrapper {
     width: 100%;

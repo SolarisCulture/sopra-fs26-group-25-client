@@ -4,7 +4,11 @@ import { Lobby } from "@/types/lobby";
 import { User } from "@/types/user";
 import type { MessageInstance } from "antd/es/message/interface";
 
-export function useLobby(lobbyCode: string, message: MessageInstance) {
+export function useLobby(
+  lobbyCode: string,
+  message: MessageInstance,
+  onCurrentPlayerRemoved?: () => void
+) {
   const apiService = useApi();
   const [lobby, setLobby] = useState<Lobby | null>(null);
   const [players, setPlayers] = useState<User[]>([]);
@@ -15,6 +19,15 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
     if (!lobbyCode || lobbyCode === "new") return;
     try {
       const data = await apiService.get<Lobby>(`/api/lobbies/${lobbyCode}`);
+      const savedId = sessionStorage.getItem(`playerId_${lobbyCode}`);
+      const isStillInLobby = data.players?.some(p => Number(p.id) === Number(savedId));
+      if (savedId && !isStillInLobby) {
+        sessionStorage.removeItem(`playerId_${lobbyCode}`);
+        sessionStorage.removeItem(`isHost_${lobbyCode}`);
+        onCurrentPlayerRemoved?.();
+        return;
+      }
+
       setLobby(data);
       const sanitized = (data.players || []).map((p: User) => ({
         ...p,
@@ -22,7 +35,6 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
       }));
       setPlayers(sanitized);
 
-      const savedId = sessionStorage.getItem(`playerId_${lobbyCode}`);
       const me = sanitized.find(
         (p: User) => Number(p.id) === Number(savedId)
       );
@@ -34,7 +46,7 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
     } catch {
       message.error("Failed to fetch lobby data!");
     }
-  }, [apiService, lobbyCode, message]);
+  }, [apiService, lobbyCode, message, onCurrentPlayerRemoved]);
 
 
   const handleAssignTeam = async (
@@ -110,6 +122,16 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
     }
   };
 
+  const handleKick = async (player: User) => {
+    try {
+      await apiService.delete(`/api/lobbies/${lobbyCode}/players/${player.id}`);
+      message.success(`${player.username} has been removed.`);
+      setPlayers(prev => prev.filter(p => p.id !== player.id));
+    } catch {
+      message.error("Failed to kick player.");
+    }
+  };
+
   const handleLeave = async () => {
     if (!userID) return;
     try {
@@ -137,6 +159,6 @@ export function useLobby(lobbyCode: string, message: MessageInstance) {
   return {
     lobby, players, isHost, userID, setUserID, setIsHost,
     fetchLobby, handleAssignTeam, handleAssignRole,
-    handleTransferHost, handleLeave,
+    handleTransferHost, handleKick, handleLeave,
   };
 }

@@ -33,6 +33,7 @@ export function useGameState(lobbyCode: string) {
   // game over
   const [finished, setFinished] = useState(false);
   const [winningTeam, setWinningTeam] = useState<string | null>(null);
+  const [finalBoard, setFinalBoard] = useState<WordCard[]>([]);
 
   // current player
   const storedPlayerId = typeof window !== "undefined"
@@ -89,6 +90,18 @@ export function useGameState(lobbyCode: string) {
     }
   };
 
+  const fetchFinalBoard = async () => {
+    try {
+      const boardData = await apiService.get<{ cards: WordCard[] }>(
+        `/api/games/${lobbyCode}/board?role=SPYMASTER`
+      );
+      setFinalBoard(boardData.cards);
+    } catch {
+      console.error("Failed to fetch final board!");
+      setFinalBoard([]);
+    }
+  };
+
   // fetch players on mount
    useEffect(() => {
     if (lobbyCode) fetchPlayers();
@@ -115,6 +128,7 @@ export function useGameState(lobbyCode: string) {
     const prev = previousGameIdRef.current;
     if (prev != null && prev !== gameId) {
       setFinished(false);
+      setFinalBoard([]);
     }
     previousGameIdRef.current = gameId;
   }, [gameId]);
@@ -128,6 +142,7 @@ export function useGameState(lobbyCode: string) {
     currentPhase, setCurrentPhase, currentPhaseRef,
     finished, setFinished,
     winningTeam, setWinningTeam,
+    finalBoard, fetchFinalBoard,
     fetchPlayers, fetchBoard, fetchGameStatistics,
   };
 }

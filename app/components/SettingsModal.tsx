@@ -67,7 +67,7 @@ export default function SettingsModal({
 }: ScriptProps) {
 
   // Clean up customTheme & customWordList
-  const handleThemeChange = (val: string) => {
+  const handleThemeChange = (val: string[]) => {
     setSettings({
       ...settings,
       theme: val,
@@ -91,20 +91,28 @@ export default function SettingsModal({
         <label>Select a theme:</label>
 
         <Select
+          mode="multiple"
           style={{ width: 200 }}
           value={settings.theme}
           disabled={!isHost}
           onChange={handleThemeChange}
           options={[
-            { value: "", label: "Select..." },
             { value: "standard", label: "Standard" },
+            { value: "nature", label: "Nature" },
+            { value: "history", label: "History" },
+            { value: "medieval", label: "Medieval" },
+            { value: "food & drink", label: "Food & Drink" },
+            { value: "disney", label: "Disney" },
+            { value: "movies & tv shows", label: "Movies & TV Shows" },
+            { value: "science", label: "Science" },
+            { value: "computer science", label: "Computer Science" },
             { value: "customTheme", label: "Custom Theme" },
             { value: "customWordList", label: "Custom Word List" }
           ]}
         />
 
         {/* CUSTOM THEME NAME */}
-        {settings.theme == "customTheme" && (
+        {settings.theme.includes("customTheme") && (
           <>
             <label>Enter custom theme name:</label>
             <Input
@@ -119,7 +127,7 @@ export default function SettingsModal({
         )}
 
         {/* CUSTOM WORD LIST UPLOAD */}
-        {settings.theme == "customWordList" && (
+        {settings.theme.includes("customWordList") && (
           <>
             <label>Upload a custom word list:</label>
             <Upload

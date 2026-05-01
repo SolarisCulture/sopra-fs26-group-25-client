@@ -5,13 +5,16 @@ import styles from "@/styles/teamTable.module.css";
 interface ScriptProps {
   players: User[];
   isHost: boolean;
+  currentUserID: number | null;
   onAssign: (playerId: string, team: "RED" | "BLUE" | "UNASSIGNED") => void;
   onMakeSpymaster: (playerId: string, role: "SPYMASTER" | "SPY") => void;
   assignTarget: User | null;
   setAssignTarget: (user: User | null) => void;
 }
 
-export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, assignTarget, setAssignTarget }: ScriptProps) {
+export default function TeamTable({
+  players, isHost, currentUserID, onAssign, onMakeSpymaster, assignTarget, setAssignTarget,
+}: ScriptProps) {
   const bluePlayers = players.filter(p => p.team == "BLUE");
   const redPlayers = players.filter(p => p.team == "RED");
 
@@ -38,7 +41,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
         <span className={styles.playerName}>{p.username}</span>
       </span>
 
-      {isHost && (
+      {(isHost || String(p.id) === String(currentUserID)) && (
         <Button
           size="small"
           style={{ borderColor: teamColor, color: teamColor }}
@@ -51,9 +54,9 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
   );
 
   return (
-    <div className={styles.container}>
+    <>
       {/* TEAM BLUE */}
-      <div className={styles.teamBox} style={{ background: "rgba(27,159,216,0.25)" }}>
+      <div className={`${styles.teamBox} ${styles.blueTeamBox}`} style={{ background: "rgba(27,159,216,0.25)" }}>
         <h3 className={styles.teamTitle} style={{ color: "#1B9FD8" }}>Team Blue</h3>
         <div className={styles.playerList}>
           {bluePlayers.map(p => renderPlayer(p, "#1B9FD8"))}
@@ -61,7 +64,7 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
       </div>
 
       {/* TEAM RED */}
-      <div className={styles.teamBox} style={{ background: "rgba(232,64,28,0.25)" }}>
+      <div className={`${styles.teamBox} ${styles.redTeamBox}`} style={{ background: "rgba(232,64,28,0.25)" }}>
         <h3 className={styles.teamTitle} style={{ color: "#E8401C" }}>Team Red</h3>
         <div className={styles.playerList}>
           {redPlayers.map(p => renderPlayer(p, "#E8401C"))}
@@ -104,6 +107,6 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
           </Button>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }

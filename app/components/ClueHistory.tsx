@@ -20,7 +20,10 @@ export default function ClueHistory({ clueHistory }: Props) {
       )}
 
       {latest && (
-        <div className={`${styles.clueCard} ${styles.latestCard}`}>
+        <div
+          className={`${styles.clueCard} ${styles.latestCard}`}
+          style={{ borderLeftColor: latest.team === "red" ? "#ff4d4f" : "#1890ff" }}
+        >
           <span
             className={styles.latestBadge}
             style={{ background: latest.team === "red" ? "#ff4d4f" : "#1890ff" }}

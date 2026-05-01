@@ -5,6 +5,7 @@ interface GameActionsProps {
   role: string | null;
   cluePublished: boolean;
   canEndTurn: boolean;
+  isHost: boolean;
   isSpymaster: boolean;
   colorOverlayActive: boolean;
   dictionaryLoading: boolean;
@@ -13,16 +14,30 @@ interface GameActionsProps {
   onToggleOverlay: () => void;
   onDictionary: () => void;
   onHowToPlay: () => void;
+  onPause: () => void;
+  onQuit: () => void;
 }
 
 export default function GameActions({
-  role, cluePublished, canEndTurn, isSpymaster,
+  role, cluePublished, canEndTurn, isHost, isSpymaster,
   colorOverlayActive, dictionaryLoading,
-  onReport, onEndTurn, onToggleOverlay, onDictionary, onHowToPlay,
+  onReport, onEndTurn, onToggleOverlay, onDictionary, onHowToPlay, onPause, onQuit,
 }: GameActionsProps) {
   return (
-    <div className={styles.container}>
-      {isSpymaster && (
+    <>
+      {isHost && (
+        <div className={styles.hostControls}>
+          <Button type="primary" onClick={onPause} className={styles.actionButton}>
+            Pause Game
+          </Button>
+          <Button type="primary" onClick={onQuit} className={styles.actionButton}>
+            Quit Game
+          </Button>
+        </div>
+      )}
+
+      <div className={styles.container}>
+        {isSpymaster && (
         <Button
           type={colorOverlayActive ? "default" : "primary"}
           onClick={onToggleOverlay}
@@ -68,6 +83,7 @@ export default function GameActions({
       >
         How To Play
       </Button>
-    </div>
+      </div>
+    </>
   );
 }

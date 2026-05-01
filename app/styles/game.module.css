@@ -221,6 +221,30 @@
   flex-wrap: wrap;
 }
 
+.finalBoard {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: min(100%, 520px);
+  margin: 16px auto;
+}
+
+.finalCard {
+  border-radius: 8px;
+  aspect-ratio: 1.55 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  box-sizing: border-box;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.65rem;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
 /* ============================
    TABLET (768px)
    ============================ */

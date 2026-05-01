@@ -19,8 +19,10 @@ interface GameSocketOptions {
   setClueReviewOpen: (val: boolean) => void;
   setPenaltyPickMode: (val: boolean) => void;
   setWinningTeam: (team: string | null) => void;
+  setPauseModalOpen: (val: boolean) => void;
   fetchBoard: () => Promise<ReturnType<typeof Object> | null>;
   fetchPlayers: () => Promise<void>;
+  fetchFinalBoard: () => Promise<void>;
   fetchGameStatistics: () => Promise<void>;
   onReturnToLobby: () => void;
   message: MessageInstance;
@@ -82,8 +84,8 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.setBoard(event.board.cards);
             break;
           case "GameOver":
-            o.fetchBoard();
             o.setFinished(true);
+            o.fetchFinalBoard();
             o.fetchGameStatistics();
             break;
           case "ReturningToLobby":
@@ -99,6 +101,12 @@ export function useGameSocket(opts: GameSocketOptions) {
               o.setCurrentPhase(event.board.currentPhase);
               o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             }
+            break;
+          case "GamePaused":
+            o.setPauseModalOpen(true);
+            break;
+          case "GameResumed":
+            o.setPauseModalOpen(false);
             break;
         }
       },
