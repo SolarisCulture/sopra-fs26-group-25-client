@@ -44,7 +44,10 @@ export function createGameSocket(
         : `/topic/game/${lobbyCode}/spy`;
 
     subscription = client.subscribe(topic, (message: IMessage) => {
-      const event: GameEvent = JSON.parse(message.body);
+      const parsed = JSON.parse(message.body);
+      const event: GameEvent = typeof parsed === "number"
+        ? { type: "TIMER_UPDATE", lobbyCode, timer: parsed }
+        : parsed;
       console.log("Game event received:", event);
       onMessage(event);
     });

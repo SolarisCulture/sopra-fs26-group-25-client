@@ -27,6 +27,7 @@ export interface GameBoardPayload {
   redScore: number;
   blueScore: number;
   status: string;
+  timer: number;
 }
 
 export interface ClueEvent extends GameEventBase, Clue {
@@ -111,6 +112,15 @@ export interface ServerGameResumedEvent {
   lobbyCode: string;
 }
 
+export interface ServerTimerUpdateEvent {
+  type: "TIMER_UPDATE";
+  lobbyCode: string;
+  board?: GameBoardPayload | null;
+  timer?: number;
+  remainingTime?: number;
+  data?: number;
+}
+
 // GameEvent is only inbound events (what the socket receives)
 export type GameEvent =
   | ServerClueEvent
@@ -123,5 +133,6 @@ export type GameEvent =
   | ServerGameRestartingEvent
   | ServerGamePausedEvent
   | ServerGameResumedEvent
+  | ServerTimerUpdateEvent
   | ClueReportedEvent
   | ClueRulingEvent;
