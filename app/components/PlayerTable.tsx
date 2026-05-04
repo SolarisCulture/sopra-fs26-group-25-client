@@ -9,6 +9,7 @@ import styles from "@/styles/playerTable.module.css";
 interface PlayerTableProps {
   currentTurn: "red" | "blue";
   currentPhase: string;
+  remainingTime: number | null;
   blueSpymaster: User | null;
   redSpymaster: User | null;
   blueSpies: User[];
@@ -66,6 +67,7 @@ function TeamCard({ team, currentTurn, currentPhase, spymaster, spies, compact }
 
 export default function PlayerTable({
   currentTurn, currentPhase,
+  remainingTime,
   blueSpymaster, redSpymaster, blueSpies, redSpies,
 }: PlayerTableProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -74,6 +76,11 @@ export default function PlayerTable({
   const activeTeam = currentTurn === "blue" ? "BLUE" : "RED";
   const activeSpymaster = activeTeam === "BLUE" ? blueSpymaster : redSpymaster;
   const activeSpies = activeTeam === "BLUE" ? blueSpies : redSpies;
+
+  const formattedTime = remainingTime == null ? null : `${Math.max(0, Math.floor(remainingTime / 60))}:${String(Math.max(0, remainingTime % 60)).padStart(2, "0")}`;
+  // const formattedTime = remainingTime == null ? null
+  //   : `${Math.max(0, Math.floor(remainingTime / 60))}:${String(Math.max(0, remainingTime % 60)).padStart(2, "0")}`;
+
   //const inactiveTeam = activeTeam === "BLUE" ? "RED" : "BLUE";
   //const inactiveSpymaster = activeTeam === "BLUE" ? redSpymaster : blueSpymaster;
   //const inactiveSpies = activeTeam === "BLUE" ? redSpies : blueSpies;
@@ -81,6 +88,7 @@ export default function PlayerTable({
   if (isMobile && !expanded) {
     return (
       <div className={styles.containerCollapsed}>
+        {formattedTime !== null && <div className={styles.timerBadge}>{formattedTime}</div>}
         <TeamCard
           team={activeTeam}
           currentTurn={currentTurn}
@@ -103,6 +111,9 @@ export default function PlayerTable({
 
   return (
     <div className={isMobile ? styles.containerExpanded : styles.container}>
+      {formattedTime !== null && 
+        <div className={styles.timerBadge}>{formattedTime}</div>
+      }
       <TeamCard
         team="BLUE"
         currentTurn={currentTurn}

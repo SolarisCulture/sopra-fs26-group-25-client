@@ -3,6 +3,8 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
 
+type ClueHistoryEntry = { word: string; count: number; team: "red" | "blue" };
+
 export function useGameState(lobbyCode: string) {
   const apiService = useApi();
 
@@ -25,6 +27,7 @@ export function useGameState(lobbyCode: string) {
   const currentTurnRef = useRef<"red" | "blue">("red");
   const [currentPhase, setCurrentPhase] = useState<string>("");
   const currentPhaseRef = useRef("");
+  const [clueHistory, setClueHistory] = useState<ClueHistoryEntry[]>([]);
 
   // sync refs
   useEffect(() => { currentTurnRef.current = currentTurn; }, [currentTurn]);
@@ -58,27 +61,7 @@ export function useGameState(lobbyCode: string) {
     }
   }, [apiService, lobbyCode]);
 
-  const fetchBoard = useCallback(async () => {
-    try {
-      const boardData = await apiService.get<{
-        id: number;
-        cards: WordCard[];
-        currentTurn: "RED" | "BLUE";
-        currentPhase: string;
-        clueHistory: { word: string; count: number; team: "red" | "blue" }[];
-      }>(`/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`);
-      setGameId(boardData.id);
-      setBoard(boardData.cards);
-      setCurrentPhase(boardData.currentPhase);
-      setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
-      return boardData;
-    } catch {
-      console.error("Failed to fetch board!");
-      return null;
-    }
-  }, [apiService, lobbyCode, role]);
-
-  const fetchGameStatistics = async () => {
+  const fetchGameStatistics = useCallback(async () => {
     try {
       const stats = await apiService.get<{ winningTeam: string }>(
         `/api/games/${lobbyCode}/statistics`
@@ -88,9 +71,9 @@ export function useGameState(lobbyCode: string) {
       console.error("Failed to fetch game statistics!");
       setWinningTeam(null);
     }
-  };
+  }, [apiService, lobbyCode]);
 
-  const fetchFinalBoard = async () => {
+  const fetchFinalBoard = useCallback(async () => {
     try {
       const boardData = await apiService.get<{ cards: WordCard[] }>(
         `/api/games/${lobbyCode}/board?role=SPYMASTER`
@@ -100,7 +83,35 @@ export function useGameState(lobbyCode: string) {
       console.error("Failed to fetch final board!");
       setFinalBoard([]);
     }
-  };
+  }, [apiService, lobbyCode]);
+
+  const fetchBoard = useCallback(async () => {
+    try {
+      const boardData = await apiService.get<{
+        id: number;
+        status: string;
+        cards: WordCard[];
+        currentTurn: "RED" | "BLUE";
+        currentPhase: string;
+        clueHistory: ClueHistoryEntry[];
+        remainingTimeSeconds?: number;
+      }>(`/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`);
+      setGameId(boardData.id);
+      setBoard(boardData.cards);
+      setCurrentPhase(boardData.currentPhase);
+      setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
+      setClueHistory(boardData.clueHistory ?? []);
+      if (boardData.status === "FINISHED") {
+        setFinished(true);
+        await fetchFinalBoard();
+        await fetchGameStatistics();
+      }
+      return boardData;
+    } catch {
+      console.error("Failed to fetch board!");
+      return null;
+    }
+  }, [apiService, fetchFinalBoard, fetchGameStatistics, lobbyCode, role]);
 
   // fetch players on mount
    useEffect(() => {
@@ -129,6 +140,7 @@ export function useGameState(lobbyCode: string) {
     if (prev != null && prev !== gameId) {
       setFinished(false);
       setFinalBoard([]);
+      setClueHistory([]);
     }
     previousGameIdRef.current = gameId;
   }, [gameId]);
@@ -140,6 +152,7 @@ export function useGameState(lobbyCode: string) {
     role, loadingRole,
     currentTurn, setCurrentTurn, currentTurnRef,
     currentPhase, setCurrentPhase, currentPhaseRef,
+    clueHistory, setClueHistory,
     finished, setFinished,
     winningTeam, setWinningTeam,
     finalBoard, fetchFinalBoard,

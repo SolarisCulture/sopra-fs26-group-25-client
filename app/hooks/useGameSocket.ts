@@ -20,6 +20,7 @@ interface GameSocketOptions {
   setPenaltyPickMode: (val: boolean) => void;
   setWinningTeam: (team: string | null) => void;
   setPauseModalOpen: (val: boolean) => void;
+  setRemainingTime: (val: number | null) => void;
   fetchBoard: () => Promise<ReturnType<typeof Object> | null>;
   fetchPlayers: () => Promise<void>;
   fetchFinalBoard: () => Promise<void>;
@@ -43,6 +44,12 @@ export function useGameSocket(opts: GameSocketOptions) {
       role,
       (event) => {
         const o = optsRef.current;
+        const syncTimerFromBoard = () => {
+          if ("board" in event && event.board?.timer != null) {
+            o.setRemainingTime(Number(event.board.timer));
+          }
+        };
+
         switch (event.type) {
           case "Clue":
             o.setCurrentPhase(event.board.currentPhase);
@@ -55,11 +62,13 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.setCluePublished(true);
             o.setBoard(event.board.cards);
             o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            syncTimerFromBoard();
             break;
           case "Guess":
             o.setBoard(event.board.cards);
             o.setCurrentPhase(event.board.currentPhase);
             o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            syncTimerFromBoard();
             break;
           case "ClueReported":
             o.setClueReviewOpen(true);
@@ -82,9 +91,11 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.setCluePublished(false);
             o.setCurrentClue(null);
             o.setBoard(event.board.cards);
+            syncTimerFromBoard();
             break;
           case "GameOver":
             o.setFinished(true);
+            o.setRemainingTime(null);
             o.fetchFinalBoard();
             o.fetchGameStatistics();
             break;
@@ -95,11 +106,13 @@ export function useGameSocket(opts: GameSocketOptions) {
             break;
           case "GameRestarting":
             o.setWinningTeam(null);
+            o.setRemainingTime(null);
             if (event.board) {
               o.setGameId(event.board.id);
               o.setBoard(event.board.cards);
               o.setCurrentPhase(event.board.currentPhase);
               o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+              syncTimerFromBoard();
             }
             break;
           case "GamePaused":
@@ -108,6 +121,13 @@ export function useGameSocket(opts: GameSocketOptions) {
           case "GameResumed":
             o.setPauseModalOpen(false);
             break;
+          case "TIMER_UPDATE": {
+            const remaining = event.timer ?? event.remainingTime ?? event.data ?? event.board?.timer;
+            if (remaining != null) {
+              o.setRemainingTime(Number(remaining));
+            }
+            break;
+          }
         }
       },
       () => {

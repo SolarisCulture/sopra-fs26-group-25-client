@@ -41,26 +41,31 @@ export default function GamePage() {
   const [pauseModalOpen, setPauseModalOpen] = useState(false);
   const [quitModalOpen, setQuitModalOpen] = useState(false);
   const [quitFromPause, setQuitFromPause] = useState(false);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
 
   const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
   const [cluePublished, setCluePublished] = useState(false);
-  const [clueHistory, setClueHistory] = useState<{ word: string; count: number; team: "red" | "blue" }[]>([]);
   const [penaltyPickMode, setPenaltyPickMode] = useState(false);
   const [clueReviewOpen, setClueReviewOpen] = useState(false);
   
   const socketRef = useGameSocket({
     lobbyCode: code, role: game.role,
     currentTurnRef: game.currentTurnRef,
-    setBoard: game.setBoard, setCurrentPhase: game.setCurrentPhase,
-    setCurrentTurn: game.setCurrentTurn, setGameId: game.setGameId,
-    setFinished: game.setFinished, setWinningTeam: game.setWinningTeam,
+    setBoard: game.setBoard, 
+    setCurrentPhase: game.setCurrentPhase,
+    setCurrentTurn: game.setCurrentTurn, 
+    setGameId: game.setGameId,
+    setFinished: game.setFinished, 
+    setWinningTeam: game.setWinningTeam,
     setCurrentClue,
     setCluePublished,
-    setClueHistory,
+    setClueHistory: game.setClueHistory,
     setClueReviewOpen,
     setPenaltyPickMode,
     setPauseModalOpen,
-    fetchBoard: game.fetchBoard, fetchPlayers: game.fetchPlayers,
+    setRemainingTime,
+    fetchBoard: game.fetchBoard, 
+    fetchPlayers: game.fetchPlayers,
     fetchFinalBoard: game.fetchFinalBoard,
     fetchGameStatistics: game.fetchGameStatistics,
     onReturnToLobby: () => router.push(`/${code}`),
@@ -76,7 +81,8 @@ export default function GamePage() {
     // pass in the shared state so clueFlow uses it instead of creating its own
     currentClue, setCurrentClue,
     cluePublished, setCluePublished,
-    clueHistory, setClueHistory,
+    clueHistory: game.clueHistory,
+    setClueHistory: game.setClueHistory,
     penaltyPickMode, setPenaltyPickMode,
   });
 
@@ -139,6 +145,7 @@ export default function GamePage() {
     }}>
       <PlayerTable
         currentTurn={game.currentTurn} currentPhase={game.currentPhase}
+        remainingTime={remainingTime}
         blueSpymaster={game.blueSpymaster} redSpymaster={game.redSpymaster}
         blueSpies={game.blueSpies} redSpies={game.redSpies}
       />
