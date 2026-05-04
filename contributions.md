@@ -121,10 +121,12 @@ reason).
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
+|  **[@serilia03]**  | [-]   | [worked ahead in week 4] | [] | [] |
+|                    | [-]   | [worked ahead in week 4] | [] | [] |
 
 ---
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
+|  **[@serilia03]**  | [-]   | [JOKER] | [] | [] |
+|                    | [-]   | [JOKER] | [] | [] |
