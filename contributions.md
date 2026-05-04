@@ -121,6 +121,8 @@ reason).
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 |  **[@serilia03]**  | [-]   | [worked ahead in week 4] | [] | [] |
 |                    | [-]   | [worked ahead in week 4] | [] | [] |
 
@@ -128,5 +130,7 @@ reason).
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
 
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 |  **[@serilia03]**  | [-]   | [JOKER] | [] | [] |
 |                    | [-]   | [JOKER] | [] | [] |
