@@ -8,13 +8,15 @@ export interface LobbyEvent {
     | "LOBBY_CREATED"
     | "PLAYER_JOINED"
     | "PLAYER_LEFT"
+    | "PLAYER_KICKED"
     | "HOST_CHANGED"
     | "TEAM_UPDATED"
     | "ROLE_UPDATED"
     | "STATUS_UPDATED"
-    | "SETTINGS_UPDATED";
+    | "SETTINGS_UPDATED"
+    | "JOIN_REQUEST_RECEIVED";
   lobbyCode: string;
-  data: string | number | boolean | null | SettingsUpdateData;
+  data: string | number | boolean | null | SettingsUpdateData | JoinRequestData;
   timestamp: string;
 }
 
@@ -22,6 +24,12 @@ export interface SettingsUpdateData {
   spymasterTimeLimit: number | null;
   spyTimeLimit: number | null;
   rounds: number;
+}
+
+export interface JoinRequestData {
+  requesterName: string;
+  requestedTeam: "RED" | "BLUE";
+  requesterId: string;
 }
 
 export function createLobbySocket(

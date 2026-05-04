@@ -13,7 +13,7 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // need this because we need username before creating lobby
-  const handleCreateLobby = async () => {
+  const handleCreateLobby = () => {
     router.push('/new');
   };
 

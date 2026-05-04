@@ -1,0 +1,197 @@
+.container {
+  position: absolute;
+  left: 2vw;
+  top: 24px;
+  width: 18vw;
+  min-width: 140px;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: clamp(10px, 1.5vw, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.title {
+  font-size: clamp(14px, 1.2vw, 22px);
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+}
+
+.empty {
+  opacity: 0.5;
+  font-style: italic;
+  text-align: center;
+  padding: 12px 0;
+  font-size: clamp(11px, 1.2vw, 14px);
+}
+
+.clueCard {
+  padding: clamp(8px, 1vw, 16px);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.latestCard {
+  margin-top: 8px;
+}
+
+.latestBadge {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  color: #fff;
+  font-size: clamp(8px, 0.8vw, 10px);
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.clueRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.clueWord {
+  font-weight: 800;
+  word-break: break-all;
+  font-size: clamp(13px, 1.2vw, 18px);
+  color: #fff;
+  flex: 1;
+}
+
+.clueCount {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: clamp(11px, 1vw, 14px);
+  font-weight: 900;
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.clueTeam {
+  font-size: clamp(8px, 0.8vw, 10px);
+  opacity: 0.6;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.toggleButton {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: clamp(10px, 1vw, 13px) !important;
+  padding: 0 !important;
+  height: auto !important;
+  align-self: center;
+}
+
+.toggleButton:hover {
+  color: #fff !important;
+}
+
+.olderList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .container {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+  }
+
+  .title {
+    font-size: 14px;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .latestCard {
+    margin-top: 0;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .latestBadge {
+    font-size: 8px;
+    top: -8px;
+    right: 6px;
+    padding: 1px 6px;
+  }
+
+  .empty {
+    padding: 4px 0;
+  }
+
+  .olderList {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    gap: 6px;
+  }
+
+  .olderList .clueCard {
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  .container {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .clueCard {
+    padding: 6px 8px;
+    border-radius: 8px;
+    border-left-width: 3px;
+  }
+
+  .clueWord {
+    font-size: 13px;
+  }
+
+  .clueCount {
+    font-size: 11px;
+    padding: 1px 6px;
+    min-width: 20px;
+  }
+}

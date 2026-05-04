@@ -1,129 +1,84 @@
 import { Button, Modal, Tooltip } from "antd";
 import { User } from "@/types/user";
+import styles from "@/styles/teamTable.module.css";
 
 interface ScriptProps {
   players: User[];
   isHost: boolean;
+  currentUserID: number | null;
   onAssign: (playerId: string, team: "RED" | "BLUE" | "UNASSIGNED") => void;
   onMakeSpymaster: (playerId: string, role: "SPYMASTER" | "SPY") => void;
   assignTarget: User | null;
   setAssignTarget: (user: User | null) => void;
 }
 
-export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, assignTarget, setAssignTarget }: ScriptProps) {
+export default function TeamTable({
+  players, isHost, currentUserID, onAssign, onMakeSpymaster, assignTarget, setAssignTarget,
+}: ScriptProps) {
   const bluePlayers = players.filter(p => p.team == "BLUE");
   const redPlayers = players.filter(p => p.team == "RED");
 
-  // ensure teams are filled equally
   const maxPerTeam = Math.ceil(players.length / 2);
   const blueFull = bluePlayers.length >= maxPerTeam;
   const redFull = redPlayers.length >= maxPerTeam;
 
+  const renderPlayer = (p: User, teamColor: string) => (
+    <div key={p.id} className={styles.playerRow}>
+      <span className={styles.playerInfo}>
+        <span className={styles.roleSlot}>
+          {p.role == "SPYMASTER" && (
+            <span className={styles.spyIcon}>🕵️</span>
+          )}
+          {isHost && p.role !== "SPYMASTER" && (
+            <Tooltip title="Click to make spymaster" color={teamColor}>
+              <span
+                className={styles.spyIconHover}
+                onClick={() => { if (p.id) onMakeSpymaster(p.id, "SPYMASTER"); }}
+              >🕵️</span>
+            </Tooltip>
+          )}
+        </span>
+        <span className={styles.playerName}>{p.username}</span>
+      </span>
+
+      {(isHost || String(p.id) === String(currentUserID)) && (
+        <Button
+          size="small"
+          style={{ borderColor: teamColor, color: teamColor }}
+          onClick={() => { if (p.id) onAssign(p.id, "UNASSIGNED"); }}
+        >
+          Unassign
+        </Button>
+      )}
+    </div>
+  );
+
   return (
-    <div style={{ display: "flex", gap: 40, alignItems: "flex-start", justifyContent: "space-between", width: "90vw" }}>
-
-      {/*TEAM BLUE*/}
-      <div style={{ width: "350px", background: "rgba(27,159,216,0.25)", borderRadius: 8, padding: 12 }}>
-        <h3 style={{ color: "#1B9FD8", textAlign: "center" }}>Team Blue</h3>
-        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-          {/*loop over all blue players and create row for them*/}
-          {bluePlayers.map(p => (
-            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff" }}>
-                <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
-                  {p.role == "SPYMASTER" && (
-                    <span style={{ fontSize: 16 }}>🕵️</span>
-                  )}
-
-                  {isHost && p.role !== "SPYMASTER" && (
-                    <Tooltip title="Click to make spymaster" color="#1B9FD8">
-                      <span
-                        style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
-                        onClick={() => {
-                          if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                        onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
-                      >
-                        🕵️
-                      </span>
-                    </Tooltip>
-                  )}
-                </span>
-                <span style={{ wordBreak: "break-all" }}>{p.username}</span>
-              </span>
-
-              {isHost && (
-                <Button
-                  size="small"
-                  style={{ borderColor: "#1B9FD8", color: "#1B9FD8" }}
-                  onClick={() => {
-                    if (p.id)
-                      onAssign(p.id, "UNASSIGNED");
-                  }}>
-                  Unassign
-                </Button>
-              )}
-            </div>
-          ))}
+    <>
+      {/* TEAM BLUE */}
+      <div className={`${styles.teamBox} ${styles.blueTeamBox}`} style={{ background: "rgba(27,159,216,0.25)" }}>
+        <h3 className={styles.teamTitle} style={{ color: "#1B9FD8" }}>Team Blue</h3>
+        <div className={styles.playerList}>
+          {bluePlayers.map(p => renderPlayer(p, "#1B9FD8"))}
         </div>
       </div>
 
-      {/*TEAM RED*/}
-      <div style={{ width: "350px", background: "rgba(232,64,28,0.25)", borderRadius: 8, padding: 12 }}>
-        <h3 style={{ color: "#E8401C", textAlign: "center" }}>Team Red</h3>
-        <div style={{ maxHeight: "250px", overflowY: "auto" }}>
-          {/*loop over all red players and create row for them*/}
-          {redPlayers.map(p => (
-            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#fff" }}>
-                <span style={{ width: 20, display: "inline-block", textAlign: "center", position: "relative", top: -2 }}>
-                  {p.role == "SPYMASTER" && (
-                    <span style={{ fontSize: 16 }}>🕵️</span>
-                  )}
-
-                  {isHost && p.role !== "SPYMASTER" && (
-                    <Tooltip title="Click to make spymaster" color="#E8401C">
-                      <span
-                        style={{ fontSize: 16, opacity: 0.5, cursor: "pointer", transition: "opacity 0.2s" }}
-                        onClick={() => {
-                          if (p.id) onMakeSpymaster(p.id, "SPYMASTER");
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-                        onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")}
-                      >
-                        🕵️
-                      </span>
-                    </Tooltip>
-                  )}
-                </span>
-                <span style={{ wordBreak: "break-all" }}>{p.username}</span>
-              </span>
-
-              {isHost && (
-                <Button
-                  size="small"
-                  style={{ borderColor: "#E8401C", color: "#E8401C" }}
-                  onClick={() => {
-                    if (p.id)
-                      onAssign(p.id, "UNASSIGNED");
-                  }}>
-                  Unassign
-                </Button>
-              )}
-            </div>
-          ))}
+      {/* TEAM RED */}
+      <div className={`${styles.teamBox} ${styles.redTeamBox}`} style={{ background: "rgba(232,64,28,0.25)" }}>
+        <h3 className={styles.teamTitle} style={{ color: "#E8401C" }}>Team Red</h3>
+        <div className={styles.playerList}>
+          {redPlayers.map(p => renderPlayer(p, "#E8401C"))}
         </div>
       </div>
 
-      {/*ASSIGN POP-UP*/}
+      {/* ASSIGN POP-UP */}
       <Modal
         title={<div style={{ color: "#000" }}>Assign {assignTarget?.username} to a team</div>}
         open={assignTarget != null}
         onCancel={() => setAssignTarget(null)}
         footer={null}
       >
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, padding: "16px 0" }}>
+        <div className={styles.assignButtons}>
           <Button
             type="primary"
             style={{ background: "#1B9FD8", borderColor: "#1B9FD8", opacity: blueFull ? 0.4 : 1 }}
@@ -152,7 +107,6 @@ export default function TeamTable({ players, isHost, onAssign, onMakeSpymaster, 
           </Button>
         </div>
       </Modal>
-
-    </div>
+    </>
   );
 }

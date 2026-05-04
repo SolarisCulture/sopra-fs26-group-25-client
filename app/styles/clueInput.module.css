@@ -1,0 +1,99 @@
+.container {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 90vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.wordInput {
+  width: 180px;
+  border-radius: 8px;
+  min-width: 100px;
+}
+
+.countInput {
+  width: 70px;
+  border-radius: 8px;
+  min-width: 50px;
+}
+
+.sendButton {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .container {
+    bottom: 100px;
+    left: 5%;
+    right: 5%;
+    transform: none;
+    width: auto;
+    padding: 10px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .wordInput {
+    flex: 1;
+    width: auto;
+    min-width: 80px;
+  }
+
+  .countInput {
+    width: 50px;
+    min-width: 45px;
+  }
+
+  .sendButton {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  .container {
+    bottom: 100px;
+    left: 5%;
+    right: 5%;
+    transform: none;
+    width: auto;
+    padding: 10px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .wordInput {
+    flex: 1;
+    width: auto;
+    min-width: 80px;
+  }
+
+  .countInput {
+    width: 50px;
+    min-width: 45px;
+  }
+
+  .sendButton {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}

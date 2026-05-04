@@ -1,12 +1,12 @@
 .page {
-background: radial-gradient(
+  background: radial-gradient(
     circle at center,
     #F9C74F 0%,
     #F26A2E 25%,
     #C12D6E 55%,
     #5A1F6F 100%
   );
-  
+
   --civilian: #C4B49A;
   --blue-agent: #1b9fd8;
   --red-agent: #E8401C;
@@ -20,52 +20,59 @@ background: radial-gradient(
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4rem;
+  padding: 4rem 1rem;
   box-sizing: border-box;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-
+/* ---- BOARD ---- */
 .board {
   width: min(52vw, 900px);
-  min-width: 520px;
-  aspect-ratio: 1.35 / 1;
+  min-width: 0;
   padding: 1.25rem;
   justify-content: center;
   box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.9rem;
+  gap: clamp(0.3rem, 1vw, 0.9rem);
 }
 
 .card {
   background: var(--card-background);
-  border: 3px solid var(--card-border);
+  border: 2px solid var(--card-border);
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 0.6rem;
+  padding: 0.4rem;
   box-sizing: border-box;
   aspect-ratio: 1.55 / 1;
-  background-clip: padding-box;  
+  background-clip: padding-box;
 }
 
-.clickableCard{
+.clickableCard {
   cursor: pointer;
 }
 
-.clickableCard:hover{
-  border-color:white;
+.clickableCard:hover {
+  border-color: white;
 }
 
 .cardWord {
   color: var(--card-text);
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: clamp(0.55rem, 1.8vw, 1.5rem);
+  word-break: break-word;
+  line-height: 1.2;
 }
 
-.cardCivilian, .cardBlueAgent, .cardRedAgent, .cardAssassin {
+/* ---- REVEALED CARDS ---- */
+.cardCivilian,
+.cardBlueAgent,
+.cardRedAgent,
+.cardAssassin {
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
@@ -84,73 +91,7 @@ background: radial-gradient(
   display: none;
 }
 
-.sidebarContainer {
-  position: absolute;
-
-  left: 2%; 
-  width: 20%; 
-  
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-}
-
-.turnIndicatorWrapper {
-  position: absolute;
-  top: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 100;
-  pointer-events: none;
-}
-
-.turnIndicatorPill {
-  position: relative;
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 30px;
-  
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  transition: all 0.4s ease;
-}
-
-.turnBadge {
-  position: absolute;
-  top: -10px;
-  background: #fff; 
-  color: #000;      
-  font-size: 10px;
-  padding: 2px 12px;
-  border-radius: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.turnContent {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 2px;
-}
-
-.teamName {
-  color: #fff;
-  font-weight: 500;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.turnRed { border-color: rgba(232, 64, 28, 0.5); }
-.turnBlue { border-color: rgba(27, 159, 216, 0.5); }
+/* ---- OVERLAYS (spymaster key) ---- */
 .cardOverlayCivilian {
   background: rgba(196, 180, 154, 0.45);
   border-color: rgba(196, 180, 154, 0.65);
@@ -171,39 +112,217 @@ background: radial-gradient(
   border-color: rgba(0, 0, 0, 0.65);
 }
 
+/* ---- SIDEBAR (clue history) ---- */
+.sidebarContainer {
+  position: absolute;
+  left: 2%;
+  width: 20%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+/* ---- TURN INDICATOR ---- */
+.turnIndicatorWrapper {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.turnIndicatorPill {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 30px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  transition: all 0.4s ease;
+}
+
+.turnBadge {
+  position: absolute;
+  top: -10px;
+  background: #fff;
+  color: #000;
+  font-size: 10px;
+  padding: 2px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.turnContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.teamName {
+  color: #fff;
+  font-weight: 500;
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.turnRed { border-color: rgba(232, 64, 28, 0.5); }
+.turnBlue { border-color: rgba(27, 159, 216, 0.5); }
+
+/* ---- GAME OVER ---- */
 .finishedBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
 }
 
 .finishedBox {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    min-width: 320px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  min-width: 280px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .finishedTitle {
-    margin: 0 0 8px 0;
-    color: black;
+  margin: 0 0 8px 0;
+  color: black;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
 }
 
 .finishedText {
-    margin: 0 0 20px 0;
-    color: #444;
-    text-align: center;
+  margin: 0 0 20px 0;
+  color: #444;
+  text-align: center;
+  font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 .finishedButtons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.finalBoard {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: min(100%, 520px);
+  margin: 16px auto;
+}
+
+.finalCard {
+  border-radius: 8px;
+  aspect-ratio: 1.55 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  box-sizing: border-box;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.65rem;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+/* ============================
+   TABLET (768px)
+   ============================ */
+@media (max-width: 768px) {
+  .page {
+    padding: 60px 0.5rem 5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .board {
+    width: 95vw;
+    padding: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .card {
+    border-width: 2px;
+    border-radius: 6px;
+  }
+
+  .sidebarContainer {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .turnIndicatorPill {
+    padding: 8px 20px;
+  }
+}
+
+/* ============================
+   PHONE (480px)
+   ============================ */
+@media (max-width: 480px) {
+  .page {
+    padding: 50px 0.25rem 6rem;
+    gap: 0.5rem;
+  }
+
+  .board {
+    width: 100vw;
+    padding: 0.25rem;
+    gap: 0.2rem;
+  }
+
+  .card {
+    padding: 0.15rem;
+    border-width: 1.5px;
+    border-radius: 4px;
+  }
+
+  .cardWord {
+    font-size: clamp(0.45rem, 3vw, 0.7rem);
+  }
+
+  .sidebarContainer {
+    max-height: 80px;
+    font-size: 0.75rem;
+  }
+
+  .turnIndicatorPill {
+    padding: 6px 14px;
+  }
+
+  .turnBadge {
+    font-size: 8px;
+    padding: 1px 8px;
+  }
+
+  .finishedBox {
+    padding: 16px;
+    min-width: auto;
+    width: 90vw;
+  }
 }

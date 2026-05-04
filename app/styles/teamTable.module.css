@@ -1,0 +1,95 @@
+.teamBox {
+  min-width: 0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.blueTeamBox {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.redTeamBox {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.teamTitle {
+  text-align: center;
+  font-size: clamp(16px, 2.5vw, 20px);
+  margin: 0 0 8px;
+}
+
+.playerList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.playerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: clamp(13px, 2.5vw, 16px);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  min-width: 0;
+}
+
+.roleSlot {
+  width: 20px;
+  display: inline-block;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.spyIcon {
+  font-size: 16px;
+}
+
+.spyIconHover {
+  font-size: 16px;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.spyIconHover:hover {
+  opacity: 1;
+}
+
+.playerName {
+  word-break: break-all;
+  overflow: hidden;
+}
+
+.assignButtons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .teamBox {
+    max-width: 100%;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  .teamBox {
+    padding: 8px;
+  }
+
+  .assignButtons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
