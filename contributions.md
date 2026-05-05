@@ -122,6 +122,8 @@ reason).
 |               | [01.05.2026] | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/16ac06cf1bfd0dcdc801275b517c9f5665d34e87] | [Manually added/reimplemented Sereina's branch into Polina's refactoring branch to avoid massive merge conflicts + some layout/bug fixes.] | [This had do be done because else the code wouldn't have worked anyway since the necessary dependencies weren't in the same file anmyore after the refactor] |
 | **[@PhlipperCH]** | [05.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/fa7b5c51fbfbb4cde61a985a359001a35ffd77d4 https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/31509954c29947efbbd805cab630066b1bc723d1] | [Quality of life upgrade for spymaster and spies: spymaster now start in the key view and only spies, whos turn & phase it is can click cards. They are unclickable otherwise] | [reduces the user frustration and reduces confusing feedback for the user.] |
 |                   | [05.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/03e84f40a64b1fc061a544b7e4b209ee5dcf48f4] | [addresses feedback from beta testers] | [accessibility color contrast] |
+| **[@Timmy-Ho]** | [04.05.2026 | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/bd88c86d5d21619254df98bfee2c12298d613fff] | [Wrote persistence tests to identify problems with the Database and Repositories.] | [Relevant to identify core issues and constraint violations for future fixes.] |
+|                 | [WORK AHEAD] | [] | [] | [] |
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
