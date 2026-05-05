@@ -57,7 +57,7 @@ export default function TeamTable({
     <>
       {/* TEAM BLUE */}
       <div className={`${styles.teamBox} ${styles.blueTeamBox}`} style={{ background: "rgba(27,159,216,0.25)" }}>
-        <h3 className={styles.teamTitle} style={{ color: "#1B9FD8", color: "white" }}>Team Blue</h3>
+        <h3 className={styles.teamTitle} style={{ color: "white" }}>Team Blue</h3>
         <div className={styles.playerList}>
           {bluePlayers.map(p => renderPlayer(p, "#1B9FD8"))}
         </div>
@@ -65,7 +65,7 @@ export default function TeamTable({
 
       {/* TEAM RED */}
       <div className={`${styles.teamBox} ${styles.redTeamBox}`} style={{ background: "rgba(232,64,28,0.25)" }}>
-        <h3 className={styles.teamTitle} style={{ color: "#E8401C", color: "white" }}>Team Red</h3>
+        <h3 className={styles.teamTitle} style={{ color: "white" }}>Team Red</h3>
         <div className={styles.playerList}>
           {redPlayers.map(p => renderPlayer(p, "#E8401C"))}
         </div>
