@@ -103,6 +103,7 @@ export default function GamePage() {
   const isOpposingSpymaster = opposingSpymaster != null &&
     String(opposingSpymaster.id) === String(game.currentPlayer?.id);
   const teamClass = game.currentTurn === "red" ? styles.teamRed : styles.blueTeam;
+  const isSpyPhase = game.currentPhase === "SPY_TURN";
 
   const handleCardClick = (card: WordCard) => {
     if (card.revealed || !game.currentPlayer) return;
@@ -164,7 +165,7 @@ export default function GamePage() {
           colorOverlayActive={clueFlow.colorOverlayActive}
           currentTurn={game.currentTurn}
           onCardClick={handleCardClick}
-          canClickCards={!isSpymaster}
+          canClickCards={!isSpymaster && isSpyPhase && isMyTurn}
         />
 
         {isSpymaster && isMyTurn && !clueFlow.penaltyPickMode &&

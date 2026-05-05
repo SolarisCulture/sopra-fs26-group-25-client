@@ -37,8 +37,8 @@ export default function GameBoard({
         switch (card.cardType) {
           case "AGENTRED": return  `${styles.card} ${styles.cardOverlayRed}`
           case "AGENTBLUE": return  `${styles.card} ${styles.cardOverlayBlue}`
-          case "CIVILIAN": return  `${styles.card} ${styles.clickableCard} ${styles.cardOverlayCivilian}`
-          case "ASSASSIN": return  `${styles.card} ${styles.clickableCard} ${styles.cardOverlayAssassin}`
+          case "CIVILIAN": return  `${styles.card} ${styles.cardOverlayCivilian}`
+          case "ASSASSIN": return  `${styles.card} ${styles.cardOverlayAssassin}`
         }
       }
       return canClickCards ? `${styles.card} ${styles.clickableCard}` : styles.card
