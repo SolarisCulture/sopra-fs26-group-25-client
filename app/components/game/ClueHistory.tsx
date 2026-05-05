@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "antd";
-import styles from "@/styles/clueHistory.module.css";
+import styles from "@/styles/game/clueHistory.module.css";
 
 interface Props {
   clueHistory: { word: string; count: number; team: "red" | "blue" }[];

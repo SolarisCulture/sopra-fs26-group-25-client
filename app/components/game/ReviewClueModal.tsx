@@ -1,5 +1,5 @@
 import { Modal, Button } from "antd";
-import styles from "@/styles/game.module.css";
+import styles from "@/styles/game/game.module.css";
 
 interface Props {
     clueReviewOpen: boolean;

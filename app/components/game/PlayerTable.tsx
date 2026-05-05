@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "antd";
 import { User } from "@/types/user";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import styles from "@/styles/playerTable.module.css";
+import styles from "@/styles/game/playerTable.module.css";
 
 interface PlayerTableProps {
   currentTurn: "red" | "blue";

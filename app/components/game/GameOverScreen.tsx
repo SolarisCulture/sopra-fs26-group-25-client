@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import type { CSSProperties } from "react";
 import { WordCard } from "@/types/wordCard";
-import styles from "@/styles/game.module.css";
+import styles from "@/styles/game/game.module.css";
 
 interface GameOverScreenProps {
   winningTeam: string | null;
