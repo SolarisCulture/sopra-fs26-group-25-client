@@ -10,7 +10,7 @@ import { useClueFlow } from "@/hooks/useClueFlow";
 import { useGameSocket } from "@/hooks/useGameSocket";
 import { useDictionary } from "@/hooks/useDictionary";
 import { WordCard } from "@/types/wordCard";
-import styles from "@/styles/game.module.css";
+import styles from "@/styles/game/game.module.css";
 
 import HowToPlayModal from "@/components/HowToPlayModal";
 
@@ -160,6 +160,7 @@ export default function GamePage() {
           colorOverlayActive={clueFlow.colorOverlayActive}
           currentTurn={game.currentTurn}
           onCardClick={handleCardClick}
+          canClickCards={!isSpymaster}
         />
 
         {isSpymaster && isMyTurn && !clueFlow.penaltyPickMode &&
