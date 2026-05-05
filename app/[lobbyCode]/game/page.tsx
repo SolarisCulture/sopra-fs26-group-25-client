@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { App, Button, ConfigProvider, Modal } from "antd";
 import { useApi } from "@/hooks/useApi";
@@ -86,6 +86,10 @@ export default function GamePage() {
     setClueHistory: game.setClueHistory,
     penaltyPickMode, setPenaltyPickMode,
   });
+
+  useEffect(() => {
+    if (game.role === "SPYMASTER") clueFlow.setColorOverlayActive(true);
+  }, [game.role, clueFlow.setColorOverlayActive]);
 
   const dictionary = useDictionary(message);
 
