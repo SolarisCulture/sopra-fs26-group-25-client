@@ -10,21 +10,21 @@ import { useLobbyWebSocket } from "@/hooks/useLobbyWebSocket";
 import { User } from "@/types/user";
 import { useApi } from "@/hooks/useApi";
 import { Modal } from "antd";
+import { Lobby } from "@/types/lobby";
+import { JoinRequestData } from "@/utils/lobbyWebsocket";
 import type { InputRef } from "antd";
+import styles from "@/styles/lobby.module.css";
+
+import HowToPlayModal from "@/components/HowToPlayModal";
 
 import LobbyHeader from "@/components/lobby/LobbyHeader";
 import PlayerList from "@/components/lobby/PlayerList";
 import LobbyActions from "@/components/lobby/LobbyActions";
 import StartGameButton from "@/components/lobby/StartGameButton";
-import TeamTableModal from "@/components/TeamTableModal";
-import HowToPlayModal from "@/components/HowToPlayModal";
-import LeaveModal from "@/components/LeaveModal";
-import UsernameModal from "@/components/UsernameModal";
-import SettingsModal from "@/components/SettingsModal";
-import { Lobby } from "@/types/lobby";
-import { JoinRequestData } from "@/utils/lobbyWebsocket";
-
-import styles from "@/styles/lobby.module.css";
+import TeamTableModal from "@/components/lobby/TeamTableModal";
+import LeaveModal from "@/components/lobby/LeaveModal";
+import UsernameModal from "@/components/lobby/UsernameModal";
+import SettingsModal from "@/components/lobby/SettingsModal";
 
 export default function LobbyPage() {
   const apiService = useApi();

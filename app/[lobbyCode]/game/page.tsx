@@ -9,22 +9,23 @@ import { useGameState } from "@/hooks/useGameState";
 import { useClueFlow } from "@/hooks/useClueFlow";
 import { useGameSocket } from "@/hooks/useGameSocket";
 import { useDictionary } from "@/hooks/useDictionary";
+import { WordCard } from "@/types/wordCard";
+import styles from "@/styles/game.module.css";
+
+import HowToPlayModal from "@/components/HowToPlayModal";
 
 import GameBoard from "@/components/game/GameBoard";
 import GameActions from "@/components/game/GameActions";
 import GameOverScreen from "@/components/game/GameOverScreen";
 import DictionaryModal from "@/components/game/DictionaryModal";
-import PlayerTable from "@/components/PlayerTable";
-import ClueHistory from "@/components/ClueHistory";
-import ClueInput from "@/components/ClueInputs";
-import HowToPlayModal from "@/components/HowToPlayModal";
-import ReportConfirmationModal from "@/components/ReportConfirmationModal";
-import ClueReviewModal from "@/components/ReviewClueModal";
-import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
-import QuitGameModal from "@/components/QuitGameModal";
-import { WordCard } from "@/types/wordCard";
+import PlayerTable from "@/components/game/PlayerTable";
+import ClueHistory from "@/components/game/ClueHistory";
+import ClueInput from "@/components/game/ClueInputs";
+import ReportConfirmationModal from "@/components/game/ReportConfirmationModal";
+import ClueReviewModal from "@/components/game/ReviewClueModal";
+import PenaltyConfirmModal from "@/components/game/ConfirmPenaltyCardRevealModal";
+import QuitGameModal from "@/components/game/QuitGameModal";
 
-import styles from "@/styles/game.module.css";
 
 export default function GamePage() {
   const { message } = App.useApp();
