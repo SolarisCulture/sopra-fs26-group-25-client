@@ -9,6 +9,15 @@ interface GameBoardProps {
   onCardClick: (card: WordCard) => void;
 }
 
+const getWordFontSize = (word: string) => {
+  const length = word.length;
+
+  if (length <= 5) return "clamp(0.75rem, 1.8vw, 1.5rem)";
+  if (length <= 8) return "clamp(0.65rem, 1.5vw, 1.25rem)";
+  if (length <= 11) return "clamp(0.55rem, 1.2vw, 1rem)";
+  return "clamp(0.45rem, 1vw, 0.8rem)";
+};
+
 export default function GameBoard({
   board, penaltyPickMode, colorOverlayActive, currentTurn, onCardClick,
 }: GameBoardProps) {
@@ -50,7 +59,13 @@ export default function GameBoard({
           className={getCardClass(card)}
           onClick={() => onCardClick(card)}
         >
-          <span className={styles.cardWord}>{card.word}</span>
+          <span 
+          className={styles.cardWord}
+          style={{ fontSize: getWordFontSize(card.word) }}
+          title={card.word}
+          >
+            {card.word}
+          </span>
         </div>
       ))}
     </div>
