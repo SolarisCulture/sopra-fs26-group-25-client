@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import styles from "@/styles/gameActions.module.css";
+import styles from "@/styles/game/gameActions.module.css";
 
 interface GameActionsProps {
   role: string | null;

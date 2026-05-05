@@ -1,5 +1,5 @@
 import { WordCard } from "@/types/wordCard";
-import styles from "@/styles/gameBoard.module.css";
+import styles from "@/styles/game/gameBoard.module.css";
 
 interface GameBoardProps {
   board: WordCard[];

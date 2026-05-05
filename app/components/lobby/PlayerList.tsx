@@ -4,7 +4,7 @@ import type { TableProps } from "antd";
 import { User } from "@/types/user";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import PlayerCard from "./PlayerCard";
-import styles from "@/styles/playerList.module.css";
+import styles from "@/styles/lobby/playerList.module.css";
 
 interface PlayerListProps {
   players: User[];

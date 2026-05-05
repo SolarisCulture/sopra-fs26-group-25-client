@@ -1,6 +1,6 @@
 import { Button, Modal, Tooltip } from "antd";
 import { User } from "@/types/user";
-import styles from "@/styles/teamTable.module.css";
+import styles from "@/styles/lobby/teamTable.module.css";
 
 interface ScriptProps {
   players: User[];

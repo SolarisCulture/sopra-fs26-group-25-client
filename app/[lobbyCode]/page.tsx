@@ -13,7 +13,7 @@ import { Modal } from "antd";
 import { Lobby } from "@/types/lobby";
 import { JoinRequestData } from "@/utils/lobbyWebsocket";
 import type { InputRef } from "antd";
-import styles from "@/styles/lobby.module.css";
+import styles from "@/styles/lobby/lobby.module.css";
 
 import HowToPlayModal from "@/components/HowToPlayModal";
 

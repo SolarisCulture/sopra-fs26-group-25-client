@@ -1,5 +1,5 @@
 import { Input, InputNumber, Button } from "antd";
-import styles from "@/styles/clueInput.module.css";
+import styles from "@/styles/game/clueInput.module.css";
 
 interface Props {
   clueWord: string;
