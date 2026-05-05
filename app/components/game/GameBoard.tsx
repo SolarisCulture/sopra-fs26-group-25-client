@@ -12,9 +12,9 @@ interface GameBoardProps {
 const getWordFontSize = (word: string) => {
   const length = word.length;
 
-  if (length <= 5) return "clamp(0.75rem, 1.8vw, 1.5rem)";
-  if (length <= 8) return "clamp(0.65rem, 1.5vw, 1.25rem)";
-  if (length <= 11) return "clamp(0.55rem, 1.2vw, 1rem)";
+  if (length <= 6) return "clamp(0.85rem, 2vw, 1.9rem)";
+  if (length <= 8) return "clamp(0.65rem, 1.5vw, 1.4rem)";
+  if (length <= 11) return "clamp(0.55rem, 1.2vw, 1.12rem)";
   return "clamp(0.45rem, 1vw, 0.8rem)";
 };
 

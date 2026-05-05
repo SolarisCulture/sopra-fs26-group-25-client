@@ -9,7 +9,7 @@
 }
 
 .card {
-  -webkit-text-stroke: 0.5px black;
+  -webkit-text-stroke: 0.25px black;
   background: rgba(255, 255, 255, 0.45);
   border: 2px solid rgba(255, 255, 255, 0.65);
   border-radius: 8px;
