@@ -47,15 +47,6 @@ export default function GameActions({
         </Button>
       )}
 
-      <Button
-        type="primary"
-        disabled={!cluePublished}
-        onClick={onReport}
-        className={styles.actionButton}
-      >
-        Report Clue
-      </Button>
-
       {role === "SPY" && (
         <Button
           type="primary"
@@ -66,6 +57,15 @@ export default function GameActions({
           End Turn
         </Button>
       )}
+
+      <Button
+        type="primary"
+        disabled={!cluePublished}
+        onClick={onReport}
+        className={styles.actionButton}
+      >
+        Report Clue
+      </Button>
 
       <Button
         type="primary"
