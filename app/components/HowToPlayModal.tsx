@@ -65,7 +65,7 @@ export default function HowToPlayModal({ open, onClose }: Props) {
                     style={{ borderRadius: "8px", border: "1px solid #ddd" }}
                 />
                 <span style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
-                    Example of the Spymaster's secret key view
+                    Example of the Spymaster&apos;s secret key view
                 </span>
             </div>
             <p>The key corresponds to the word-grid on the screen (visible to everyone).
@@ -186,7 +186,7 @@ export default function HowToPlayModal({ open, onClose }: Props) {
             <br />
             <p style={{ color: "#A02A6C", fontWeight: "bold" }}>PENALTY FOR INVALID CLUES</p>
             <p>If a player believes a clue to be invalid, they can report
-                it through the "Report CLue" button. The spymaster who did
+                it through the {"Report Clue"} button. The spymaster who did
                 not give the clue can then decide if it is valid or invalid.
             </p>
             <p>If a spymaster gives an invalid clue, the
