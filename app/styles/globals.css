@@ -60,3 +60,7 @@ a {
   min-height: 100vh;
   background-color: rgb(41, 44, 59);
 }
+
+.ant-select-suffix {
+  pointer-events: none !important;
+}

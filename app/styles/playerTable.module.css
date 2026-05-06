@@ -205,3 +205,85 @@
     font-size: 12px;
   }
 }
+
+.timerBadge {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  color: #000000;
+  font-weight: 900;
+  
+  width: 180px; 
+  height: 50px;
+  
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.timerIcon {
+  font-size: 1.2rem;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.timeText {
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.timerWarning {
+  color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  text-shadow: 0 0 12px rgba(255, 77, 79, 0.8);
+  
+  /* We remove 'alternate' because the keyframes now handle the full loop */
+  animation: pulseWarning 2s ease-in-out infinite;
+}
+
+.timerWarning .timerIcon {
+  display: inline-block;
+  animation: flipHourglass 1s infinite ease-in-out;
+}
+
+@keyframes pulseWarning {
+  0% { 
+    /* Start at Normal size */
+    transform: translateX(-50%) scale(1); 
+    box-shadow: 0 0 10px rgba(232, 64, 28, 0.3);
+  }
+  25% {
+    /* Smoothly become BIGGER */
+    transform: translateX(-50%) scale(1.07);
+    box-shadow: 0 0 25px rgba(232, 64, 28, 0.6);
+  }
+  50% { 
+    /* Return to Normal size */
+    transform: translateX(-50%) scale(1); 
+    box-shadow: 0 0 10px rgba(232, 64, 28, 0.3);
+  }
+  75% {
+    /* Smoothly become SMALLER */
+    transform: translateX(-50%) scale(0.93);
+    box-shadow: 0 0 5px rgba(232, 64, 28, 0.1);
+  }
+  100% { 
+    /* End at Normal size to loop perfectly */
+    transform: translateX(-50%) scale(1); 
+  }
+}

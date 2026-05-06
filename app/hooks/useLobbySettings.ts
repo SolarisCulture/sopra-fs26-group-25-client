@@ -52,9 +52,24 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   };
 
   const handleRoundsNumberChange = (val: number | null) => {
-    if (val == null) return;
-    if (val < 1) { message.warning("Rounds must be at least 1."); return; }
-    if (val > 100) { message.warning("Rounds cannot exceed 100."); return; }
+    const MIN = 1;
+    const MAX = 100;
+
+    if (val == null) {
+      setSettings((s) => ({ ...s, roundsNumber: MIN }));
+      return;
+    }
+
+    let finalValue = val;
+
+    if (val < MIN) {
+      message.warning(`Rounds must be at least ${MIN}.`);
+      finalValue = MIN;
+    }
+    else if (val > MAX) {
+      message.warning(`Rounds cannot exceed ${MAX}.`);
+      finalValue = MAX;
+    }
     setSettings((s) => ({ ...s, roundsNumber: val }));
   };
 
@@ -71,10 +86,26 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
     label: string,
     onCommit: (v: number) => void
   ) => {
-    if (val == null) return;
-    if (val < 10) { message.warning(`${label} cannot be less than 10s.`); return; }
-    if (val > 3600) { message.warning(`${label} cannot exceed 3600s.`); return; }
-    onCommit(val);
+    const MIN = 10;
+    const MAX = 3600;
+
+    if (val == null || val == undefined) {
+      onCommit(MIN);
+      return;
+    }
+
+    let finalValue = val;
+
+    if (val < MIN) {
+      message.warning(`${label} cannot be less than ${MIN}s.`);
+      finalValue = MIN;
+    }
+
+    else if (val > MAX) {
+      message.warning(`${label} cannot exceed ${MAX}s.`);
+      finalValue = MAX;
+    }
+    onCommit(finalValue);
   };
 
   return {
