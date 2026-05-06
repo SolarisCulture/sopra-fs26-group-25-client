@@ -70,7 +70,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
       message.warning(`Rounds cannot exceed ${MAX}.`);
       finalValue = MAX;
     }
-    setSettings((s) => ({ ...s, roundsNumber: val }));
+    setSettings((s) => ({ ...s, roundsNumber: finalValue }));
   };
 
   const handleRoundsLimitDisabledChange = (checked: boolean) => {
