@@ -96,7 +96,7 @@ export default function SettingsModal({
           disabled={!isHost}
           onChange={handleThemeChange}
           optionRender={(option) => (
-            <Tooltip title={option.data as Record<string, unknown>} mouseEnterDelay={0.5}>
+              <Tooltip title={(option.data as { tooltip?: string }).tooltip} mouseEnterDelay={0.5}>
               <div>{option.label}</div>
             </Tooltip>
           )}
