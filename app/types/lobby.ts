@@ -5,11 +5,17 @@ export interface Lobby {
   hostId: number;
   players: User[];
   lobbyStatus: "WAITING" | "IN_PROGRESS" | "FINISHED";
+  settings?: BackendLobbySettings;
+}
+
+export interface BackendLobbySettings {
+  rounds: number;
+  spymasterTimeLimit: number | null;
+  spyTimeLimit: number | null;
 }
 
 export interface LobbySettings {
   theme: string[];
-  customTheme: string;
   customWordList: string,
   spymasterTimer: number | null;
   spyTimer: number | null;
@@ -18,9 +24,8 @@ export interface LobbySettings {
 
 export const DEFAULT_SETTINGS: LobbySettings = {
   theme: ["standard"],
-  customTheme: "",
   customWordList: "",
   spymasterTimer: null,
   spyTimer: null,
-  roundsNumber: 1000,
+  roundsNumber: null,
 };

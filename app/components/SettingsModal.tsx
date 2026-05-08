@@ -188,14 +188,18 @@ export default function SettingsModal({
           disabled={!isHost || spymasterTimerDisabled}
           onChange={(val) => setSpymasterTimerDraft(val)}
           onBlur={() =>
-            validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) =>
-              setSettings({ ...settings, spymasterTimer: v })
+            validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => {
+                setSpymasterTimerDraft(v);
+                setSettings({ ...settings, spymasterTimer: v })
+              }
             )
           }
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) =>
-                setSettings({ ...settings, spymasterTimer: v })
+              validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => {
+                  setSpymasterTimerDraft(v);
+                  setSettings({ ...settings, spymasterTimer: v })
+                }
               );
             }
           }}
@@ -223,14 +227,18 @@ export default function SettingsModal({
           disabled={!isHost || spyTimerDisabled}
           onChange={(val) => setSpyTimerDraft(val)}
           onBlur={() =>
-            validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) =>
-              setSettings({ ...settings, spyTimer: v })
+            validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => {
+                setSpyTimerDraft(v);
+                setSettings({ ...settings, spyTimer: v })
+              }
             )
           }
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) =>
-                setSettings({ ...settings, spyTimer: v })
+              validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => {
+                  setSpyTimerDraft(v);
+                  setSettings({ ...settings, spyTimer: v })
+                }
               );
             }
           }}
@@ -255,7 +263,7 @@ export default function SettingsModal({
         <InputNumber
           style={{ width: 300 }}
           min={1}
-          max={1000}
+          max={100}
           value={settings.roundsNumber}
           disabled={!isHost || roundsNumberDisabled}
           onChange={onRoundsNumberChange}

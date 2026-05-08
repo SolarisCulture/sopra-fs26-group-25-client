@@ -77,6 +77,12 @@ export default function LobbyPage() {
       setShowUsernamePopUp(true);
     }
   }, [code]);
+
+  useEffect(() => {
+    if (settingsOpen) return;
+    if (!lobby.lobby?.settings) return;
+    lobbySettings.applySettingsFromBackend(lobby.lobby.settings);
+  }, [lobby.lobby?.settings, lobbySettings.applySettingsFromBackend]);
   
   // Focus username input when popup opens
   useEffect(() => {
@@ -139,7 +145,7 @@ export default function LobbyPage() {
     lobbyCode: code,
     userID: lobby.userID,
     fetchLobby: lobby.fetchLobby,
-    setSettings: lobbySettings.setSettings,
+    applySettingsFromBackend: lobbySettings.applySettingsFromBackend,
     setIsStarting,
     isHost: lobby.isHost,
     onCurrentPlayerRemoved: handleCurrentPlayerRemoved,
