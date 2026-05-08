@@ -3,10 +3,12 @@ import { createGameSocket } from "@/utils/gameWebsocket";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
 import type { MessageInstance } from "antd/es/message/interface";
+import message from "antd/es/message";
 
 interface GameSocketOptions {
   lobbyCode: string;
   role: User["role"] | null;
+  playerId: number | null;
   currentTurnRef: React.MutableRefObject<"red" | "blue">;
   setBoard: (cards: WordCard[]) => void;
   setCurrentPhase: (phase: string) => void;
@@ -35,13 +37,14 @@ export function useGameSocket(opts: GameSocketOptions) {
   const socketRef = useRef<ReturnType<typeof createGameSocket> | null>(null);
 
   useEffect(() => {
-    const { lobbyCode, role } = optsRef.current;
-    if (!lobbyCode || !role || role === "NONE") return;
+    const { lobbyCode, role, playerId } = optsRef.current;
+    if (!lobbyCode || !role || role === "NONE" || !playerId) return;
     if (socketRef.current) return;
 
     const socket = createGameSocket(
       lobbyCode,
       role,
+      playerId,
       (event) => {
         const o = optsRef.current;
         const syncTimerFromBoard = () => {
@@ -109,6 +112,14 @@ export function useGameSocket(opts: GameSocketOptions) {
             socketRef.current?.disconnect();
             o.onReturnToLobby();
             break;
+          case "ReturningToLobbyAfterDisconnect":
+            message.error(`After a disconnect, there aren't enough players left! Returning to the lobby!`);
+            o.setWinningTeam(null);
+            setTimeout(() => {
+              socketRef.current?.disconnect();
+              o.onReturnToLobby();
+            }, 3000);
+            break;
           case "GameRestarting":
             o.setWinningTeam(null);
             o.setRemainingTime(null);
@@ -125,6 +136,9 @@ export function useGameSocket(opts: GameSocketOptions) {
             break;
           case "GameResumed":
             o.setPauseModalOpen(false);
+            break;
+          case "PlayersUpdated":
+            o.fetchPlayers();
             break;
           case "TIMER_UPDATE": {
             const remaining = event.timer ?? event.remainingTime ?? event.data ?? event.board?.timer;
@@ -149,7 +163,7 @@ export function useGameSocket(opts: GameSocketOptions) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [opts.lobbyCode, opts.role]);
+  }, [opts.lobbyCode, opts.role, opts.playerId]);
 
   return socketRef;
 }

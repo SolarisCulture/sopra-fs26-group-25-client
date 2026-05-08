@@ -160,7 +160,9 @@ export default function LobbyPage() {
     lobby.players.length >= 4
     && lobby.players.every(p => p.team !== "UNASSIGNED" && p.team !== null)
     && lobby.players.filter(p => p.team == "BLUE").some(p => p.role == "SPYMASTER")
-    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER");
+    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER")
+    && lobby.players.filter(p => p.team == "BLUE").some(p => p.role == "SPY")
+    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPY");
 
   return (
     <ConfigProvider

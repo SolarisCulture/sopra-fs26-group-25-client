@@ -50,6 +50,7 @@ export default function GamePage() {
   
   const socketRef = useGameSocket({
     lobbyCode: code, role: game.role,
+    playerId: game.currentPlayer?.id ? Number(game.currentPlayer.id) : null,
     currentTurnRef: game.currentTurnRef,
     setBoard: game.setBoard, 
     setCurrentPhase: game.setCurrentPhase,

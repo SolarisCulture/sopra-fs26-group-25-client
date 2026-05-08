@@ -104,6 +104,11 @@ export interface ServerReturningToLobbyEvent {
   lobbyCode: string;
 }
 
+export interface ServerReturningToLobbyAfterDisconnectEvent {
+  type: "ReturningToLobbyAfterDisconnect"
+  lobbyCode: string;
+}
+
 export interface ServerGameRestartingEvent {
   type: "GameRestarting"
   lobbyCode: string;
@@ -117,6 +122,11 @@ export interface ServerGamePausedEvent {
 
 export interface ServerGameResumedEvent {
   type: "GameResumed";
+  lobbyCode: string;
+}
+
+export interface ServerPlayersUpdatedEvent {
+  type: "PlayersUpdated";
   lobbyCode: string;
 }
 
@@ -141,6 +151,8 @@ export type GameEvent =
   | ServerGameRestartingEvent
   | ServerGamePausedEvent
   | ServerGameResumedEvent
+  | ServerReturningToLobbyAfterDisconnectEvent
+  | ServerPlayersUpdatedEvent
   | ServerTimerUpdateEvent
   | ClueReportedEvent
   | ClueApprovedEvent

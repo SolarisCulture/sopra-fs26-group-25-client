@@ -6,6 +6,7 @@ import { getApiDomain } from "./domain";
 export function createGameSocket(
   lobbyCode: string,
   role: "SPYMASTER" | "SPY",
+  playerId: number | null,
   onMessage: (event: GameEvent) => void,
   onReconnect: () => void,
   ) {
@@ -50,6 +51,15 @@ export function createGameSocket(
         : parsed;
       console.log("Game event received:", event);
       onMessage(event);
+    });
+
+    client.publish({
+      destination: `/app/${lobbyCode}/game-subscribe`,
+      body: JSON.stringify({
+        type: "SUBSCRIBE",
+        lobbyCode,
+        data: playerId ? { id: playerId } : null,
+      }),
     });
 
   console.log("Reconnected → resyncing state");
