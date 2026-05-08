@@ -5,6 +5,7 @@ import { Button } from "antd";
 import { User } from "@/types/user";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "@/styles/playerTable.module.css";
+import { HourglassOutlined } from "@ant-design/icons";
 
 interface PlayerTableProps {
   currentTurn: "red" | "blue";
@@ -77,7 +78,24 @@ export default function PlayerTable({
   const activeSpymaster = activeTeam === "BLUE" ? blueSpymaster : redSpymaster;
   const activeSpies = activeTeam === "BLUE" ? blueSpies : redSpies;
 
-  const formattedTime = remainingTime == null ? null : `${Math.max(0, Math.floor(remainingTime / 60))}:${String(Math.max(0, remainingTime % 60)).padStart(2, "0")}`;
+  const isWarning = remainingTime !== null && remainingTime <= 10 && remainingTime > 0;
+
+  const formattedTime = (() => {
+    if (remainingTime == null) return null;
+
+    const hrs = Math.floor(remainingTime / 3600);
+    const mins = Math.floor((remainingTime % 3600) / 60);
+    const secs = remainingTime % 60;
+    const partSecs = String(secs).padStart(2, "0");
+
+    if (hrs > 0) {
+      const partMins = String(mins).padStart(2, "0");
+      return `${hrs}:${partMins}:${partSecs}`;
+    }
+
+    return `${mins}:${partSecs}`;
+  })();
+
   // const formattedTime = remainingTime == null ? null
   //   : `${Math.max(0, Math.floor(remainingTime / 60))}:${String(Math.max(0, remainingTime % 60)).padStart(2, "0")}`;
 
@@ -85,10 +103,19 @@ export default function PlayerTable({
   //const inactiveSpymaster = activeTeam === "BLUE" ? redSpymaster : blueSpymaster;
   //const inactiveSpies = activeTeam === "BLUE" ? redSpies : blueSpies;
 
+  const Timer = () => (
+    formattedTime ? (
+      <div className={`${styles.timerBadge} ${isWarning ? styles.timerWarning : ""}`}>
+        <HourglassOutlined className={styles.timerIcon} />
+        <span className={styles.timeText}>{formattedTime}</span>
+      </div>
+    ) : null
+  );
+
   if (isMobile && !expanded) {
     return (
       <div className={styles.containerCollapsed}>
-        {formattedTime !== null && <div className={styles.timerBadge}>{formattedTime}</div>}
+        <Timer />
         <TeamCard
           team={activeTeam}
           currentTurn={currentTurn}
@@ -111,9 +138,7 @@ export default function PlayerTable({
 
   return (
     <div className={isMobile ? styles.containerExpanded : styles.container}>
-      {formattedTime !== null && 
-        <div className={styles.timerBadge}>{formattedTime}</div>
-      }
+      <Timer />
       <TeamCard
         team="BLUE"
         currentTurn={currentTurn}
