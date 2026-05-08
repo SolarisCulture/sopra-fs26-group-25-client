@@ -68,6 +68,11 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.setBoard(event.board.cards);
             o.setCurrentPhase(event.board.currentPhase);
             o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            if (event.board.currentPhase === "SPYMASTER_TURN") {
+              o.setCluePublished(false);
+              o.setCurrentClue(null);
+              o.setPenaltyPickMode(false);
+            }
             syncTimerFromBoard();
             break;
           case "ClueReported":

@@ -1,6 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
 
 export function createGameSocket(
@@ -103,12 +103,30 @@ export function createGameSocket(
       });
     },
 
-    sendClueRuling: (event: ClueRulingEvent) => {
+    sendClueApproved: (event: ClueApprovedEvent) => {
       waitForConnection(() => {
         client.publish({
-            destination: `/app/${lobbyCode}/clue-ruling`,
+            destination: `/app/${lobbyCode}/clue-approved`,
             body: JSON.stringify(event),
         });
+      });
+    },
+
+    sendClueRuledInvalid: (event: ClueRuledInvalidEvent) => {
+      waitForConnection(() => {
+        client.publish({
+            destination: `/app/${lobbyCode}/clue-ruled-invalid`,
+            body: JSON.stringify(event),
+        });
+      });
+    },
+
+    sendReportedGuess: (event: ReportedGuessEvent) => {
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/reported-guess`,
+          body: JSON.stringify({word: event.guessedCard.word}),
+        })
       });
     },
 

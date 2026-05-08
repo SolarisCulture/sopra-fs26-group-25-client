@@ -33,7 +33,7 @@ export default function ReportConfirmModal({ reportConfirmOpen, onCancel, onConf
                         <Button
                             type="primary"
                             danger
-                            onClick={onConfirm}
+                            onClick={() => {onConfirm(); onCancel(false)}}
                             style={{ borderRadius: 8, fontWeight: 600 }}
                         >
                             Yes, Report

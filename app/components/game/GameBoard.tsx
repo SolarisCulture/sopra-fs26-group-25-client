@@ -16,6 +16,14 @@ export default function GameBoard({
   const getCardClass = (card: WordCard) => {
     if (!card.revealed) {
       if (penaltyPickMode) {
+          if (colorOverlayActive) {
+          switch (card.cardType) {
+            case "AGENTRED": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayRed}`;
+            case "AGENTBLUE": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayBlue}`;
+            case "CIVILIAN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayCivilian}`;
+            case "ASSASSIN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayAssassin}`;
+          }
+        }
         const isMyTeamCard =
           (currentTurn === "red" && card.cardType === "AGENTRED") ||
           (currentTurn === "blue" && card.cardType === "AGENTBLUE");

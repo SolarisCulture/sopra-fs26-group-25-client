@@ -42,8 +42,16 @@ export interface ClueReportedEvent extends GameEventBase, Clue {
   type: "ClueReported";
 }
 
-export interface ClueRulingEvent extends GameEventBase {
-  type: "ClueApproved" | "ClueRuledInvalid";
+export interface ClueApprovedEvent extends GameEventBase {
+  type: "ClueApproved";
+}
+
+export interface ClueRuledInvalidEvent extends GameEventBase {
+  type: "ClueRuledInvalid";
+}
+
+export interface ReportedGuessEvent extends GameEventBase, Guess {
+  type: "ReportedGuess";
 }
 
 export interface TurnChangedEvent {
@@ -135,4 +143,6 @@ export type GameEvent =
   | ServerGameResumedEvent
   | ServerTimerUpdateEvent
   | ClueReportedEvent
-  | ClueRulingEvent;
+  | ClueApprovedEvent
+  | ClueRuledInvalidEvent
+  | ReportedGuessEvent;
