@@ -131,6 +131,9 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 |  **[@serilia03]**  | [-]   | [worked ahead in week 4] | [] | [] |
 |                    | [-]   | [worked ahead in week 4] | [] | [] |
+|  **[@Kirusou]**  | [08.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/305/changes/8af67a9bc48f090abe8975d7bc240d0bb754677f https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/ef90290f09ad9b6de32b0a33ec32dd9a66bf982a] | [Implemented disconnect handling for frontend and backend] | [This is important so that there are no players in the lobby/game anymore that have closen their browser and also that it gets correctly handled by the game when there are not enough players left (removing softlock problems).] |
+|                    | [08.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/pull/304/changes/85053d22967d889a4c0484bd209fcc364554d3af https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/a370c062f8d7c11eb9374e0b0f9584c246b187ec] | [Implemented the report clue feature in the backend and also changed some stuff around it in the frontend so that it gets handled correctly.] | [Important so that the feature actually does the correct thing.] |
+|                    | [08.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/084b308488b9dddb55c6fbb9b55448a5cc086045 https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/de2dd75ce2c3c2d682501bb486fb631ad2c650c6] | [Multiple smaller bug fixes around the settings.] | [Important because else it would be confusing for the user when for example the UI gets reset each round but the backend still has the old settings.] |
 
 ---
 
