@@ -49,6 +49,7 @@ export default function LobbyPage() {
 
   const lobby = useLobby(code, message, handleCurrentPlayerRemoved);
   const lobbySettings = useLobbySettings(code, message);
+  
   const [isStarting, setIsStarting] = useState(false);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
   const [kickTarget, setKickTarget] = useState<User | null>(null);
@@ -64,6 +65,12 @@ export default function LobbyPage() {
   const [usernameError, setUsernameError] = useState("");
   const [joiningLobby, setJoiningLobby] = useState(false);
   const usernameInputRef = useRef<InputRef>(null);
+
+  useEffect(() => {
+    if (settingsOpen) return;
+    if (!lobby.lobby?.settings) return;
+    lobbySettings.applySettingsFromBackend(lobby.lobby.settings);
+  }, [lobby.lobby?.settings, lobbySettings.applySettingsFromBackend, settingsOpen]);
 
   // Check if user already joined on mount
   const lobbyRef = useRef(lobby);
