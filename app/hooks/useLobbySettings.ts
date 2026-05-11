@@ -30,6 +30,9 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
       spymasterTimer,
       spyTimer,
       roundsNumber,
+      theme: backendSettings.topics && backendSettings.topics.length > 0
+        ? backendSettings.topics.map(t => t.toLowerCase())
+        : currentSettings.theme,
     }));
     setSpymasterTimerDraft(spymasterTimer);
     setSpyTimerDraft(spyTimer);
@@ -44,6 +47,9 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
         spymasterTimeLimit: settings.spymasterTimer ?? 0,
         spyTimeLimit: settings.spyTimer ?? 0,
         rounds: settings.roundsNumber ?? 0,
+        topics: settings.theme
+          .filter(t => t !== "customWordList")
+          .map(t => t.toUpperCase()),
       });
       message.success("Settings saved!");
     } catch {
@@ -56,6 +62,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
       spymasterTimeLimit: null,
       spyTimeLimit: null,
       rounds: DEFAULT_SETTINGS.roundsNumber ?? 0,
+      topics: ['STANDARD'],
     };
 
     try {
@@ -63,6 +70,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
         spymasterTimeLimit: resetSettings.spymasterTimeLimit ?? 0,
         spyTimeLimit: resetSettings.spyTimeLimit ?? 0,
         rounds: resetSettings.rounds,
+        topics: resetSettings.topics,
       });
       applySettingsFromBackend(resetSettings);
       message.info("Reset to default.");

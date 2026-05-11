@@ -12,6 +12,7 @@ export interface BackendLobbySettings {
   rounds: number;
   spymasterTimeLimit: number | null;
   spyTimeLimit: number | null;
+  topics?: string[];
 }
 
 export interface LobbySettings {

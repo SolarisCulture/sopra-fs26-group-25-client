@@ -70,6 +70,7 @@ export function useLobbyWebSocket(opts: UseLobbySocketOptions) {
               spymasterTimeLimit: d.spymasterTimeLimit ?? null,
               spyTimeLimit: d.spyTimeLimit ?? null,
               rounds: d.rounds,
+              topics: d.topics,
             });
             await o.fetchLobby();
             o.message.info("Game settings updated by the host.");
