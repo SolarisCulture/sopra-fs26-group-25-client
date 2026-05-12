@@ -143,7 +143,7 @@ export function useGameSocket(opts: GameSocketOptions) {
               ...prev,
               {
                 id: `${event.timeStamp}-${event.player.id}`,
-                username: event.player.username,
+                username: event.player.username ?? "Unknown",
                 text: event.message,
                 team,
                 timeStamp: event.timeStamp,

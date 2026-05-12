@@ -1,6 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent, ChatMessageEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent, ChatEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
 
 export function createGameSocket(
@@ -121,7 +121,7 @@ export function createGameSocket(
       });
     },
 
-    sendChatMessage: (event: ChatMessageEvent) => {
+    sendChatMessage: (event: ChatEvent) => {
       waitForConnection(() => {
         client.publish({
           destination: `/app/${lobbyCode}/chat`,
