@@ -137,7 +137,7 @@ export default function GamePage() {
       await apiService.post(`/api/games/${code}/backToLobby`, {});
       setQuitModalOpen(false);
     } catch {
-      message.error("Failed to quit the game.");
+      message.error("Server failed to quit the game.");
     }
   };
 
@@ -282,11 +282,11 @@ export default function GamePage() {
           isRestarting={isRestarting}
           onRestart={async () => {
             try { setIsRestarting(true); await apiService.post(`/api/games/${code}/restart`, {}); }
-            catch { message.error("Failed to restart game."); }
+            catch { message.error("Server failed to restart game. Try again."); }
           }}
           onBackToLobby={async () => {
             try { await apiService.post(`/api/games/${code}/backToLobby`, {}); }
-            catch { message.error("Failed to return to lobby."); }
+            catch { message.error("Server failed to return you to the lobby."); }
           }}
         />
       )}

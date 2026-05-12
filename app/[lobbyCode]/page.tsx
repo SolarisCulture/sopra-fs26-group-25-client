@@ -41,7 +41,10 @@ export default function LobbyPage() {
 
   // hooks
   const handleCurrentPlayerRemoved = useCallback((messageText?: string) => {
-    if (messageText) message.error(messageText);
+    if (messageText) {
+      message.error("Server could not remove the player: " + messageText); // I really hope the backend has a good error message
+      return;
+    }
     sessionStorage.removeItem(`playerId_${code}`);
     sessionStorage.removeItem(`isHost_${code}`);
     router.push("/");
@@ -103,7 +106,8 @@ export default function LobbyPage() {
         sessionStorage.setItem(`playerId_${newLobby.lobbyCode}`, String(newLobby.hostId));
         router.push(`/${newLobby.lobbyCode}`);
       } catch {
-        setUsernameError("Failed to create lobby. Please try again.");
+        setUsernameError("Server failed to create lobby. Please try again.");
+        return;
       } finally {
         setJoiningLobby(false);
       }
@@ -127,8 +131,25 @@ export default function LobbyPage() {
 
       lobby.setUserID(newPlayerID);
       setShowUsernamePopUp(false);
-    } catch {
-      setUsernameError("Username is already taken or the lobby may no longer exist.");
+    } catch (error: unknown){
+        const err = error as {
+          status?: number;
+          data?: {
+            message?: string;
+            error?: string;
+          };
+          message?: string;
+        };
+
+        if (err.status === 404) {
+          setUsernameError("This lobby does not exist.");
+        } else if (err.status === 409 && err.message?.includes("username")) {
+          setUsernameError("This username is already taken.");
+        } else if (err.status === 409 && err.message?.includes("game")) {
+          setUsernameError("This game is already running.");
+        } else {
+          setUsernameError("Failed to join lobby. Please try again.");
+        }
     } finally {
       setJoiningLobby(false);
     }
@@ -235,7 +256,7 @@ export default function LobbyPage() {
                     setIsStarting(true);
                     await apiService.post(`/api/games/${lobbyCode}/start`, {});
                   } catch {
-                    message.error("Failed to start game!");
+                    message.error("Server failed to start game. Try Again.");
                   }
                 }}
             />
