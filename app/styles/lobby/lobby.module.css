@@ -88,10 +88,10 @@
 }
 
 .startButton {
-  width: 200px;
-  height: 50px;
-  font-size: 18px;
-  font-weight: 600;
+  width: 200px !important;
+  height: 50px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
 }
 
 /* Tablet */
