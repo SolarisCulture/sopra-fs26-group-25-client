@@ -1,6 +1,7 @@
 import { Button, Modal, Tooltip } from "antd";
 import { User } from "@/types/user";
 import styles from "@/styles/lobby/teamTable.module.css";
+import pL from "@/styles/lobby/playerList.module.css"
 
 interface ScriptProps {
   players: User[];
@@ -22,7 +23,9 @@ export default function TeamTable({
   const blueFull = bluePlayers.length >= maxPerTeam;
   const redFull = redPlayers.length >= maxPerTeam;
 
-  const renderPlayer = (p: User, teamColor: string) => (
+  const renderPlayer = (p: User, teamColor: string) => {
+    const isMe = String(p.id) === String(currentUserID);
+    return (
     <div key={p.id} className={styles.playerRow}>
       <span className={styles.playerInfo}>
         <span className={styles.roleSlot}>
@@ -39,6 +42,9 @@ export default function TeamTable({
           )}
         </span>
         <span className={styles.playerName}>{p.username}</span>
+        {isMe && (
+          <span className={pL.youBadge}>You</span>
+        )}
       </span>
 
       {(isHost || String(p.id) === String(currentUserID)) && (
@@ -51,7 +57,8 @@ export default function TeamTable({
         </Button>
       )}
     </div>
-  );
+    );
+  }
 
   return (
     <>
