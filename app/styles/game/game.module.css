@@ -26,6 +26,19 @@
   gap: 1rem;
 }
 
+.rightPanel {
+  position: absolute;
+  right: 2vw;
+  top: 24px;
+  width: 18vw;
+  min-width: 220px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 100;
+}
+
 /* ---- BOARD ---- */
 .board {
   width: min(52vw, 900px);

@@ -1,14 +1,9 @@
-/* Desktop — absolute right sidebar */
 .container {
-  width: 18vw;
-  min-width: 220px;
+  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  position: absolute;
-  right: 2vw;
-  top: 24px;
-  z-index: 100;
 }
 
 .teamCard {

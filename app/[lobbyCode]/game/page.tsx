@@ -25,6 +25,8 @@ import ReportConfirmationModal from "@/components/game/ReportConfirmationModal";
 import ClueReviewModal from "@/components/game/ReviewClueModal";
 import PenaltyConfirmModal from "@/components/game/ConfirmPenaltyCardRevealModal";
 import QuitGameModal from "@/components/game/QuitGameModal";
+import GameChat from "@/components/game/GameChat";
+import { ChatMessage } from "@/types/chatMessage";
 
 
 export default function GamePage() {
@@ -44,6 +46,7 @@ export default function GamePage() {
   const [quitFromPause, setQuitFromPause] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
 
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
   const [cluePublished, setCluePublished] = useState(false);
   const [penaltyPickMode, setPenaltyPickMode] = useState(false);
@@ -71,6 +74,7 @@ export default function GamePage() {
     fetchGameStatistics: game.fetchGameStatistics,
     onReturnToLobby: () => router.push(`/${code}`),
     message,
+    setChatMessages,
   });
 
   const clueFlow = useClueFlow({
@@ -137,6 +141,18 @@ export default function GamePage() {
     }
   };
 
+  const handleSendChatMessage = (text: string) => {
+    if (!game.currentPlayer || !socketRef.current) return;
+
+    socketRef.current.sendChatMessage({
+      type: "ChatMessage",
+      timeStamp: new Date().toISOString(),
+      player: game.currentPlayer,
+      description: `${game.currentPlayer.username} sent a chat message`,
+      message: text,
+    });
+  };
+
   return (
     <ConfigProvider theme={{
       components: {
@@ -145,12 +161,20 @@ export default function GamePage() {
         Modal: { colorText: "#000", colorBgContainer: "#fff" },
       },
     }}>
+    <div className={styles.rightPanel}>
       <PlayerTable
         currentTurn={game.currentTurn} currentPhase={game.currentPhase}
         remainingTime={remainingTime}
         blueSpymaster={game.blueSpymaster} redSpymaster={game.redSpymaster}
         blueSpies={game.blueSpies} redSpies={game.redSpies}
       />
+
+      <GameChat
+        messages={chatMessages}
+        currentUsername={game.currentPlayer?.username ?? ""}
+        onSend={handleSendChatMessage}
+      />
+    </div>
 
       <div className={`${styles.page} ${teamClass}`}>
         <ClueHistory clueHistory={clueFlow.clueHistory} />

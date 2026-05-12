@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { createGameSocket } from "@/utils/gameWebsocket";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
+import { ChatMessage } from "@/types/chatMessage";
 import type { MessageInstance } from "antd/es/message/interface";
 
 interface GameSocketOptions {
@@ -27,6 +28,7 @@ interface GameSocketOptions {
   fetchGameStatistics: () => Promise<void>;
   onReturnToLobby: () => void;
   message: MessageInstance;
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
 export function useGameSocket(opts: GameSocketOptions) {
@@ -127,6 +129,27 @@ export function useGameSocket(opts: GameSocketOptions) {
             if (remaining != null) {
               o.setRemainingTime(Number(remaining));
             }
+            break;
+          }
+          case "ChatMessage": {
+            const team =
+              event.player.team === "RED"
+                ? "red"
+                : event.player.team === "BLUE"
+                  ? "blue"
+                  : o.currentTurnRef.current;
+
+            o.setChatMessages((prev) => [
+              ...prev,
+              {
+                id: `${event.timeStamp}-${event.player.id}`,
+                username: event.player.username,
+                text: event.message,
+                team,
+                timeStamp: event.timeStamp,
+              },
+            ]);
+
             break;
           }
         }
