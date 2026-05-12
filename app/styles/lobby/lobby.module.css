@@ -74,17 +74,20 @@
 }
 
 .actions {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 12px;
-  flex-wrap: wrap;
-  padding: 12px 0;
 }
 
 .startWrapper {
+  position: fixed;
+  bottom: 75px;
   display: flex;
   justify-content: center;
-  padding: 12px 0;
 }
 
 .startButton {

@@ -92,7 +92,7 @@ export default function PlayerList({
         dataSource={players}
         rowKey="id"
         pagination={false}
-        scroll={{ y: 450 }}
+        scroll={{ y: 350 }}
       />
     </div>
   );
