@@ -52,6 +52,7 @@
 
 .breakName {
   word-break: break-all;
+  padding-right: 5px;
 }
 
 .spyList {
@@ -74,7 +75,6 @@
   font-weight: 500;
   font-size: clamp(11px, 1vw, 14px);
   text-align: center;
-  padding: 0 10px;
 }
 
 .noSpies {
