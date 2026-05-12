@@ -277,8 +277,17 @@ export default function GamePage() {
           winningTeam={game.winningTeam} finalBoard={game.finalBoard} isHost={isHost}
           isRestarting={isRestarting}
           onRestart={async () => {
-            try { setIsRestarting(true); await apiService.post(`/api/games/${code}/restart`, {}); }
-            catch { message.error("Server failed to restart game. Try again."); }
+            try { 
+              setIsRestarting(true);
+              await apiService.post(`/api/games/${code}/restart`, {});
+            }
+            catch {
+              message.error("Server failed to restart game. Try again.");
+              return;
+            } finally {
+              setIsRestarting(false);
+              setCluePublished(false);
+            }
           }}
           onBackToLobby={async () => {
             try { await apiService.post(`/api/games/${code}/backToLobby`, {}); }

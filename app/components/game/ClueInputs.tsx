@@ -22,7 +22,6 @@ export default function ClueInput({
         value={clueWord}
         onChange={(e) => setClueWord(e.target.value)}
         onPressEnter={onSend}
-        disabled={disabled}
         className={styles.wordInput}
       />
       <InputNumber
@@ -36,13 +35,11 @@ export default function ClueInput({
         parser={(value) =>
           value === "∞" ? remainingTeamCards + 1 : parseInt(value || "1", 10)
         }
-        disabled={disabled}
         className={styles.countInput}
       />
       <Button
         type="primary"
         onClick={onSend}
-        disabled={disabled}
         className={styles.sendButton}
       >
         Publish

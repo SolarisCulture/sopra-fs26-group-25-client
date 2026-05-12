@@ -114,6 +114,7 @@ export function useGameSocket(opts: GameSocketOptions) {
               o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
               syncTimerFromBoard();
             }
+            o.setCluePublished(false);
             break;
           case "GamePaused":
             o.setPauseModalOpen(true);
