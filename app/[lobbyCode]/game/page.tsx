@@ -87,10 +87,6 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
-  useEffect(() => {
-    if (game.role === "SPYMASTER") clueFlow.setColorOverlayActive(true);
-  }, [game.role, clueFlow.setColorOverlayActive]);
-
   const dictionary = useDictionary(message);
 
   const isMyTurn = game.currentPlayer?.team?.toLowerCase() === game.currentTurn;
