@@ -12,7 +12,7 @@
   flex-direction: column;
   align-items: center;
   min-height: 100svh;
-  padding: 80px 20px 20px;
+  padding: 21px 20px 20px;
   gap: 20px;
   font-family: var(--font-geist-sans);
   color: #fff;
@@ -56,11 +56,10 @@
 
 .main {
   display: grid;
-  grid-template-columns: minmax(220px, 350px) minmax(320px, 450px) minmax(220px, 350px);
+  grid-template-columns: 250px 350px 250px;
   justify-content: center;
-  gap: 24px;
+  gap: 17rem;
   width: 100%;
-  max-width: 1200px;
   flex: 1;
   align-items: flex-start;
 }
