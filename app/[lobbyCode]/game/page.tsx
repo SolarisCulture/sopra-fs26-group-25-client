@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { App, Button, ConfigProvider, Modal } from "antd";
 import { useApi } from "@/hooks/useApi";
@@ -9,22 +9,25 @@ import { useGameState } from "@/hooks/useGameState";
 import { useClueFlow } from "@/hooks/useClueFlow";
 import { useGameSocket } from "@/hooks/useGameSocket";
 import { useDictionary } from "@/hooks/useDictionary";
+import { WordCard } from "@/types/wordCard";
+import styles from "@/styles/game/game.module.css";
+
+import HowToPlayModal from "@/components/HowToPlayModal";
 
 import GameBoard from "@/components/game/GameBoard";
 import GameActions from "@/components/game/GameActions";
 import GameOverScreen from "@/components/game/GameOverScreen";
 import DictionaryModal from "@/components/game/DictionaryModal";
-import PlayerTable from "@/components/PlayerTable";
-import ClueHistory from "@/components/ClueHistory";
-import ClueInput from "@/components/ClueInputs";
-import HowToPlayModal from "@/components/HowToPlayModal";
-import ReportConfirmationModal from "@/components/ReportConfirmationModal";
-import ClueReviewModal from "@/components/ReviewClueModal";
-import PenaltyConfirmModal from "@/components/ConfirmPenaltyCardRevealModal";
-import QuitGameModal from "@/components/QuitGameModal";
-import { WordCard } from "@/types/wordCard";
+import PlayerTable from "@/components/game/PlayerTable";
+import ClueHistory from "@/components/game/ClueHistory";
+import ClueInput from "@/components/game/ClueInputs";
+import ReportConfirmationModal from "@/components/game/ReportConfirmationModal";
+import ClueReviewModal from "@/components/game/ReviewClueModal";
+import PenaltyConfirmModal from "@/components/game/ConfirmPenaltyCardRevealModal";
+import QuitGameModal from "@/components/game/QuitGameModal";
+import GameChat from "@/components/game/GameChat";
+import { ChatMessage } from "@/types/chatMessage";
 
-import styles from "@/styles/game.module.css";
 
 export default function GamePage() {
   const { message } = App.useApp();
@@ -43,6 +46,7 @@ export default function GamePage() {
   const [quitFromPause, setQuitFromPause] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
 
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [currentClue, setCurrentClue] = useState<{ word: string; count: number } | null>(null);
   const [cluePublished, setCluePublished] = useState(false);
   const [penaltyPickMode, setPenaltyPickMode] = useState(false);
@@ -71,6 +75,7 @@ export default function GamePage() {
     fetchGameStatistics: game.fetchGameStatistics,
     onReturnToLobby: () => router.push(`/${code}`),
     message,
+    setChatMessages,
   });
 
   const clueFlow = useClueFlow({
@@ -87,6 +92,18 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
+  const handleSendChatMessage = (text: string) => {
+    if (!game.currentPlayer || !socketRef.current) return;
+
+    socketRef.current.sendChatMessage({
+      type: "ChatMessage",
+      timeStamp: new Date().toISOString(),
+      player: game.currentPlayer,
+      description: `${game.currentPlayer.username} sent a chat message`,
+      message: text,
+    });
+  };
+
   const dictionary = useDictionary(message);
 
   const isMyTurn = game.currentPlayer?.team?.toLowerCase() === game.currentTurn;
@@ -99,6 +116,7 @@ export default function GamePage() {
   const isOpposingSpymaster = opposingSpymaster != null &&
     String(opposingSpymaster.id) === String(game.currentPlayer?.id);
   const teamClass = game.currentTurn === "red" ? styles.teamRed : styles.blueTeam;
+  const isSpyPhase = game.currentPhase === "SPY_TURN";
 
   const handleCardClick = (card: WordCard) => {
     if (card.revealed || !game.currentPlayer) return;
@@ -139,7 +157,7 @@ export default function GamePage() {
       await apiService.post(`/api/games/${code}/backToLobby`, {});
       setQuitModalOpen(false);
     } catch {
-      message.error("Failed to quit the game.");
+      message.error("Server failed to quit the game.");
     }
   };
 
@@ -151,12 +169,20 @@ export default function GamePage() {
         Modal: { colorText: "#000", colorBgContainer: "#fff" },
       },
     }}>
+    <div className={styles.rightPanel}>
       <PlayerTable
         currentTurn={game.currentTurn} currentPhase={game.currentPhase}
         remainingTime={remainingTime}
         blueSpymaster={game.blueSpymaster} redSpymaster={game.redSpymaster}
         blueSpies={game.blueSpies} redSpies={game.redSpies}
       />
+
+      <GameChat
+        messages={chatMessages}
+        currentUsername={game.currentPlayer?.username ?? ""}
+        onSend={handleSendChatMessage}
+      />
+    </div>
 
       <div className={`${styles.page} ${teamClass}`}>
         <ClueHistory clueHistory={clueFlow.clueHistory} />
@@ -167,6 +193,7 @@ export default function GamePage() {
           colorOverlayActive={clueFlow.colorOverlayActive}
           currentTurn={game.currentTurn}
           onCardClick={handleCardClick}
+          canClickCards={!isSpymaster && isSpyPhase && isMyTurn}
         />
 
         {isSpymaster && isMyTurn && !clueFlow.penaltyPickMode &&
@@ -282,12 +309,21 @@ export default function GamePage() {
           winningTeam={game.winningTeam} finalBoard={game.finalBoard} isHost={isHost}
           isRestarting={isRestarting}
           onRestart={async () => {
-            try { setIsRestarting(true); await apiService.post(`/api/games/${code}/restart`, {}); }
-            catch { message.error("Failed to restart game."); }
+            try { 
+              setIsRestarting(true);
+              await apiService.post(`/api/games/${code}/restart`, {});
+            }
+            catch {
+              message.error("Server failed to restart game. Try again.");
+              return;
+            } finally {
+              setIsRestarting(false);
+              setCluePublished(false);
+            }
           }}
           onBackToLobby={async () => {
             try { await apiService.post(`/api/games/${code}/backToLobby`, {}); }
-            catch { message.error("Failed to return to lobby."); }
+            catch { message.error("Server failed to return you to the lobby."); }
           }}
         />
       )}

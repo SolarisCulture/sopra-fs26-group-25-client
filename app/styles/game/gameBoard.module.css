@@ -10,7 +10,7 @@
 
 .card {
   background: rgba(255, 255, 255, 0.45);
-  border: 2px solid rgba(255, 255, 255, 0.65);
+  border: 3px solid rgba(255, 255, 255, 0.65);
   border-radius: 8px;
   display: flex;
   justify-content: center;
@@ -30,11 +30,12 @@
 }
 
 .cardWord {
-  color: #fff;
+  color: black;
   font-weight: 600;
   font-size: clamp(0.55rem, 1.8vw, 1.5rem);
   word-break: break-word;
   line-height: 1.2;
+  user-select: none;
 }
 
 .cardCivilian { background-image: url('/images/civilian.png'); background-repeat: no-repeat; background-position: center; background-size: 100% 100%; cursor: default; }

@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "antd";
 import { User } from "@/types/user";
-import styles from "@/styles/playerList.module.css";
+import styles from "@/styles/lobby/playerList.module.css";
 
 interface PlayerCardProps {
   player: User;

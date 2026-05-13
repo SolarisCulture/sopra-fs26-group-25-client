@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import type { CSSProperties } from "react";
 import { WordCard } from "@/types/wordCard";
-import styles from "@/styles/game.module.css";
+import styles from "@/styles/game/game.module.css";
 
 interface GameOverScreenProps {
   winningTeam: string | null;
@@ -26,7 +26,7 @@ export default function GameOverScreen({
         border: card.revealed ? "#7BD3FF" : "rgba(27, 159, 216, 0.35)",
       },
       ASSASSIN: {
-        background: card.revealed ? "#222222" : "rgba(0, 0, 0, 0.4)",
+        background: card.revealed ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.3)",
         border: card.revealed ? "#666666" : "rgba(0, 0, 0, 0.35)",
       },
       CIVILIAN: {
@@ -38,6 +38,7 @@ export default function GameOverScreen({
     return {
       background: colors?.background,
       border: `3px solid ${colors?.border}`,
+      color: "black",
     };
   };
 

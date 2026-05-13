@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import styles from "@/styles/lobby.module.css";
+import styles from "@/styles/lobby/lobby.module.css";
 
 interface LobbyActionsProps {
   onSettings: () => void;

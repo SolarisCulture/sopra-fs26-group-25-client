@@ -10,21 +10,21 @@ import { useLobbyWebSocket } from "@/hooks/useLobbyWebSocket";
 import { User } from "@/types/user";
 import { useApi } from "@/hooks/useApi";
 import { Modal } from "antd";
+import { Lobby } from "@/types/lobby";
+import { JoinRequestData } from "@/utils/lobbyWebsocket";
 import type { InputRef } from "antd";
+import styles from "@/styles/lobby/lobby.module.css";
+
+import HowToPlayModal from "@/components/HowToPlayModal";
 
 import LobbyHeader from "@/components/lobby/LobbyHeader";
 import PlayerList from "@/components/lobby/PlayerList";
 import LobbyActions from "@/components/lobby/LobbyActions";
 import StartGameButton from "@/components/lobby/StartGameButton";
-import TeamTableModal from "@/components/TeamTableModal";
-import HowToPlayModal from "@/components/HowToPlayModal";
-import LeaveModal from "@/components/LeaveModal";
-import UsernameModal from "@/components/UsernameModal";
-import SettingsModal from "@/components/SettingsModal";
-import { Lobby } from "@/types/lobby";
-import { JoinRequestData } from "@/utils/lobbyWebsocket";
-
-import styles from "@/styles/lobby.module.css";
+import TeamTableModal from "@/components/lobby/TeamTableModal";
+import LeaveModal from "@/components/lobby/LeaveModal";
+import UsernameModal from "@/components/lobby/UsernameModal";
+import SettingsModal from "@/components/lobby/SettingsModal";
 
 export default function LobbyPage() {
   const apiService = useApi();
@@ -41,7 +41,10 @@ export default function LobbyPage() {
 
   // hooks
   const handleCurrentPlayerRemoved = useCallback((messageText?: string) => {
-    if (messageText) message.error(messageText);
+    if (messageText) {
+      message.error("Server could not remove the player: " + messageText); // I really hope the backend has a good error message
+      return;
+    }
     sessionStorage.removeItem(`playerId_${code}`);
     sessionStorage.removeItem(`isHost_${code}`);
     router.push("/");
@@ -116,7 +119,8 @@ export default function LobbyPage() {
         sessionStorage.setItem(`playerId_${newLobby.lobbyCode}`, String(newLobby.hostId));
         router.push(`/${newLobby.lobbyCode}`);
       } catch {
-        setUsernameError("Failed to create lobby. Please try again.");
+        setUsernameError("Server failed to create lobby. Please try again.");
+        return;
       } finally {
         setJoiningLobby(false);
       }
@@ -140,8 +144,25 @@ export default function LobbyPage() {
 
       lobby.setUserID(newPlayerID);
       setShowUsernamePopUp(false);
-    } catch {
-      setUsernameError("Username is already taken or the lobby may no longer exist.");
+    } catch (error: unknown){
+        const err = error as {
+          status?: number;
+          data?: {
+            message?: string;
+            error?: string;
+          };
+          message?: string;
+        };
+
+        if (err.status === 404) {
+          setUsernameError("This lobby does not exist.");
+        } else if (err.status === 409 && err.message?.includes("username")) {
+          setUsernameError("This username is already taken.");
+        } else if (err.status === 409 && err.message?.includes("game")) {
+          setUsernameError("This game is already running.");
+        } else {
+          setUsernameError("Failed to join lobby. Please try again.");
+        }
     } finally {
       setJoiningLobby(false);
     }
@@ -250,7 +271,7 @@ export default function LobbyPage() {
                     setIsStarting(true);
                     await apiService.post(`/api/games/${lobbyCode}/start`, {});
                   } catch {
-                    message.error("Failed to start game!");
+                    message.error("Server failed to start game. Try Again.");
                   }
                 }}
             />

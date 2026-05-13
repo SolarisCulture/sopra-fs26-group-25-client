@@ -1,6 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent, ChatEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
 
 export function createGameSocket(
@@ -145,6 +145,15 @@ export function createGameSocket(
         client.publish({
             destination: `/app/${lobbyCode}/turn-change`,
             body: JSON.stringify(event),
+        });
+      });
+    },
+
+    sendChatMessage: (event: ChatEvent) => {
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/chat`,
+          body: JSON.stringify(event),
         });
       });
     },

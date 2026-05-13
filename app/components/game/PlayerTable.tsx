@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "antd";
 import { User } from "@/types/user";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import styles from "@/styles/playerTable.module.css";
+import styles from "@/styles/game/playerTable.module.css";
+import pL from "@/styles/lobby/playerList.module.css"
 import { HourglassOutlined } from "@ant-design/icons";
 
 interface PlayerTableProps {
@@ -42,8 +43,10 @@ function TeamCard({ team, currentTurn, currentPhase, spymaster, spies, compact }
       <h3 className={styles.teamTitle}>
         {spymaster ? (
           <>
-            {spymaster.isHost && <span>👑 </span>}
             🕵️ <span className={styles.breakName}>{spymaster.username}</span>
+            {spymaster.isHost && (
+              <span className={pL.hostBadge}>Host</span>
+            )}
           </>
         ) : "Waiting..."}
       </h3>
@@ -52,8 +55,10 @@ function TeamCard({ team, currentTurn, currentPhase, spymaster, spies, compact }
         <div className={styles.spyList}>
           {spies.map((spy) => (
             <div key={spy.id} className={styles.spyRow}>
-              {spy.isHost && <span style={{ marginRight: 4 }}>👑</span>}
               <span className={styles.breakName}>{spy.username}</span>
+              {spy.isHost && (
+                <span className={pL.hostBadge}>Host</span>
+              )}
             </div>
           ))}
         </div>

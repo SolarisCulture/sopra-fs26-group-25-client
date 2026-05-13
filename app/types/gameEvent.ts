@@ -1,5 +1,7 @@
 import { User } from "@/types/user";
 import { WordCard } from "./wordCard";
+import { ChatMessage } from "@/types/chatMessage";
+import { Game } from "./game";
 
 export interface GameEventBase {
   timeStamp: string;
@@ -52,6 +54,11 @@ export interface ClueRuledInvalidEvent extends GameEventBase {
 
 export interface ReportedGuessEvent extends GameEventBase, Guess {
   type: "ReportedGuess";
+}
+
+export interface ChatEvent extends GameEventBase {
+  type: "ChatMessage";
+  message: string;
 }
 
 export interface TurnChangedEvent {
@@ -155,6 +162,7 @@ export type GameEvent =
   | ServerPlayersUpdatedEvent
   | ServerTimerUpdateEvent
   | ClueReportedEvent
+  | ChatEvent
   | ClueApprovedEvent
   | ClueRuledInvalidEvent
   | ReportedGuessEvent;

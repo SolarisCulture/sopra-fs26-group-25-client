@@ -17,9 +17,8 @@
 }
 
 .wordInput {
-  width: 180px;
+  width: 180px !important;
   border-radius: 8px;
-  min-width: 100px;
 }
 
 .countInput {

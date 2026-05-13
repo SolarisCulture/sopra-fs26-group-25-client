@@ -1,5 +1,5 @@
 import { WordCard } from "@/types/wordCard";
-import styles from "@/styles/gameBoard.module.css";
+import styles from "@/styles/game/gameBoard.module.css";
 
 interface GameBoardProps {
   board: WordCard[];
@@ -7,10 +7,12 @@ interface GameBoardProps {
   colorOverlayActive: boolean;
   currentTurn: "red" | "blue";
   onCardClick: (card: WordCard) => void;
+  canClickCards: boolean;
 }
 
+
 export default function GameBoard({
-  board, penaltyPickMode, colorOverlayActive, currentTurn, onCardClick,
+  board, penaltyPickMode, colorOverlayActive, currentTurn, onCardClick, canClickCards
 }: GameBoardProps) {
 
   const getCardClass = (card: WordCard) => {
@@ -27,19 +29,19 @@ export default function GameBoard({
         const isMyTeamCard =
           (currentTurn === "red" && card.cardType === "AGENTRED") ||
           (currentTurn === "blue" && card.cardType === "AGENTBLUE");
-        return isMyTeamCard
+        return isMyTeamCard && canClickCards
           ? `${styles.card} ${styles.clickableCard}`
           : styles.card;
       }
       if (colorOverlayActive) {
         switch (card.cardType) {
-          case "AGENTRED": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayRed}`;
-          case "AGENTBLUE": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayBlue}`;
-          case "CIVILIAN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayCivilian}`;
-          case "ASSASSIN": return `${styles.card} ${styles.clickableCard} ${styles.cardOverlayAssassin}`;
+          case "AGENTRED": return  `${styles.card} ${styles.cardOverlayRed}`
+          case "AGENTBLUE": return  `${styles.card} ${styles.cardOverlayBlue}`
+          case "CIVILIAN": return  `${styles.card} ${styles.cardOverlayCivilian}`
+          case "ASSASSIN": return  `${styles.card} ${styles.cardOverlayAssassin}`
         }
       }
-      return `${styles.card} ${styles.clickableCard}`;
+      return canClickCards ? `${styles.card} ${styles.clickableCard}` : styles.card
     }
     switch (card.cardType) {
       case "CIVILIAN": return `${styles.card} ${styles.cardCivilian}`;
@@ -56,9 +58,15 @@ export default function GameBoard({
         <div
           key={index}
           className={getCardClass(card)}
-          onClick={() => onCardClick(card)}
+          onClick={canClickCards ? () => onCardClick(card): undefined}
         >
-          <span className={styles.cardWord}>{card.word}</span>
+          <span 
+          className={styles.cardWord}
+          style={{ fontSize: "clamp(0.55rem, 1.2vw, 1.12rem)" }}
+          title={card.word}
+          >
+            {card.word}
+          </span>
         </div>
       ))}
     </div>

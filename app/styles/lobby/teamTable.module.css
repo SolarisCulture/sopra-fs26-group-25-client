@@ -1,6 +1,7 @@
 .teamBox {
   min-width: 0;
   border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.65);
   padding: 12px;
 }
 
@@ -15,6 +16,7 @@
 }
 
 .teamTitle {
+  -webkit-text-stroke: 0.25px black;
   text-align: center;
   font-size: clamp(16px, 2.5vw, 20px);
   margin: 0 0 8px;
@@ -50,17 +52,22 @@
 
 .spyIcon {
   font-size: 16px;
+  cursor: default;
 }
 
 .spyIconHover {
-  font-size: 16px;
-  opacity: 0.5;
   cursor: pointer;
-  transition: opacity 0.2s;
+  font-size: 16px;
+  opacity: 0.35;
+  filter: grayscale(1);
+  transition: opacity 0.2s, filter 0.2s, transform 0.2s;
 }
 
 .spyIconHover:hover {
+  cursor: pointer;
   opacity: 1;
+  filter: grayscale(0);
+  transform: scale(1.1);
 }
 
 .playerName {
