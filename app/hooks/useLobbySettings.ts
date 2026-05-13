@@ -33,6 +33,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
       theme: backendSettings.topics && backendSettings.topics.length > 0
         ? backendSettings.topics.map(t => t.toLowerCase())
         : currentSettings.theme,
+      customWordList: backendSettings.customWordList ?? currentSettings.customWordList,
     }));
     setSpymasterTimerDraft(spymasterTimer);
     setSpyTimerDraft(spyTimer);
@@ -50,8 +51,12 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
         topics: settings.theme
           .filter(t => t !== "customWordList")
           .map(t => t.toUpperCase()),
+        customWordList: settings.theme.includes("customWordList") 
+          ? settings.customWordList || null
+          : null,
       });
       message.success("Settings saved!");
+      console.log("Saving settings:", settings.customWordList)
     } catch {
       message.error("Failed to save settings!");
     }

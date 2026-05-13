@@ -1,4 +1,4 @@
-import { Button, Checkbox, InputNumber, Modal, Select, Tooltip, Upload } from "antd";
+import { Button, Checkbox, InputNumber, message, Modal, Select, Tooltip, Upload } from "antd";
 import { LobbySettings } from "@/types/lobby";
 
 interface ScriptProps {
@@ -165,7 +165,29 @@ export default function SettingsModal({
               maxCount={1}
               accept=".txt,.csv"
               beforeUpload={(file) => {
-                setSettings({ ...settings, customWordList: file.name });
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const content = e.target?.result as string;
+                  let words: string[];
+
+                  if (file.name.endsWith(".csv")) {
+                    words = content.split(/[,;\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
+                  } else {
+                    words = content.split(/[\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
+                  }
+
+                  if (words.length < 25) {
+                    message.error(`Need at least 25 words. Found: ${words.length}`);
+                    return;
+                  }
+
+                  setSettings({
+                    ...settings,
+                    customWordList: JSON.stringify(words),
+                  });
+                  message.success(`Loaded ${words.length} words from ${file.name}`);
+                };
+                reader.readAsText(file);
                 return false;
               }}
               onRemove={() => setSettings({ ...settings, customWordList: "" })}

@@ -13,6 +13,7 @@ export interface BackendLobbySettings {
   spymasterTimeLimit: number | null;
   spyTimeLimit: number | null;
   topics?: string[];
+  customWordList?: string | null;
 }
 
 export interface LobbySettings {
