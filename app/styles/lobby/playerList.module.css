@@ -40,12 +40,18 @@
 
 .youBadge {
   flex-shrink: 0;
-  padding: 2px 8px;
+  padding: 2px 11.10835px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.5);
+  color: black;
   font-size: 12px;
   font-weight: 600;
+}
+
+.badges {
+  display: grid;
+  row-gap: 0.2em;
+  width: 2.7em;
 }
 
 .playerActions {

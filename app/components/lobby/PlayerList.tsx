@@ -32,15 +32,17 @@ export default function PlayerList({
   return (
     <span className={styles.playerRow}>
       <span className={styles.playerInfo}>
+        <div className={styles.badges}>
+          {isMe && (
+            <span className={styles.youBadge}>You</span>
+          )}
+          {player.isHost && (
+            <span className={styles.hostBadge}>Host</span>
+          )}
+        </div>
         <span className={styles.playerName}>{username}</span>
 
-        {isMe && (
-          <span className={styles.youBadge}>You</span>
-        )}
 
-        {player.isHost && (
-          <span className={styles.hostBadge}>Host</span>
-        )}
       </span>
 
       <span className={styles.playerActions}>
