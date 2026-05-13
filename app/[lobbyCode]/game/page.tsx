@@ -91,33 +91,18 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
-  // const handleSendChatMessage = (text: string) => {
-  //   if (!game.currentPlayer || !socketRef.current) return;
-  //
-  //   socketRef.current.sendChatMessage({
-  //     type: "ChatMessage",
-  //     timeStamp: new Date().toISOString(),
-  //     player: game.currentPlayer,
-  //     description: `${game.currentPlayer.username} sent a chat message`,
-  //     message: text,
-  //   });
-  // };
-const handleSendChatMessage = (text: string) => {
-  if (!game.currentPlayer) return;
+  const handleSendChatMessage = (text: string) => {
+    if (!game.currentPlayer || !socketRef.current) return;
 
-  const timeStamp = new Date().toISOString();
+    socketRef.current.sendChatMessage({
+      type: "ChatMessage",
+      timeStamp: new Date().toISOString(),
+      player: game.currentPlayer,
+      description: `${game.currentPlayer.username} sent a chat message`,
+      message: text,
+    });
+  };
 
-  setChatMessages((prev) => [
-    ...prev,
-    {
-      id: `${timeStamp}-${game.currentPlayer?.id ?? crypto.randomUUID()}`,
-      username: game.currentPlayer?.username ?? "Test User",
-      text,
-      team: game.currentPlayer?.team === "RED" ? "red" : "blue",
-      timeStamp,
-    },
-  ]);
-};
   const dictionary = useDictionary(message);
 
   const isMyTurn = game.currentPlayer?.team?.toLowerCase() === game.currentTurn;
