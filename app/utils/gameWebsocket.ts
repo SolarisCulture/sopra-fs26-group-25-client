@@ -1,11 +1,12 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, ClueRulingEvent, TurnChangedEvent, ChatEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent, ChatEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
 
 export function createGameSocket(
   lobbyCode: string,
   role: "SPYMASTER" | "SPY",
+  playerId: number | null,
   onMessage: (event: GameEvent) => void,
   onReconnect: () => void,
   ) {
@@ -50,6 +51,15 @@ export function createGameSocket(
         : parsed;
       console.log("Game event received:", event);
       onMessage(event);
+    });
+
+    client.publish({
+      destination: `/app/${lobbyCode}/game-subscribe`,
+      body: JSON.stringify({
+        type: "SUBSCRIBE",
+        lobbyCode,
+        data: playerId ? { id: playerId } : null,
+      }),
     });
 
   console.log("Reconnected → resyncing state");
@@ -103,12 +113,30 @@ export function createGameSocket(
       });
     },
 
-    sendClueRuling: (event: ClueRulingEvent) => {
+    sendClueApproved: (event: ClueApprovedEvent) => {
       waitForConnection(() => {
         client.publish({
-            destination: `/app/${lobbyCode}/clue-ruling`,
+            destination: `/app/${lobbyCode}/clue-approved`,
             body: JSON.stringify(event),
         });
+      });
+    },
+
+    sendClueRuledInvalid: (event: ClueRuledInvalidEvent) => {
+      waitForConnection(() => {
+        client.publish({
+            destination: `/app/${lobbyCode}/clue-ruled-invalid`,
+            body: JSON.stringify(event),
+        });
+      });
+    },
+
+    sendReportedGuess: (event: ReportedGuessEvent) => {
+      waitForConnection(() => {
+        client.publish({
+          destination: `/app/${lobbyCode}/reported-guess`,
+          body: JSON.stringify({word: event.guessedCard.word}),
+        })
       });
     },
 

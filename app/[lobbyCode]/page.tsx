@@ -52,6 +52,7 @@ export default function LobbyPage() {
 
   const lobby = useLobby(code, message, handleCurrentPlayerRemoved);
   const lobbySettings = useLobbySettings(code, message);
+  
   const [isStarting, setIsStarting] = useState(false);
   const [assignTarget, setAssignTarget] = useState<User | null>(null);
   const [kickTarget, setKickTarget] = useState<User | null>(null);
@@ -68,6 +69,12 @@ export default function LobbyPage() {
   const [joiningLobby, setJoiningLobby] = useState(false);
   const usernameInputRef = useRef<InputRef>(null);
 
+  useEffect(() => {
+    if (settingsOpen) return;
+    if (!lobby.lobby?.settings) return;
+    lobbySettings.applySettingsFromBackend(lobby.lobby.settings);
+  }, [lobby.lobby?.settings, lobbySettings.applySettingsFromBackend, settingsOpen]);
+
   // Check if user already joined on mount
   const lobbyRef = useRef(lobby);
   lobbyRef.current = lobby;
@@ -80,6 +87,12 @@ export default function LobbyPage() {
       setShowUsernamePopUp(true);
     }
   }, [code]);
+
+  useEffect(() => {
+    if (settingsOpen) return;
+    if (!lobby.lobby?.settings) return;
+    lobbySettings.applySettingsFromBackend(lobby.lobby.settings);
+  }, [lobby.lobby?.settings, lobbySettings.applySettingsFromBackend]);
   
   // Focus username input when popup opens
   useEffect(() => {
@@ -160,7 +173,7 @@ export default function LobbyPage() {
     lobbyCode: code,
     userID: lobby.userID,
     fetchLobby: lobby.fetchLobby,
-    setSettings: lobbySettings.setSettings,
+    applySettingsFromBackend: lobbySettings.applySettingsFromBackend,
     setIsStarting,
     isHost: lobby.isHost,
     onCurrentPlayerRemoved: handleCurrentPlayerRemoved,
@@ -181,7 +194,9 @@ export default function LobbyPage() {
     lobby.players.length >= 4
     && lobby.players.every(p => p.team !== "UNASSIGNED" && p.team !== null)
     && lobby.players.filter(p => p.team == "BLUE").some(p => p.role == "SPYMASTER")
-    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER");
+    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPYMASTER")
+    && lobby.players.filter(p => p.team == "BLUE").some(p => p.role == "SPY")
+    && lobby.players.filter(p => p.team == "RED").some(p => p.role == "SPY");
 
   return (
     <ConfigProvider

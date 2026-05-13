@@ -54,6 +54,7 @@ export default function GamePage() {
   
   const socketRef = useGameSocket({
     lobbyCode: code, role: game.role,
+    playerId: game.currentPlayer?.id ? Number(game.currentPlayer.id) : null,
     currentTurnRef: game.currentTurnRef,
     setBoard: game.setBoard, 
     setCurrentPhase: game.setCurrentPhase,
@@ -119,7 +120,14 @@ export default function GamePage() {
 
   const handleCardClick = (card: WordCard) => {
     if (card.revealed || !game.currentPlayer) return;
-    if (clueFlow.penaltyPickMode) { clueFlow.handlePenaltyCardClick(card); return; }
+    if (clueFlow.penaltyPickMode) {
+      if (!isOpposingSpymaster) {
+        message.error("The opposing spymaster must choose the penalty card.");
+        return;
+      }
+      clueFlow.handlePenaltyCardClick(card);
+      return;
+    }
     if (isSpymaster) { message.error("You are not a spy!"); return; }
     if (!isMyTurn) { message.error("It is not your turn yet!"); return; }
     if (socketRef.current) {

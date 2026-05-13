@@ -5,14 +5,14 @@ import {
   LobbyEvent,
   SettingsUpdateData,
 } from "@/utils/lobbyWebsocket";
-import { LobbySettings } from "@/types/lobby";
+import { BackendLobbySettings } from "@/types/lobby";
 import type { MessageInstance } from "antd/es/message/interface";
 
 interface UseLobbySocketOptions {
   lobbyCode: string;
   userID: number | null;
   fetchLobby: () => Promise<unknown>;
-  setSettings: (fn: (prev: LobbySettings) => LobbySettings) => void;
+  applySettingsFromBackend: (settings: BackendLobbySettings) => void;
   setIsStarting: (val: boolean) => void;
   isHost: boolean;
   onCurrentPlayerRemoved: (messageText?: string) => void;
@@ -66,12 +66,13 @@ export function useLobbyWebSocket(opts: UseLobbySocketOptions) {
 
           case "SETTINGS_UPDATED": {
             const d = event.data as SettingsUpdateData;
-            o.setSettings((prev) => ({
-              ...prev,
-              spymasterTimer: d.spymasterTimeLimit ?? null,
-              spyTimer: d.spyTimeLimit ?? null,
-              roundsNumber: d.rounds,
-            }));
+            o.applySettingsFromBackend({
+              spymasterTimeLimit: d.spymasterTimeLimit ?? null,
+              spyTimeLimit: d.spyTimeLimit ?? null,
+              rounds: d.rounds,
+              topics: d.topics,
+            });
+            await o.fetchLobby();
             o.message.info("Game settings updated by the host.");
             break;
           }

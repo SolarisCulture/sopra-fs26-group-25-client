@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, InputNumber, Modal, Select, Upload} from "antd";
+import { Button, Checkbox, InputNumber, Modal, Select, Tooltip, Upload } from "antd";
 import { LobbySettings } from "@/types/lobby";
 
 interface ScriptProps {
@@ -71,7 +71,6 @@ export default function SettingsModal({
     setSettings({
       ...settings,
       theme: val,
-      customTheme: "",
       customWordList: ""
     });
   };
@@ -79,52 +78,83 @@ export default function SettingsModal({
   return (
     <Modal
       title={<div style={{ color: "#000", textAlign: "center" }}>Settings</div>}
-      width={"400px"}
+      width={"500px"}
       open={open}
       onCancel={onClose}
       footer={null}
     >
 
-      <div style={{display: "flex", flexDirection: "column", width: 200, margin: "auto"}}>
+      <div style={{ display: "flex", flexDirection: "column", width: 300, margin: "auto" }}>
 
         {/* THEME SELECT */}
         <label>Select a theme:</label>
 
         <Select
           mode="multiple"
-          style={{ width: 200 }}
+          style={{ width: 300 }}
           value={settings.theme}
           disabled={!isHost}
           onChange={handleThemeChange}
+          optionRender={(option) => (
+              <Tooltip title={(option.data as { tooltip?: string }).tooltip} mouseEnterDelay={0.5}>
+              <div>{option.label}</div>
+            </Tooltip>
+          )}
           options={[
-            { value: "standard", label: "Standard" },
-            { value: "nature", label: "Nature" },
-            { value: "history", label: "History" },
-            { value: "medieval", label: "Medieval" },
-            { value: "food & drink", label: "Food & Drink" },
-            { value: "disney", label: "Disney" },
-            { value: "movies & tv shows", label: "Movies & TV Shows" },
-            { value: "science", label: "Science" },
-            { value: "computer science", label: "Computer Science" },
-            { value: "customTheme", label: "Custom Theme" },
-            { value: "customWordList", label: "Custom Word List" }
+            {
+              label: "Knowledge & Academics",
+              options: [
+                { value: "science", label: "Science", tooltip: "Physics, Chemistry, Math, Anatomy, Medicine" },
+                { value: "history", label: "History", tooltip: "Historical figures, Places, Events, Medieval" },
+                { value: "geography", label: "Geography", tooltip: "Countries, Cities, Oceans, Rivers, Mountains, Landmarks" },
+                { value: "space_astronomy", label: "Space & Astronomy", tooltip: "Planets, Stars, Galaxies, Space Travel" },
+                { value: "language", label: "Language", tooltip: "Foreign languages, grammar, Idioms, Sayings" },
+                { value: "literature", label: "Literature", tooltip: "Titles, Authors, Literary Characters" },
+                { value: "politics", label: "Politics", tooltip: "Politicians, Parties, Forms of Government" },
+              ]
+            },
+            {
+              label: "Arts & Culture",
+              options: [
+                { value: "architecture", label: "Architecture", tooltip: "Buildings, Architects, Styles" },
+                { value: "art_stage", label: "Art & Stage", tooltip: "Classical music, Theatre, Paintings, Sculptures" },
+                { value: "tradition_beliefs", label: "Tradition & Beliefs", tooltip: "Religion, Mythology, Customs, Legends, Astrology" },
+                { value: "fantasy", label: "Fantasy", tooltip: "Magic, Quests, Mythical Creatures, World-building" },
+                { value: "design", label: "Design", tooltip: "Fashion, Furniture, Interiors, Designers, Logos" },
+                { value: "society", label: "Society", tooltip: "Organisations, institutions, legislation, Relationships" }
+              ]
+            },
+            {
+              label: "Entertainment & Media",
+              options: [
+                { value: "film", label: "Film", tooltip: "Actors, Directors, Titles, Film Quotes, Disney" },
+                { value: "disney", label: "Disney", tooltip: "Characters, Movies, Pixar, Magic, Heroes & Villains" },
+                { value: "television", label: "Television", tooltip: "Programmes, Series, Roles, Hosts" },
+                { value: "music", label: "Music", tooltip: "Artists, Albums, Songs, Lyrics" },
+                { value: "celebrities", label: "Celebrities", tooltip: "Musicians, actors, sports people, media stars" },
+                { value: "crime_mystery", label: "Crime & Mystery", tooltip: "True Crime, Detectives, Noir" }
+              ]
+            },
+            {
+              label: "Lifestyle & Tech",
+              options: [
+                { value: "nature", label: "Nature", tooltip: "Animals, Plants, geology, Environment" },
+                { value: "food_drink", label: "Food & Drink", tooltip: "Gastronomy, Chefs, Restaurants, Cookbooks" },
+                { value: "household", label: "Household", tooltip: "Appliances, Tools, Furniture, Everyday Items" },
+                { value: "sport", label: "Sport", tooltip: "Athletes, Disciplines, Events, Records" },
+                { value: "business", label: "Business", tooltip: "Companies, Businesspeople, Products, Professions" },
+                { value: "technology_games", label: "Technology & Games", tooltip: "IT, Inventions, Gaming, Programming, Algorithms" }
+              ]
+            },
+            {
+              label: "Custom",
+              options: [
+                { value: "standard", label: "Standard", tooltip: "General Mix of Topics" },
+                { value: "customWordList", label: "Custom Word List", tooltip: "Upload your own .txt or .csv file" }
+              ]
+            }
           ]}
         />
-
-        {/* CUSTOM THEME NAME */}
-        {settings.theme.includes("customTheme") && (
-          <>
-            <label>Enter custom theme name:</label>
-            <Input
-              style={{ width: 200 }}
-              value={settings.customTheme}
-              disabled={!isHost}
-              placeholder="Custom theme name"
-              onChange={(event) => setSettings({...settings, customTheme: event.target.value})
-              }
-            />
-          </>
-        )}
 
         {/* CUSTOM WORD LIST UPLOAD */}
         {settings.theme.includes("customWordList") && (
@@ -135,14 +165,14 @@ export default function SettingsModal({
               maxCount={1}
               accept=".txt,.csv"
               beforeUpload={(file) => {
-                setSettings({...settings, customWordList: file.name});
+                setSettings({ ...settings, customWordList: file.name });
                 return false;
               }}
-              onRemove={() => setSettings({...settings, customWordList: ""})}
+              onRemove={() => setSettings({ ...settings, customWordList: "" })}
             >
               <Button
                 disabled={!isHost}
-                style={{ width: 200 }}
+                style={{ width: 300 }}
               >
                 Click to upload (.txt, .csv)
               </Button>
@@ -150,45 +180,34 @@ export default function SettingsModal({
           </>
         )}
 
-        {/* DIFFICULTY */}
-        <label>Difficulty:</label>
-        <Select
-          style={{ width: 200 }}
-          value={settings.difficulty}
-          disabled={!isHost}
-          onChange={(val) => setSettings({...settings, difficulty: val as LobbySettings["difficulty"]})}
-          options={[
-            { value: "easy", label: "Easy" },
-            { value: "medium", label: "Medium" },
-            { value: "hard", label: "Hard" },
-            { value: "all", label: "All" }
-          ]}
-        />
-
         {/* SPYMASTER TIMER */}
         <label>Spymaster timer (seconds):</label>
         <InputNumber
-          style={{ width: 200 }}
+          style={{ width: 300 }}
           value={settings.spymasterTimer}
           disabled={!isHost || spymasterTimerDisabled}
           onChange={(val) => setSpymasterTimerDraft(val)}
           onBlur={() =>
-            validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) =>
-                setSettings({...settings, spymasterTimer: v})
+            validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => {
+                setSpymasterTimerDraft(v);
+                setSettings({ ...settings, spymasterTimer: v })
+              }
             )
           }
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) =>
-                  setSettings({...settings, spymasterTimer: v})
+              validateAndCommitTimer(spymasterTimerDraft, "Spymaster timer", (v) => {
+                  setSpymasterTimerDraft(v);
+                  setSettings({ ...settings, spymasterTimer: v })
+                }
               );
             }
           }}
           onStep={(val) =>
             validateAndCommitTimer(val, "Spymaster timer", (v) => {
-                setSpymasterTimerDraft(v);
-                setSettings({ ...settings, spymasterTimer: v});
-              }
+              setSpymasterTimerDraft(v);
+              setSettings({ ...settings, spymasterTimer: v });
+            }
             )
           }
         />
@@ -203,27 +222,31 @@ export default function SettingsModal({
         {/* SPY TIMER */}
         <label>Spy timer (seconds):</label>
         <InputNumber
-          style={{ width: 200 }}
+          style={{ width: 300 }}
           value={settings.spyTimer}
           disabled={!isHost || spyTimerDisabled}
           onChange={(val) => setSpyTimerDraft(val)}
           onBlur={() =>
-            validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) =>
-                setSettings({...settings, spyTimer: v})
+            validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => {
+                setSpyTimerDraft(v);
+                setSettings({ ...settings, spyTimer: v })
+              }
             )
           }
           onKeyDown={(e) => {
             if (e.key == "Enter") {
-              validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => 
-                setSettings({...settings, spyTimer: v})
+              validateAndCommitTimer(spyTimerDraft, "Spy timer", (v) => {
+                  setSpyTimerDraft(v);
+                  setSettings({ ...settings, spyTimer: v })
+                }
               );
             }
           }}
           onStep={(val) =>
             validateAndCommitTimer(val, "Spy timer", (v) => {
-                setSpyTimerDraft(v);
-                setSettings({...settings, spyTimer: v});
-              }
+              setSpyTimerDraft(v);
+              setSettings({ ...settings, spyTimer: v });
+            }
             )
           }
         />
@@ -238,9 +261,9 @@ export default function SettingsModal({
         {/* ROUNDS LIMIT */}
         <label>Rounds limit:</label>
         <InputNumber
-          style={{ width: 200 }}
+          style={{ width: 300 }}
           min={1}
-          max={1000}
+          max={100}
           value={settings.roundsNumber}
           disabled={!isHost || roundsNumberDisabled}
           onChange={onRoundsNumberChange}
@@ -254,7 +277,7 @@ export default function SettingsModal({
 
         {/* ACTION BUTTONS */}
         {isHost && (
-          <div style={{display: "flex", justifyContent: "center", gap: 10}}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
             <Button onClick={onReset}>
               Reset to default
             </Button>

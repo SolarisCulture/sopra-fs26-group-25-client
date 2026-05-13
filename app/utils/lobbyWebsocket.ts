@@ -24,6 +24,7 @@ export interface SettingsUpdateData {
   spymasterTimeLimit: number | null;
   spyTimeLimit: number | null;
   rounds: number;
+  topics?: string[];
 }
 
 export interface JoinRequestData {

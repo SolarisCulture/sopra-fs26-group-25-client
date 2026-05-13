@@ -44,8 +44,16 @@ export interface ClueReportedEvent extends GameEventBase, Clue {
   type: "ClueReported";
 }
 
-export interface ClueRulingEvent extends GameEventBase {
-  type: "ClueApproved" | "ClueRuledInvalid";
+export interface ClueApprovedEvent extends GameEventBase {
+  type: "ClueApproved";
+}
+
+export interface ClueRuledInvalidEvent extends GameEventBase {
+  type: "ClueRuledInvalid";
+}
+
+export interface ReportedGuessEvent extends GameEventBase, Guess {
+  type: "ReportedGuess";
 }
 
 export interface ChatEvent extends GameEventBase {
@@ -103,6 +111,11 @@ export interface ServerReturningToLobbyEvent {
   lobbyCode: string;
 }
 
+export interface ServerReturningToLobbyAfterDisconnectEvent {
+  type: "ReturningToLobbyAfterDisconnect"
+  lobbyCode: string;
+}
+
 export interface ServerGameRestartingEvent {
   type: "GameRestarting"
   lobbyCode: string;
@@ -116,6 +129,11 @@ export interface ServerGamePausedEvent {
 
 export interface ServerGameResumedEvent {
   type: "GameResumed";
+  lobbyCode: string;
+}
+
+export interface ServerPlayersUpdatedEvent {
+  type: "PlayersUpdated";
   lobbyCode: string;
 }
 
@@ -140,7 +158,11 @@ export type GameEvent =
   | ServerGameRestartingEvent
   | ServerGamePausedEvent
   | ServerGameResumedEvent
+  | ServerReturningToLobbyAfterDisconnectEvent
+  | ServerPlayersUpdatedEvent
   | ServerTimerUpdateEvent
   | ClueReportedEvent
-  | ClueRulingEvent
-  | ChatEvent;
+  | ChatEvent
+  | ClueApprovedEvent
+  | ClueRuledInvalidEvent
+  | ReportedGuessEvent;

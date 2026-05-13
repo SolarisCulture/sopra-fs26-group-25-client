@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useApi } from "@/hooks/useApi";
-import { LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
+import { BackendLobbySettings, LobbySettings, DEFAULT_SETTINGS } from "@/types/lobby";
 import type { MessageInstance } from "antd/es/message/interface";
 
 export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
@@ -14,12 +14,42 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   );
   const [spyTimerDraft, setSpyTimerDraft] = useState<number | null>(null);
 
+  const applySettingsFromBackend = useCallback((backendSettings: BackendLobbySettings) => {
+    const spymasterTimer = backendSettings.spymasterTimeLimit && backendSettings.spymasterTimeLimit > 0
+      ? backendSettings.spymasterTimeLimit
+      : null;
+    const spyTimer = backendSettings.spyTimeLimit && backendSettings.spyTimeLimit > 0
+      ? backendSettings.spyTimeLimit
+      : null;
+    const roundsNumber = backendSettings.rounds && backendSettings.rounds > 0
+      ? backendSettings.rounds
+      : null;
+
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      spymasterTimer,
+      spyTimer,
+      roundsNumber,
+      theme: backendSettings.topics && backendSettings.topics.length > 0
+        ? backendSettings.topics.map(t => t.toLowerCase())
+        : currentSettings.theme,
+    }));
+    setSpymasterTimerDraft(spymasterTimer);
+    setSpyTimerDraft(spyTimer);
+    setSpymasterTimerDisabled(spymasterTimer == null);
+    setSpyTimerDisabled(spyTimer == null);
+    setRoundsNumberDisabled(roundsNumber == null);
+  }, []);
+
   const handleSave = async () => {
     try {
       await apiService.put(`/api/lobbies/${lobbyCode}`, {
         spymasterTimeLimit: settings.spymasterTimer ?? 0,
         spyTimeLimit: settings.spyTimer ?? 0,
-        rounds: settings.roundsNumber ?? 1000,
+        rounds: settings.roundsNumber ?? 0,
+        topics: settings.theme
+          .filter(t => t !== "customWordList")
+          .map(t => t.toUpperCase()),
       });
       message.success("Settings saved!");
     } catch {
@@ -27,12 +57,26 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
     }
   };
 
-  const handleReset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    setSpyTimerDisabled(true);
-    setSpymasterTimerDisabled(true);
-    setRoundsNumberDisabled(true);
-    message.info("Reset to default.");
+  const handleReset = async () => {
+    const resetSettings = {
+      spymasterTimeLimit: null,
+      spyTimeLimit: null,
+      rounds: DEFAULT_SETTINGS.roundsNumber ?? 0,
+      topics: ['STANDARD'],
+    };
+
+    try {
+      await apiService.put(`/api/lobbies/${lobbyCode}`, {
+        spymasterTimeLimit: resetSettings.spymasterTimeLimit ?? 0,
+        spyTimeLimit: resetSettings.spyTimeLimit ?? 0,
+        rounds: resetSettings.rounds,
+        topics: resetSettings.topics,
+      });
+      applySettingsFromBackend(resetSettings);
+      message.info("Reset to default.");
+    } catch {
+      message.error("Failed to reset settings!")
+    }
   };
 
   const handleSpymasterTimerDisabledChange = (checked: boolean) => {
@@ -52,10 +96,25 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   };
 
   const handleRoundsNumberChange = (val: number | null) => {
-    if (val == null) return;
-    if (val < 1) { message.warning("Rounds must be at least 1."); return; }
-    if (val > 100) { message.warning("Rounds cannot exceed 100."); return; }
-    setSettings((s) => ({ ...s, roundsNumber: val }));
+    const MIN = 1;
+    const MAX = 100;
+
+    if (val == null) {
+      setSettings((s) => ({ ...s, roundsNumber: MIN }));
+      return;
+    }
+
+    let finalValue = val;
+
+    if (val < MIN) {
+      message.warning(`Rounds must be at least ${MIN}.`);
+      finalValue = MIN;
+    }
+    else if (val > MAX) {
+      message.warning(`Rounds cannot exceed ${MAX}.`);
+      finalValue = MAX;
+    }
+    setSettings((s) => ({ ...s, roundsNumber: finalValue }));
   };
 
   const handleRoundsLimitDisabledChange = (checked: boolean) => {
@@ -71,10 +130,26 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
     label: string,
     onCommit: (v: number) => void
   ) => {
-    if (val == null) return;
-    if (val < 10) { message.warning(`${label} cannot be less than 10s.`); return; }
-    if (val > 3600) { message.warning(`${label} cannot exceed 3600s.`); return; }
-    onCommit(val);
+    const MIN = 10;
+    const MAX = 3600;
+
+    if (val == null || val == undefined) {
+      onCommit(MIN);
+      return;
+    }
+
+    let finalValue = val;
+
+    if (val < MIN) {
+      message.warning(`${label} cannot be less than ${MIN}s.`);
+      finalValue = MIN;
+    }
+
+    else if (val > MAX) {
+      message.warning(`${label} cannot exceed ${MAX}s.`);
+      finalValue = MAX;
+    }
+    onCommit(finalValue);
   };
 
   return {
@@ -83,6 +158,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
     spymasterTimerDraft, spyTimerDraft,
     setSpymasterTimerDraft, setSpyTimerDraft,
     handleSave, handleReset,
+    applySettingsFromBackend,
     handleSpymasterTimerDisabledChange, handleSpyTimerDisabledChange,
     handleRoundsNumberChange, handleRoundsLimitDisabledChange,
     validateAndCommitTimer,

@@ -76,7 +76,7 @@ export function useClueFlow({
 
   const handleClueApproved = () => {
     if (!currentPlayer || !socketRef.current) return;
-    socketRef.current.sendClueRuling({
+    socketRef.current.sendClueApproved({
       type: "ClueApproved",
       timeStamp: new Date().toISOString(),
       player: currentPlayer,
@@ -86,7 +86,7 @@ export function useClueFlow({
 
   const handleClueRuledInvalid = () => {
     if (!currentPlayer || !socketRef.current) return;
-    socketRef.current.sendClueRuling({
+    socketRef.current.sendClueRuledInvalid({
       type: "ClueRuledInvalid",
       timeStamp: new Date().toISOString(),
       player: currentPlayer,
@@ -96,11 +96,12 @@ export function useClueFlow({
 
   const handlePenaltyCardClick = (card: WordCard) => {
     if (card.revealed) return;
-    const isMyTeamCard =
-      (currentTurn === "red" && card.cardType === "AGENTRED") ||
-      (currentTurn === "blue" && card.cardType === "AGENTBLUE");
-    if (!isMyTeamCard) {
-      message.error(`You must cover one of your own (${currentTurn}) cards.`);
+    const penaltyTeam = currentTurn === "red" ? "blue" : "red";
+    const isPenaltyTeamCard =
+      (penaltyTeam === "red" && card.cardType === "AGENTRED") ||
+      (penaltyTeam === "blue" && card.cardType === "AGENTBLUE");
+    if (!isPenaltyTeamCard) {
+      message.error(`You must cover one of your own (${penaltyTeam}) cards.`);
       return;
     }
     setPenaltyCardPicked(card);
@@ -108,8 +109,8 @@ export function useClueFlow({
 
   const handlePenaltyConfirm = () => {
     if (!penaltyCardPicked || !currentPlayer || !socketRef.current) return;
-    socketRef.current.sendGuess({
-      type: "Guess",
+    socketRef.current.sendReportedGuess({
+      type: "ReportedGuess",
       timeStamp: new Date().toISOString(),
       player: currentPlayer,
       description: `${currentPlayer.username} penalty-revealed ${penaltyCardPicked.word}`,
