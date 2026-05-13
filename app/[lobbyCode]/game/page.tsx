@@ -91,6 +91,33 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
+  // const handleSendChatMessage = (text: string) => {
+  //   if (!game.currentPlayer || !socketRef.current) return;
+  //
+  //   socketRef.current.sendChatMessage({
+  //     type: "ChatMessage",
+  //     timeStamp: new Date().toISOString(),
+  //     player: game.currentPlayer,
+  //     description: `${game.currentPlayer.username} sent a chat message`,
+  //     message: text,
+  //   });
+  // };
+const handleSendChatMessage = (text: string) => {
+  if (!game.currentPlayer) return;
+
+  const timeStamp = new Date().toISOString();
+
+  setChatMessages((prev) => [
+    ...prev,
+    {
+      id: `${timeStamp}-${game.currentPlayer?.id ?? crypto.randomUUID()}`,
+      username: game.currentPlayer?.username ?? "Test User",
+      text,
+      team: game.currentPlayer?.team === "RED" ? "red" : "blue",
+      timeStamp,
+    },
+  ]);
+};
   const dictionary = useDictionary(message);
 
   const isMyTurn = game.currentPlayer?.team?.toLowerCase() === game.currentTurn;
@@ -139,18 +166,6 @@ export default function GamePage() {
     } catch {
       message.error("Server failed to quit the game.");
     }
-  };
-
-  const handleSendChatMessage = (text: string) => {
-    if (!game.currentPlayer || !socketRef.current) return;
-
-    socketRef.current.sendChatMessage({
-      type: "ChatMessage",
-      timeStamp: new Date().toISOString(),
-      player: game.currentPlayer,
-      description: `${game.currentPlayer.username} sent a chat message`,
-      message: text,
-    });
   };
 
   return (

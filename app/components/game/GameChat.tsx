@@ -49,6 +49,7 @@ export default function GameChat({
                 isOwnMessage ? styles.ownMessage : ""
               }`}
               style={{
+                display: "inline-block",
                 borderLeftColor:
                   message.team === "red"
                     ? "#ff4d4f"
@@ -58,8 +59,9 @@ export default function GameChat({
               }}
             >
               <span className={styles.messageAuthor}>
-                {message.username}
+                {message.username}:
               </span>
+              <span></span>
               <span className={styles.messageText}>
                 {message.text}
               </span>
