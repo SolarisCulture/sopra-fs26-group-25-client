@@ -56,9 +56,9 @@
 
 .main {
   display: grid;
-  grid-template-columns: 250px 350px 250px;
+  grid-template-columns: 25vw 30vw 25vw;
   justify-content: center;
-  gap: 17rem;
+  gap: 5vw;
   width: 100%;
   flex: 1;
   align-items: flex-start;
