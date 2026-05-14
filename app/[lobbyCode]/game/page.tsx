@@ -92,36 +92,34 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
-  const fetchChatHistory = async () => {
-    try {
-      const history = await apiService.get<ChatMessage[]>(`/api/games/${code}/chat-history`);
-      console.log("Raw chat history response:", history);
-      const formatted = history.map((msg, index) => ({
-        // Use senderName and timestamp (if exists), otherwise fallback to index
-        id: msg.timestamp ? `${msg.timestamp}-${msg.senderName}` : `fallback-${index}`,
-        username: msg.senderName || "Unknown",
-        text: msg.content || "",
-        timeStamp: msg.timestamp || new Date().toISOString(),
-    }));
-      console.log("Formatted messages:", formatted);
-      setChatMessages(formatted);
-    } catch (error) {
-      console.error("Failed to fetch chat history", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const history = await apiService.get<ChatMessage[]>(`/api/games/${code}/chat-history`);
+        const formatted = history.map((msg, index) => ({
+          id: msg.timestamp ? `${msg.timestamp}-${msg.senderName}` : `fallback-${index}`,
+          username: msg.senderName || "Unknown",
+          text: msg.content || "",
+          team: msg.team ? (msg.team === "RED" ? "red" : "blue") : undefined,
+          timeStamp: msg.timeStamp || new Date().toISOString(),
+        }));
+        setChatMessages(formatted);
+      } catch (error) {
+        console.error("Failed to fetch chat history", error);
+      }
+    };
     if (code) fetchChatHistory();
-  }, [code]);
+  }, [code, apiService]); 
 
   const handleSendChatMessage = (text: string) => {
     if (!game.currentPlayer || !socketRef.current) return;
 
     const chatMessage = {
-      type: "CHAT_MESSAGE",                          
+      type: "CHAT_MESSAGE",
       senderId: game.currentPlayer.id,
       senderName: game.currentPlayer.username,
       content: text,
+      team: game.currentPlayer.team === "RED" ? "RED" : "BLUE",
       timestamp: new Date().toISOString(),
     };
     socketRef.current.sendChatMessage(chatMessage);

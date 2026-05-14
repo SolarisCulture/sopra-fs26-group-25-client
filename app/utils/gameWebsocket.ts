@@ -2,6 +2,7 @@ import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent, ChatEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
+import { ChatMessagePayload } from "@/types/chatMessagePayload";
 
 export function createGameSocket(
   lobbyCode: string,
@@ -149,7 +150,7 @@ export function createGameSocket(
       });
     },
 
-    sendChatMessage: (payload: any) => {
+    sendChatMessage: (payload: ChatMessagePayload) => {
       waitForConnection(() => {
         client.publish({
           destination: `/app/${lobbyCode}/chat`,

@@ -155,7 +155,7 @@ export function useGameSocket(opts: GameSocketOptions) {
               id: `${event.timestamp}-${event.senderName}`,
               username: event.senderName,
               text: event.content,
-              // team: event.team?.toLowerCase() as "red" | "blue" | undefined, // optional for global chat
+              team: event.team?.toLowerCase() as "red" | "blue",
               timeStamp: event.timestamp,
             };
             o.setChatMessages((prev) => [...prev, newMsg]);

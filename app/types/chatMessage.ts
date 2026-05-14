@@ -2,6 +2,6 @@ export interface ChatMessage {
   id: string;
   username: string;
   text: string;
-  // team: "red" | "blue"; => Removed since it's a global chat?
+  team?: "red" | "blue";  // optional for global chat but kept for styling
   timeStamp: string;
 }
