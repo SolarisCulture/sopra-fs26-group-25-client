@@ -27,6 +27,8 @@ import PenaltyConfirmModal from "@/components/game/ConfirmPenaltyCardRevealModal
 import QuitGameModal from "@/components/game/QuitGameModal";
 import GameChat from "@/components/game/GameChat";
 import { ChatMessage } from "@/types/chatMessage";
+import { BackendChatMessage } from "@/types/chatMessageDTO";
+import { ChatMessagePayload } from "@/types/chatMessagePayload";
 
 
 export default function GamePage() {
@@ -95,13 +97,13 @@ export default function GamePage() {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const history = await apiService.get<ChatMessage[]>(`/api/games/${code}/chat-history`);
-        const formatted = history.map((msg, index) => ({
+        const history = await apiService.get<BackendChatMessage[]>(`/api/games/${code}/chat-history`);
+        const formatted: ChatMessage[] = history.map((msg, index) => ({
           id: msg.timestamp ? `${msg.timestamp}-${msg.senderName}` : `fallback-${index}`,
           username: msg.senderName || "Unknown",
           text: msg.content || "",
           team: msg.team ? (msg.team === "RED" ? "red" : "blue") : undefined,
-          timeStamp: msg.timeStamp || new Date().toISOString(),
+          timeStamp: msg.timestamp || new Date().toISOString(),
         }));
         setChatMessages(formatted);
       } catch (error) {
@@ -109,15 +111,15 @@ export default function GamePage() {
       }
     };
     if (code) fetchChatHistory();
-  }, [code, apiService]); 
+  }, [code, apiService]);
 
   const handleSendChatMessage = (text: string) => {
     if (!game.currentPlayer || !socketRef.current) return;
 
-    const chatMessage = {
+    const chatMessage: ChatMessagePayload = {
       type: "CHAT_MESSAGE",
-      senderId: game.currentPlayer.id,
-      senderName: game.currentPlayer.username,
+      senderId: Number(game.currentPlayer.id),
+      senderName: game.currentPlayer.username ?? "Unknown",
       content: text,
       team: game.currentPlayer.team === "RED" ? "RED" : "BLUE",
       timestamp: new Date().toISOString(),

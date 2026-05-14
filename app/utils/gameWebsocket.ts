@@ -1,6 +1,6 @@
 import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent, ChatEvent } from "@/types/gameEvent";
+import { GameEvent, GuessEvent, ClueEvent, ClueReportedEvent, TurnChangedEvent, ClueApprovedEvent, ClueRuledInvalidEvent, ReportedGuessEvent } from "@/types/gameEvent";
 import { getApiDomain } from "./domain";
 import { ChatMessagePayload } from "@/types/chatMessagePayload";
 

@@ -1,4 +1,4 @@
-interface ChatMessagePayload {
+export interface ChatMessagePayload {
   type: "CHAT_MESSAGE";
   senderId: number;
   senderName: string;

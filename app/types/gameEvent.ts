@@ -1,7 +1,5 @@
 import { User } from "@/types/user";
 import { WordCard } from "./wordCard";
-import { ChatMessage } from "@/types/chatMessage";
-import { Game } from "./game";
 
 export interface GameEventBase {
   timeStamp: string;
