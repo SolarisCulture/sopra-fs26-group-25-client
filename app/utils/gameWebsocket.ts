@@ -149,11 +149,11 @@ export function createGameSocket(
       });
     },
 
-    sendChatMessage: (event: ChatEvent) => {
+    sendChatMessage: (payload: any) => {
       waitForConnection(() => {
         client.publish({
           destination: `/app/${lobbyCode}/chat`,
-          body: JSON.stringify(event),
+          body: JSON.stringify(payload),
         });
       });
     },

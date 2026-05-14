@@ -92,16 +92,39 @@ export default function GamePage() {
     penaltyPickMode, setPenaltyPickMode,
   });
 
+  const fetchChatHistory = async () => {
+    try {
+      const history = await apiService.get<ChatMessage[]>(`/api/games/${code}/chat-history`);
+      console.log("Raw chat history response:", history);
+      const formatted = history.map((msg, index) => ({
+        // Use senderName and timestamp (if exists), otherwise fallback to index
+        id: msg.timestamp ? `${msg.timestamp}-${msg.senderName}` : `fallback-${index}`,
+        username: msg.senderName || "Unknown",
+        text: msg.content || "",
+        timeStamp: msg.timestamp || new Date().toISOString(),
+    }));
+      console.log("Formatted messages:", formatted);
+      setChatMessages(formatted);
+    } catch (error) {
+      console.error("Failed to fetch chat history", error);
+    }
+  };
+
+  useEffect(() => {
+    if (code) fetchChatHistory();
+  }, [code]);
+
   const handleSendChatMessage = (text: string) => {
     if (!game.currentPlayer || !socketRef.current) return;
 
-    socketRef.current.sendChatMessage({
-      type: "ChatMessage",
-      timeStamp: new Date().toISOString(),
-      player: game.currentPlayer,
-      description: `${game.currentPlayer.username} sent a chat message`,
-      message: text,
-    });
+    const chatMessage = {
+      type: "CHAT_MESSAGE",                          
+      senderId: game.currentPlayer.id,
+      senderName: game.currentPlayer.username,
+      content: text,
+      timestamp: new Date().toISOString(),
+    };
+    socketRef.current.sendChatMessage(chatMessage);
   };
 
   const dictionary = useDictionary(message);

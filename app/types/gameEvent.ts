@@ -146,6 +146,25 @@ export interface ServerTimerUpdateEvent {
   data?: number;
 }
 
+export interface ServerChatMessageEvent {
+  type: "CHAT_MESSAGE";
+  senderName: string;
+  content: string;
+  timestamp: string;
+  // Optional team for team filtering
+  team?: string;
+}
+
+export interface ServerChatHistoryEvent {
+  type: "CHAT_HISTORY";
+  history: Array<{
+    senderName: string;
+    content: string;
+    timestamp: string;
+    team?: string;
+  }>;
+}
+
 // GameEvent is only inbound events (what the socket receives)
 export type GameEvent =
   | ServerClueEvent
@@ -165,4 +184,6 @@ export type GameEvent =
   | ChatEvent
   | ClueApprovedEvent
   | ClueRuledInvalidEvent
-  | ReportedGuessEvent;
+  | ReportedGuessEvent
+  | ServerChatMessageEvent       
+  | ServerChatHistoryEvent;

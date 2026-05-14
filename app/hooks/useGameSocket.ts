@@ -150,25 +150,15 @@ export function useGameSocket(opts: GameSocketOptions) {
             }
             break;
           }
-          case "ChatMessage": {
-            const team =
-              event.player.team === "RED"
-                ? "red"
-                : event.player.team === "BLUE"
-                  ? "blue"
-                  : o.currentTurnRef.current;
-
-            o.setChatMessages((prev) => [
-              ...prev,
-              {
-                id: `${event.timeStamp}-${event.player.id}`,
-                username: event.player.username ?? "Unknown",
-                text: event.message,
-                team,
-                timeStamp: event.timeStamp,
-              },
-            ]);
-
+          case "CHAT_MESSAGE": {
+            const newMsg: ChatMessage = {
+              id: `${event.timestamp}-${event.senderName}`,
+              username: event.senderName,
+              text: event.content,
+              // team: event.team?.toLowerCase() as "red" | "blue" | undefined, // optional for global chat
+              timeStamp: event.timestamp,
+            };
+            o.setChatMessages((prev) => [...prev, newMsg]);
             break;
           }
         }
