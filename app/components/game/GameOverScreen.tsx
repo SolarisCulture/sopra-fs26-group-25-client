@@ -1,11 +1,13 @@
 import { Button } from "antd";
 import type { CSSProperties } from "react";
 import { WordCard } from "@/types/wordCard";
+import { GameStatistics } from "@/types/gameStatistics";
 import styles from "@/styles/game/game.module.css";
 
 interface GameOverScreenProps {
   winningTeam: string | null;
   finalBoard: WordCard[];
+  statistics: GameStatistics | null;
   isHost: boolean;
   isRestarting: boolean;
   onRestart: () => void;
@@ -13,7 +15,7 @@ interface GameOverScreenProps {
 }
 
 export default function GameOverScreen({
-  winningTeam, finalBoard, isHost, isRestarting, onRestart, onBackToLobby,
+  winningTeam, finalBoard, statistics, isHost, isRestarting, onRestart, onBackToLobby,
 }: GameOverScreenProps) {
   const getFinalCardStyle = (card: WordCard): CSSProperties => {
     const colors = {
@@ -42,12 +44,28 @@ export default function GameOverScreen({
     };
   };
 
+  const formatTotalTime = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    }
+
+    return `${seconds}s`;
+  };
+
   return (
     <div className={styles.finishedBackdrop}>
       <div className={styles.finishedBox}>
         <h2 className={styles.finishedTitle}>Game Over</h2>
         <p className={styles.finishedText}>
-          {winningTeam ? `Team ${winningTeam} has won the game!` : "The game has ended."}
+          {winningTeam == "UNASSIGNED" ? `It's a tie!` : `Team ${winningTeam} has won the game!`}
         </p>
         <div className={styles.finalBoard}>
           {finalBoard.map((card, index) => (
@@ -60,6 +78,22 @@ export default function GameOverScreen({
             </div>
           ))}
         </div>
+        {statistics && (
+          <div className={styles.gameStatistics}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Blue Score</span>
+              <span className={styles.statValue}>{statistics.blueScore}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Red Score</span>
+              <span className={styles.statValue}>{statistics.redScore}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Total Time</span>
+              <span className={styles.statValue}>{formatTotalTime(statistics.totalTime)}</span>
+            </div>
+          </div>
+        )}
         {isHost ? (
           <div className={styles.finishedButtons}>
             <Button onClick={onRestart} loading={isRestarting} disabled={isRestarting}>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import { WordCard } from "@/types/wordCard";
+import { GameStatistics } from "@/types/gameStatistics";
 
 type ClueHistoryEntry = { word: string; count: number; team: "red" | "blue" };
 
@@ -42,6 +43,7 @@ export function useGameState(lobbyCode: string) {
   const [finished, setFinished] = useState(false);
   const [winningTeam, setWinningTeam] = useState<string | null>(null);
   const [finalBoard, setFinalBoard] = useState<WordCard[]>([]);
+  const [gameStatistics, setGameStatistics] = useState<GameStatistics | null>(null);
 
   // current player
   const storedPlayerId = typeof window !== "undefined"
@@ -68,13 +70,14 @@ export function useGameState(lobbyCode: string) {
 
   const fetchGameStatistics = useCallback(async () => {
     try {
-      const stats = await apiService.get<{ winningTeam: string }>(
+      const stats = await apiService.get<GameStatistics>(
         `/api/games/${lobbyCode}/statistics`
       );
+      setGameStatistics(stats);
       setWinningTeam(stats.winningTeam);
     } catch {
       console.error("Failed to fetch game statistics!");
-      setWinningTeam(null);
+      setGameStatistics(null);
     }
   }, [apiService, lobbyCode]);
 
@@ -154,6 +157,7 @@ export function useGameState(lobbyCode: string) {
     if (prev != null && prev !== gameId) {
       setFinished(false);
       setFinalBoard([]);
+      setGameStatistics(null);
       setClueHistory([]);
     }
     previousGameIdRef.current = gameId;
@@ -173,6 +177,7 @@ export function useGameState(lobbyCode: string) {
     finished, setFinished,
     winningTeam, setWinningTeam,
     finalBoard, fetchFinalBoard,
+    gameStatistics,
     fetchPlayers, fetchBoard, fetchGameStatistics,
   };
 }
