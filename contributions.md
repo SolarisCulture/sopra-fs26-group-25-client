@@ -107,7 +107,7 @@ reason).
 
 ---
 
-## Contributions Week 4 - [Begin Date] to [End Date]
+## Contributions Week 4 - [27.04.2026] to [06.05.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -125,7 +125,7 @@ reason).
 | **[@Timmy-Ho]** | [04.05.2026 | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/bd88c86d5d21619254df98bfee2c12298d613fff] | [Wrote persistence tests to identify problems with the Database and Repositories.] | [Relevant to identify core issues and constraint violations for future fixes.] |
 |                 | [WORK AHEAD] | [] | [] | [] |
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 5 - [06.05.2026] to [13.05.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -145,9 +145,12 @@ reason).
 |                    | [12.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/pull/148] | [#149 #150 Added a chat] | [added a chat so players can communicate] |
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 6 - [13.05.2026] to [22.05.2026]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 |  **[@serilia03]**  | [-]   | [JOKER] | [] | [] |
 |                    | [-]   | [JOKER] | [] | [] |
+|  **[@Kirusou]**    | [15.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/2289fd3c359ae58ac53627a70ca70ad6fdaa06bc] | [Implemented the pause + quit feature in the backend] | [This is relevant since this allows for quick restarts and pauses during the game.] |
+|                    | [15.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/2daa5d4441b485afd8f9f986d5f1ce01b23058d6 https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/c23a9e218328ada3274d153a486266f6f414dd5e] | [Implemented rounds limit and game statistics in the frontend and backend] | [This is relevant because it allows to limit the rounds played and also shows some nice statistics at the end of the game.] |
+|                    | [15.05.2026]   | [https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/2968154273dede598e6e8ec3acd24f076c076127 https://github.com/SolarisCulture/sopra-fs26-group-25-client/commit/1aa57717bb630b0139870fbdd9ca8f06cab6a147 https://github.com/SolarisCulture/sopra-fs26-group-25-server/commit/2289fd3c359ae58ac53627a70ca70ad6fdaa06bc] | [Bug fixes around refreshing the browser (timer, pausing, reportClue). Also some UI changes to remove overlapping elements on common mobile devices + tablets.] | [This is relevant so that the game works as planned and nobody gets softlocked. The UI changes are centered around common screen sizes for common devices (newer iPhones, Samsungs, iPads)] |
