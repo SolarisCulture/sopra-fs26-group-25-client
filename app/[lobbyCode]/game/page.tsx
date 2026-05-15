@@ -62,6 +62,11 @@ export default function GamePage() {
     setCurrentPhase: game.setCurrentPhase,
     setCurrentTurn: game.setCurrentTurn, 
     setGameId: game.setGameId,
+    setStatus: game.setStatus,
+    setClueWord: game.setClueWord,
+    setClueCount: game.setClueCount,
+    setClueUnderReview: game.setClueUnderReview,
+    setInvalidCluePenaltyPending: game.setInvalidCluePenaltyPending,
     setFinished: game.setFinished, 
     setWinningTeam: game.setWinningTeam,
     setCurrentClue,
@@ -112,6 +117,28 @@ export default function GamePage() {
     };
     if (code) fetchChatHistory();
   }, [code, apiService]);
+
+  useEffect(() => {
+    setPauseModalOpen(game.status === "PAUSE");
+  }, [game.status]);
+
+  useEffect(() => {
+    const hasActiveClue = game.currentPhase === "SPY_TURN" && game.clueWord != null;
+
+    if (hasActiveClue) {
+      setCurrentClue({ word: game.clueWord ?? "", count: game.clueCount });
+      setCluePublished(true);
+    }
+
+    setClueReviewOpen(game.clueUnderReview);
+    setPenaltyPickMode(game.invalidCluePenaltyPending);
+  }, [
+    game.currentPhase,
+    game.clueWord,
+    game.clueCount,
+    game.clueUnderReview,
+    game.invalidCluePenaltyPending,
+  ]);
 
   const handleSendChatMessage = (text: string) => {
     if (!game.currentPlayer || !socketRef.current) return;
@@ -218,7 +245,7 @@ export default function GamePage() {
           colorOverlayActive={clueFlow.colorOverlayActive}
           currentTurn={game.currentTurn}
           onCardClick={handleCardClick}
-          canClickCards={!isSpymaster && isSpyPhase && isMyTurn}
+          canClickCards={!isSpymaster && isSpyPhase && isMyTurn || isSpymaster && penaltyPickMode}
         />
 
         {isSpymaster && isMyTurn && !clueFlow.penaltyPickMode &&
@@ -286,7 +313,6 @@ export default function GamePage() {
       />
 
       <Modal
-        title={<div style={{ color: "#000" }}>Game Paused</div>}
         open={pauseModalOpen}
         closable={false}
         footer={null}
@@ -295,6 +321,7 @@ export default function GamePage() {
       >
         {isHost ? (
           <>
+            <h2 className={styles.finishedTitle}>Game Paused</h2>
             <p>The game is currently paused. What would you like to do?</p>
             <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "20px" }}>
               <Button type="primary" onClick={() => socketRef.current?.sendPause(false)}>

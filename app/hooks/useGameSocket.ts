@@ -15,6 +15,11 @@ interface GameSocketOptions {
   setCurrentPhase: (phase: string) => void;
   setCurrentTurn: (turn: "red" | "blue") => void;
   setGameId: (id: number) => void;
+  setStatus: (status: string) => void;
+  setClueWord: (word: string | null) => void;
+  setClueCount: (count: number) => void;
+  setClueUnderReview: (val: boolean) => void;
+  setInvalidCluePenaltyPending: (val: boolean) => void;
   setFinished: (val: boolean) => void;
   setCurrentClue: (clue: { word: string; count: number } | null) => void;
   setCluePublished: (val: boolean) => void;
@@ -24,7 +29,7 @@ interface GameSocketOptions {
   setWinningTeam: (team: string | null) => void;
   setPauseModalOpen: (val: boolean) => void;
   setRemainingTime: (val: number | null) => void;
-  fetchBoard: () => Promise<ReturnType<typeof Object> | null>;
+  fetchBoard: () => Promise<{ remainingTimeSeconds?: number } | null>;
   fetchPlayers: () => Promise<void>;
   fetchFinalBoard: () => Promise<void>;
   fetchGameStatistics: () => Promise<void>;
@@ -50,13 +55,22 @@ export function useGameSocket(opts: GameSocketOptions) {
       (event) => {
         const o = optsRef.current;
         const syncTimerFromBoard = () => {
-          if ("board" in event && event.board?.timer != null) {
-            o.setRemainingTime(Number(event.board.timer));
+          if ("board" in event && event.board?.remainingTimeSeconds != null) {
+            o.setRemainingTime(Number(event.board.remainingTimeSeconds));
           }
+        };
+        const syncBoardState = () => {
+          if (!("board" in event) || !event.board) return;
+          o.setStatus(event.board.status);
+          o.setClueWord(event.board.clueWord ?? null);
+          o.setClueCount(event.board.clueCount ?? 0);
+          o.setClueUnderReview(event.board.clueUnderReview ?? false);
+          o.setInvalidCluePenaltyPending(event.board.invalidCluePenaltyPending ?? false);
         };
 
         switch (event.type) {
           case "Clue":
+            syncBoardState();
             o.setCurrentPhase(event.board.currentPhase);
             o.setCurrentClue({ word: event.board.clueWord ?? "", count: event.board.clueCount });
             o.setClueHistory(prev => [{
@@ -70,12 +84,14 @@ export function useGameSocket(opts: GameSocketOptions) {
             syncTimerFromBoard();
             break;
           case "Guess":
+            syncBoardState();
             o.setBoard(event.board.cards);
             o.setCurrentPhase(event.board.currentPhase);
             o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             if (event.board.currentPhase === "SPYMASTER_TURN") {
               o.setCluePublished(false);
               o.setCurrentClue(null);
+              o.setClueReviewOpen(false);
               o.setPenaltyPickMode(false);
             }
             syncTimerFromBoard();
@@ -96,11 +112,22 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.message.warning("Clue ruled invalid!");
             break;
           case "TurnChanged":
+            syncBoardState();
             o.setCurrentPhase(event.board.currentPhase);
             o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
             o.setCluePublished(false);
             o.setCurrentClue(null);
             o.setBoard(event.board.cards);
+            syncTimerFromBoard();
+            break;
+          case "GameStarted":
+            syncBoardState();
+            o.setGameId(event.board.id);
+            o.setBoard(event.board.cards);
+            o.setCurrentPhase(event.board.currentPhase);
+            o.setCurrentTurn(event.board.currentTurn === "RED" ? "red" : "blue");
+            o.setCluePublished(false);
+            o.setCurrentClue(null);
             syncTimerFromBoard();
             break;
           case "GameOver":
@@ -126,6 +153,7 @@ export function useGameSocket(opts: GameSocketOptions) {
             o.setWinningTeam(null);
             o.setRemainingTime(null);
             if (event.board) {
+              syncBoardState();
               o.setGameId(event.board.id);
               o.setBoard(event.board.cards);
               o.setCurrentPhase(event.board.currentPhase);
@@ -136,15 +164,17 @@ export function useGameSocket(opts: GameSocketOptions) {
             break;
           case "GamePaused":
             o.setPauseModalOpen(true);
+            o.setStatus("PAUSE");
             break;
           case "GameResumed":
             o.setPauseModalOpen(false);
+            o.setStatus("ACTIVE");
             break;
           case "PlayersUpdated":
             o.fetchPlayers();
             break;
           case "TIMER_UPDATE": {
-            const remaining = event.timer ?? event.remainingTime ?? event.data ?? event.board?.timer;
+            const remaining = event.timer ?? event.remainingTime ?? event.data ?? event.board?.remainingTimeSeconds;
             if (remaining != null) {
               o.setRemainingTime(Number(remaining));
             }
@@ -165,7 +195,11 @@ export function useGameSocket(opts: GameSocketOptions) {
       },
       () => {
         const o = optsRef.current;
-        o.fetchBoard();
+        o.fetchBoard().then((boardData) => {
+          if (boardData && "remainingTimeSeconds" in boardData && boardData.remainingTimeSeconds != null) {
+            o.setRemainingTime(Number(boardData.remainingTimeSeconds));
+          }
+        });
         o.fetchPlayers();
       }
     );

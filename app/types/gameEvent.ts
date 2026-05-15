@@ -27,7 +27,9 @@ export interface GameBoardPayload {
   redScore: number;
   blueScore: number;
   status: string;
-  timer: number;
+  remainingTimeSeconds: number;
+  clueUnderReview: boolean;
+  invalidCluePenaltyPending: boolean;
 }
 
 export interface ClueEvent extends GameEventBase, Clue {
