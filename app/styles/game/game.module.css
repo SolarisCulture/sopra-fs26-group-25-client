@@ -296,6 +296,37 @@
   word-break: break-word;
 }
 
+.gameStatistics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 auto 20px;
+  width: min(100%, 520px);
+}
+
+.statItem {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.statLabel {
+  display: block;
+  color: #666;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.statValue {
+  display: block;
+  color: #111;
+  font-size: 1rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
 /* ============================
    TABLET (1050px)
    ============================ */

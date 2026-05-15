@@ -359,6 +359,7 @@ export default function GamePage() {
       {game.finished && (
         <GameOverScreen
           winningTeam={game.winningTeam} finalBoard={game.finalBoard} isHost={isHost}
+          statistics={game.gameStatistics}
           isRestarting={isRestarting}
           onRestart={async () => {
             try { 

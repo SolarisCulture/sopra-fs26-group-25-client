@@ -43,17 +43,28 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   }, []);
 
   const handleSave = async () => {
+    const selectedTopics = settings.theme.filter(t => t !== "customWordList");
+    const normalizedTheme = settings.theme.length === 0 || selectedTopics.length === 0
+      ? ["standard"]
+      : settings.theme;
+    const normalizedTopics = normalizedTheme
+      .filter(t => t !== "customWordList")
+      .map(t => t.toUpperCase());
+
     try {
       await apiService.put(`/api/lobbies/${lobbyCode}`, {
         spymasterTimeLimit: settings.spymasterTimer ?? 0,
         spyTimeLimit: settings.spyTimer ?? 0,
         rounds: settings.roundsNumber ?? 0,
-        topics: settings.theme
-          .filter(t => t !== "customWordList")
-          .map(t => t.toUpperCase()),
-        customWordList: settings.theme.includes("customWordList") 
+        topics: normalizedTopics,
+        customWordList: normalizedTheme.includes("customWordList") 
           ? settings.customWordList || null
           : null,
+      });
+      setSettings({
+        ...settings,
+        theme: normalizedTheme,
+        customWordList: normalizedTheme.includes("customWordList") ? settings.customWordList : "",
       });
       message.success("Settings saved!");
       console.log("Saving settings:", settings.customWordList)
