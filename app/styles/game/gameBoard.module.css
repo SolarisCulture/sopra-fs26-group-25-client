@@ -55,7 +55,7 @@
 .cardOverlayRed { background: rgba(232, 64, 28, 0.45); border-color: rgba(232, 64, 28, 0.65); }
 .cardOverlayAssassin { background: rgba(0, 0, 0, 0.45); border-color: rgba(0, 0, 0, 0.65); }
 
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
   .board {
     width: 95vw;
     padding: 0.5rem;

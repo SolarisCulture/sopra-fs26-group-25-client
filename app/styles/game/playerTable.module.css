@@ -110,11 +110,12 @@
 
 /* Tablet/Phone — collapsed: horizontal bar at top */
 .containerCollapsed {
-  position: absolute;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
   left: 0;
   right: 0;
-  width: auto;
+  width: 100vw;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -122,7 +123,8 @@
   flex-wrap: wrap;
   justify-content: center;
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
 }
 
 .containerCollapsed .teamCard {
@@ -150,18 +152,20 @@
 
 /* Tablet/Phone — expanded: stacked cards */
 .containerExpanded {
-  position: absolute;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
   left: 0;
   right: 0;
-  width: auto;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 8px 12px;
   align-items: center;
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
 }
 
 .containerExpanded .teamCard {
@@ -202,10 +206,11 @@
 }
 
 .timerBadge {
+  --timer-anchor-transform: translateX(-50%);
   position: fixed;
   top: 20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: var(--timer-anchor-transform);
   z-index: 1000;
 
   display: flex;
@@ -256,29 +261,58 @@
   animation: flipHourglass 1s infinite ease-in-out;
 }
 
+@media (max-width: 1050px) {
+  .timerBadge {
+    --timer-anchor-transform: none;
+    top: 60px;
+    right: 12px;
+    left: auto;
+    z-index: 900;
+  }
+}
+
+@media (max-width: 480px) {
+  .timerBadge {
+    top: 60px;
+    right: 8px;
+    width: 70px;
+    height: 25px;
+    border-width: 1px;
+  }
+
+  .timerIcon {
+    font-size: 0.6rem;
+    margin-right: 4px;
+  }
+
+  .timeText {
+    font-size: 11px;
+  }
+}
+
 @keyframes pulseWarning {
   0% { 
     /* Start at Normal size */
-    transform: translateX(-50%) scale(1); 
+    transform: var(--timer-anchor-transform) scale(1); 
     box-shadow: 0 0 10px rgba(232, 64, 28, 0.3);
   }
   25% {
     /* Smoothly become BIGGER */
-    transform: translateX(-50%) scale(1.07);
+    transform: var(--timer-anchor-transform) scale(1.07);
     box-shadow: 0 0 25px rgba(232, 64, 28, 0.6);
   }
   50% { 
     /* Return to Normal size */
-    transform: translateX(-50%) scale(1); 
+    transform: var(--timer-anchor-transform) scale(1); 
     box-shadow: 0 0 10px rgba(232, 64, 28, 0.3);
   }
   75% {
     /* Smoothly become SMALLER */
-    transform: translateX(-50%) scale(0.93);
+    transform: var(--timer-anchor-transform) scale(0.93);
     box-shadow: 0 0 5px rgba(232, 64, 28, 0.1);
   }
   100% { 
     /* End at Normal size to loop perfectly */
-    transform: translateX(-50%) scale(1); 
+    transform: var(--timer-anchor-transform) scale(1); 
   }
 }

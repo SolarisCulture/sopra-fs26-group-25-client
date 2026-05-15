@@ -39,6 +39,10 @@
   z-index: 100;
 }
 
+.chatPanel {
+  width: 100%;
+}
+
 /* ---- BOARD ---- */
 .board {
   width: min(52vw, 900px);
@@ -192,6 +196,40 @@
 .turnRed { border-color: rgba(232, 64, 28, 0.5); }
 .turnBlue { border-color: rgba(27, 159, 216, 0.5); }
 
+@media (max-width: 1050px) {
+  .page {
+    padding-top: 128px;
+  }
+
+  .rightPanel {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    display: contents;
+  }
+
+  .chatPanel {
+    position: fixed;
+    top: 60px;
+    left: 12px;
+    width: min(320px, calc(100vw - 24px));
+    z-index: 900;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding-top: 120px;
+  }
+
+  .chatPanel {
+    left: 8px;
+    bottom: 8px;
+    width: min(300px, calc(100vw - 16px));
+  }
+}
+
 /* ---- GAME OVER ---- */
 .finishedBackdrop {
   position: fixed;
@@ -259,9 +297,9 @@
 }
 
 /* ============================
-   TABLET (768px)
+   TABLET (1050px)
    ============================ */
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
   .page {
     padding: 60px 0.5rem 5rem;
     flex-direction: column;

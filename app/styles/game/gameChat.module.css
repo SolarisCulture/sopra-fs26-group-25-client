@@ -66,3 +66,47 @@
 .inputRow :global(.ant-input) {
   min-width: 0;
 }
+
+@media (max-width: 1050px) {
+  .container {
+    max-height: none;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .title {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .messageList {
+    max-height: 50px;
+    overflow-y: auto;
+  }
+
+  .messageCard {
+    padding: 4px 6px;
+    border-radius: 8px;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messageList {
+    max-height: 30px;
+  }
+
+  .inputRow {
+    gap: 6px;
+  }
+}
+
+@media (max-height: 900px) and (min-width: 1050px) {
+  .messageList {
+    max-height: 90px;
+  }
+
+  .inputRow {
+    gap: 6px;
+  }
+}

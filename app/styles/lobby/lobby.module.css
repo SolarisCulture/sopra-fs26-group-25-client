@@ -74,7 +74,7 @@
 }
 
 .actions {
-  position: fixed;
+  position: absolute;
   right: 20px;
   bottom: 20px;
   display: flex;
@@ -84,10 +84,10 @@
 }
 
 .startWrapper {
-  position: fixed;
-  bottom: 75px;
   display: flex;
   justify-content: center;
+  width: 100%;
+  margin-top: 12px;
 }
 
 .startButton {
@@ -98,7 +98,7 @@
 }
 
 /* Tablet */
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
   .container {
     padding: 60px 16px 16px;
   }

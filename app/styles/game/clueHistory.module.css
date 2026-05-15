@@ -116,7 +116,7 @@
 }
 
 /* Tablet */
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
   .container {
     position: relative;
     left: auto;

@@ -200,11 +200,13 @@ export default function GamePage() {
         blueSpies={game.blueSpies} redSpies={game.redSpies}
       />
 
-      <GameChat
-        messages={chatMessages}
-        currentUsername={game.currentPlayer?.username ?? ""}
-        onSend={handleSendChatMessage}
-      />
+      <div className={styles.chatPanel}>
+        <GameChat
+          messages={chatMessages}
+          currentUsername={game.currentPlayer?.username ?? ""}
+          onSend={handleSendChatMessage}
+        />
+      </div>
     </div>
 
       <div className={`${styles.page} ${teamClass}`}>

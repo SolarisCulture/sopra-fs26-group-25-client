@@ -76,7 +76,7 @@ export default function PlayerTable({
   remainingTime,
   blueSpymaster, redSpymaster, blueSpies, redSpies,
 }: PlayerTableProps) {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1050px)");
   const [expanded, setExpanded] = useState(false);
 
   const activeTeam = currentTurn === "blue" ? "BLUE" : "RED";

@@ -83,7 +83,7 @@
 }
 
 /* Tablet */
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
   .teamBox {
     max-width: 100%;
   }

@@ -15,26 +15,33 @@ export default function PlayerCard({
   player, isHost, currentUserID, onAssign, onTransferHost, onKick,
 }: PlayerCardProps) {
   const isMe = Number(player.id) === Number(currentUserID);
+  const canMakeHost = isHost && !player.isHost && !isMe;
 
   return (
     <div className={styles.playerCard}>
       <div className={styles.playerInfo}>
-        <span className={styles.crownSlot}>
-          {player.isHost ? "👑" : isHost && (
-            <Tooltip title="Make host" color="#7B2D8B">
-              <span
-                className={styles.crownHover}
-                onClick={() => onTransferHost(player)}
-              >
-                👑
-              </span>
-            </Tooltip>
+        <div className={styles.badges}>
+          {isMe && (
+            <span className={styles.youBadge}>You</span>
           )}
-        </span>
+          {player.isHost && (
+            <span className={styles.hostBadge}>Host</span>
+          )}
+        </div>
         <span className={styles.playerName}>{player.username}</span>
       </div>
 
       <div className={styles.playerActions}>
+        {canMakeHost && (
+          <Button
+            size="small"
+            type="primary"
+            className={styles.makeHostButton}
+            onClick={() => onTransferHost(player)}
+          >
+            Make host
+          </Button>
+        )}
         {(isHost || isMe) && (!player.team || player.team === "UNASSIGNED") && (
           <Button size="small" type="primary" onClick={() => onAssign(player)}>
             Assign
