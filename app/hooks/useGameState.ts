@@ -11,6 +11,7 @@ export function useGameState(lobbyCode: string) {
   // board
   const [board, setBoard] = useState<WordCard[]>([]);
   const [gameId, setGameId] = useState<number | null>(null);
+  const [status, setStatus] = useState<string>("");
   const previousGameIdRef = useRef<number | null>(null);
 
   // players
@@ -28,6 +29,10 @@ export function useGameState(lobbyCode: string) {
   const [currentPhase, setCurrentPhase] = useState<string>("");
   const currentPhaseRef = useRef("");
   const [clueHistory, setClueHistory] = useState<ClueHistoryEntry[]>([]);
+  const [clueWord, setClueWord] = useState<string | null>(null);
+  const [clueCount, setClueCount] = useState<number>(0);
+  const [clueUnderReview, setClueUnderReview] = useState(false);
+  const [invalidCluePenaltyPending, setInvalidCluePenaltyPending] = useState(false);
 
   // sync refs
   useEffect(() => { currentTurnRef.current = currentTurn; }, [currentTurn]);
@@ -93,13 +98,22 @@ export function useGameState(lobbyCode: string) {
         cards: WordCard[];
         currentTurn: "RED" | "BLUE";
         currentPhase: string;
+        clueWord: string | null;
+        clueCount: number;
+        clueUnderReview: boolean;
+        invalidCluePenaltyPending: boolean;
         clueHistory: ClueHistoryEntry[];
         remainingTimeSeconds?: number;
       }>(`/api/games/${lobbyCode}/board?role=${role === "SPYMASTER" ? "SPYMASTER" : "SPY"}`);
       setGameId(boardData.id);
+      setStatus(boardData.status);
       setBoard(boardData.cards);
       setCurrentPhase(boardData.currentPhase);
       setCurrentTurn(boardData.currentTurn === "RED" ? "red" : "blue");
+      setClueWord(boardData.clueWord ?? null);
+      setClueCount(boardData.clueCount ?? 0);
+      setClueUnderReview(boardData.clueUnderReview ?? false);
+      setInvalidCluePenaltyPending(boardData.invalidCluePenaltyPending ?? false);
       setClueHistory(boardData.clueHistory ?? []);
       if (boardData.status === "FINISHED") {
         setFinished(true);
@@ -146,12 +160,15 @@ export function useGameState(lobbyCode: string) {
   }, [gameId]);
 
   return {
-    board, setBoard, gameId, setGameId,
+    board, setBoard, gameId, setGameId, status, setStatus,
     players, currentPlayer,
     blueSpymaster, redSpymaster, blueSpies, redSpies,
     role, loadingRole,
     currentTurn, setCurrentTurn, currentTurnRef,
     currentPhase, setCurrentPhase, currentPhaseRef,
+    clueWord, setClueWord, clueCount, setClueCount,
+    clueUnderReview, setClueUnderReview,
+    invalidCluePenaltyPending, setInvalidCluePenaltyPending,
     clueHistory, setClueHistory,
     finished, setFinished,
     winningTeam, setWinningTeam,

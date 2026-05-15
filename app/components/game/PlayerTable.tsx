@@ -86,7 +86,7 @@ export default function PlayerTable({
   const isWarning = remainingTime !== null && remainingTime <= 10 && remainingTime > 0;
 
   const formattedTime = (() => {
-    if (remainingTime == null) return null;
+    if (remainingTime == null || remainingTime <= 0) return null;
 
     const hrs = Math.floor(remainingTime / 3600);
     const mins = Math.floor((remainingTime % 3600) / 60);
