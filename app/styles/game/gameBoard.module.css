@@ -1,5 +1,5 @@
 .board {
-  width: min(52vw, 900px);
+  width: 55vw;
   min-width: 0;
   padding: 1.25rem;
   box-sizing: border-box;
