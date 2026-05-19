@@ -32,7 +32,7 @@
 .cardWord {
   color: black;
   font-weight: 600;
-  font-size: clamp(0.55rem, 1.8vw, 1.5rem);
+  font-size: clamp(1vw, 1.18vw, 1.5vw) !important;
   word-break: break-word;
   line-height: 1.2;
   user-select: none;

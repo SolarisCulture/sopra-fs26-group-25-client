@@ -62,7 +62,6 @@ export default function GameBoard({
         >
           <span 
           className={styles.cardWord}
-          style={{ fontSize: "clamp(0.55rem, 1.2vw, 1.12rem)" }}
           title={card.word}
           >
             {card.word}
