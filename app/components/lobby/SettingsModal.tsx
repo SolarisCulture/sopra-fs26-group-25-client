@@ -1,5 +1,6 @@
 import { Button, Checkbox, InputNumber, message, Modal, Select, Tooltip, Upload } from "antd";
 import { LobbySettings } from "@/types/lobby";
+import styles from "@/styles/lobby/settings.module.css"
 
 interface ScriptProps {
   open: boolean;
@@ -102,6 +103,13 @@ export default function SettingsModal({
           )}
           options={[
             {
+              label: "Custom",
+              options: [
+                { value: "standard", label: "Standard", tooltip: "General Mix of Topics" },
+                { value: "customWordList", label: "Custom Word List", tooltip: "Upload your own .txt or .csv file" }
+              ]
+            },
+            {
               label: "Knowledge & Academics",
               options: [
                 { value: "science", label: "Science", tooltip: "Physics, Chemistry, Math, Anatomy, Medicine" },
@@ -146,20 +154,14 @@ export default function SettingsModal({
                 { value: "technology_games", label: "Technology & Games", tooltip: "IT, Inventions, Gaming, Programming, Algorithms" }
               ]
             },
-            {
-              label: "Custom",
-              options: [
-                { value: "standard", label: "Standard", tooltip: "General Mix of Topics" },
-                { value: "customWordList", label: "Custom Word List", tooltip: "Upload your own .txt or .csv file" }
-              ]
-            }
           ]}
         />
 
         {/* CUSTOM WORD LIST UPLOAD */}
         {settings.theme.includes("customWordList") && (
           <>
-            <label>Upload a custom word list:</label>
+            <label>Upload a custom word list:  <Tooltip
+                                                  title="seperated by line in the .txt file"><span>&#9432;</span></Tooltip></label>
             <Upload
               disabled={!isHost}
               maxCount={1}
