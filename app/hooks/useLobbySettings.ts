@@ -31,7 +31,7 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
       spyTimer,
       roundsNumber,
       theme: backendSettings.topics && backendSettings.topics.length > 0
-        ? backendSettings.topics.map(t => t.toLowerCase())
+        ? backendSettings.topics.map(t => t.toLowerCase() === "customwordlist" ? "customWordList" : t.toLowerCase())
         : currentSettings.theme,
       customWordList: backendSettings.customWordList ?? currentSettings.customWordList,
     }));
@@ -43,13 +43,11 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   }, []);
 
   const handleSave = async () => {
-    // const selectedTopics = settings.theme.filter(t => t !== "customWordList");
     const selectedTopics= settings.theme;
     const normalizedTheme = settings.theme.length === 0 || selectedTopics.length === 0
       ? ["standard"]
       : settings.theme;
     const normalizedTopics = normalizedTheme
-      // .filter(t => t !== "customWordList")
       .map(t => t.toUpperCase());
 
     try {
