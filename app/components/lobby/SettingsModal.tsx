@@ -167,30 +167,37 @@ export default function SettingsModal({
               maxCount={1}
               accept=".txt,.csv"
               beforeUpload={(file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const content = e.target?.result as string;
-                  let words: string[];
+                return new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const content = e.target?.result as string;
+                    let words: string[];
 
-                  if (file.name.endsWith(".csv")) {
-                    words = content.split(/[,;\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
-                  } else {
-                    words = content.split(/[\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
-                  }
+                    if (file.name.endsWith(".csv")) {
+                      words = content.split(/[,;\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
+                    } else {
+                      words = content.split(/[\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
+                    }
 
-                  if (words.length < 25) {
-                    message.error(`Need at least 25 words. Found: ${words.length}`);
-                    return;
-                  }
+                    if (words.length < 25) {
+                      message.error(`Need at least 25 words. Found: ${words.length}`);
+                      resolve(Upload.LIST_IGNORE);
+                      return;
+                    }
 
-                  setSettings({
-                    ...settings,
-                    customWordList: JSON.stringify(words),
-                  });
-                  message.success(`Loaded ${words.length} words from ${file.name}`);
-                };
-                reader.readAsText(file);
-                return false;
+                    setSettings({
+                      ...settings,
+                      customWordList: JSON.stringify(words),
+                    });
+                    message.success(`Loaded ${words.length} words from ${file.name}`);
+                    resolve(false);
+                  };
+                  reader.onerror = () => {
+                    message.error("Failed to read file.");
+                    resolve(Upload.LIST_IGNORE);
+                  };
+                  reader.readAsText(file);
+                });
               }}
               onRemove={() => setSettings({ ...settings, customWordList: "" })}
             >
