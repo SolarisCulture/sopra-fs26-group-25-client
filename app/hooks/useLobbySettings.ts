@@ -43,12 +43,13 @@ export function useLobbySettings(lobbyCode: string, message: MessageInstance) {
   }, []);
 
   const handleSave = async () => {
-    const selectedTopics = settings.theme.filter(t => t !== "customWordList");
+    // const selectedTopics = settings.theme.filter(t => t !== "customWordList");
+    const selectedTopics= settings.theme;
     const normalizedTheme = settings.theme.length === 0 || selectedTopics.length === 0
       ? ["standard"]
       : settings.theme;
     const normalizedTopics = normalizedTheme
-      .filter(t => t !== "customWordList")
+      // .filter(t => t !== "customWordList")
       .map(t => t.toUpperCase());
 
     try {
