@@ -73,7 +73,15 @@ New releases are automatically built and deployed when changes are pushed to the
 ## User flow
 
 The user would first create or join an existing lobby.
+
+
+<img src="./assets/homepage.png"/>
+
+
 After joining a lobby, the user chooses a username and either assign themselves, or get assigned by the host.
+<p align="middle"><img width="400vw" src="./assets/enter_username.png"/><img width="400vw" src="./assets/hostassign.png"/></p>
+
+
 In the lobby the host can configure the game: Themed words, Time limit and Round limit.
 
 
@@ -81,17 +89,36 @@ In the lobby the host can configure the game: Themed words, Time limit and Round
 
 
 Once all users are assigned the host can start the game by clicking the now enabled "Start Game" button.
-
-
 From there users can play the game. For the flow of the game and the rules, checkout [the rules.](./public/images/codenames-rules-en.pdf)
 
 
+<img src="./assets/gameboard.png"/>
+
+
+All players have access to a dictionary, where they can look up words.
+
+
+<img src="./assets/dictionary_empty.png"/>
+<img src="./assets/dictionary_entry.png"/>
+
+
+Should an illegal clue be given, the opposing spymaster can intervene.
+
+
+<img src="./assets/report.png"/>
+<img src="./assets/report_review.png"/>
+
+
 After the game has concluded, the host can decide to start the game, keeping the rules, or go back to the lobby.
+
+
 <img src="./assets/post_game_screen.png"/>
 
 
 ## Roadmap
--- ???
+- Add a guiding tutorial
+- Add coloblind mode
+
 
 ## Authors
 | Name          | Personal page                                                                                                                                  |
