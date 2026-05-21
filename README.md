@@ -131,7 +131,7 @@ After the game has concluded, the host can decide to start the game, keeping the
 
 ## Acknowledgement
 - This repository code derives the framework from the kind **UZH HASEL team** provided [SoPra FS26 - Client Template](https://github.com/HASEL-UZH/sopra-fs26-template-client).
-- Many thanks to **Luke Benjamin Fohringer** who helped us as our TA during this project.
+- Many thanks to [**Luke Benjamin Fohringer**](https://github.com/LuckyLuke637) who helped us as our TA during this project.
 
 ## License
 We publish the code under the terms of the [Apache 2.0 License](https://github.com/T0hsakaR1n126/sopra-fs25-group-10-client/blob/main/LICENSE) that allows distribution, modification, and commercial use. This software, however, comes without any warranty or liability.
