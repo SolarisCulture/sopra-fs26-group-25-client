@@ -122,6 +122,11 @@
     align-items: flex-start;
   }
 
+  .playerCard .youBadge,
+  .playerCard .hostBadge {
+    transform: translateX(-6px);
+  }
+
   .playerActions {
     flex-wrap: wrap;
     justify-content: flex-end;

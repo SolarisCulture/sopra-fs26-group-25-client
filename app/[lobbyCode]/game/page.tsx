@@ -318,12 +318,13 @@ export default function GamePage() {
         footer={null}
         centered
         maskClosable={false}
+        className={styles.pauseModal}
       >
         {isHost ? (
-          <>
+          <div className={styles.pauseContent}>
             <h2 className={styles.finishedTitle}>Game Paused</h2>
             <p>The game is currently paused. What would you like to do?</p>
-            <div style={{ display: "flex", justifyContent: "right", gap: 10, marginTop: "20px" }}>
+            <div className={styles.pauseActions}>
               <Button type="primary" onClick={() => socketRef.current?.sendPause(false)}>
                 Resume Game
               </Button>
@@ -337,9 +338,9 @@ export default function GamePage() {
                 Quit Game
               </Button>
             </div>
-          </>
+          </div>
         ) : (
-          <div className={styles.finishedBox}>
+          <div className={styles.pauseContent}>
             <h2 className={styles.finishedTitle}>Game Paused</h2>
             <p className={styles.finishedText}>Please wait for host action...</p>
           </div>

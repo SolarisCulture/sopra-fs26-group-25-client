@@ -117,6 +117,16 @@
   .title {
     font-size: 36px;
   }
+
+  .actions {
+    position: static;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0;
+  }
 }
 
 /* Phone */

@@ -225,7 +225,7 @@
 
   .chatPanel {
     left: 8px;
-    bottom: 8px;
+    bottom: auto;
     width: min(300px, calc(100vw - 16px));
   }
 }
@@ -269,6 +269,22 @@
   display: flex;
   justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pauseModal {
+  max-width: calc(100vw - 32px);
+}
+
+.pauseContent {
+  text-align: center;
+}
+
+.pauseActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
@@ -406,5 +422,18 @@
     padding: 16px;
     min-width: auto;
     width: 90vw;
+  }
+
+  .pauseModal {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px);
+  }
+
+  .pauseModal :global(.ant-modal-content) {
+    padding: 20px 16px;
+  }
+
+  .pauseActions {
+    justify-content: center;
   }
 }
