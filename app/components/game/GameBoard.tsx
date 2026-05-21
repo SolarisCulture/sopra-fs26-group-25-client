@@ -52,6 +52,20 @@ export default function GameBoard({
     }
   };
 
+  const getWordClass = (word: string) => {
+    const longestSegment = Math.max(...word.split(/\s+/).map((segment) => segment.length));
+
+    if (longestSegment >= 13 || word.length >= 16) {
+      return `${styles.cardWord} ${styles.veryLongCardWord}`;
+    }
+
+    if (longestSegment >= 10 || word.length >= 12) {
+      return `${styles.cardWord} ${styles.longCardWord}`;
+    }
+
+    return styles.cardWord;
+  };
+
   return (
     <div className={styles.board}>
       {board.map((card, index) => (
@@ -61,7 +75,7 @@ export default function GameBoard({
           onClick={canClickCards ? () => onCardClick(card): undefined}
         >
           <span 
-          className={styles.cardWord}
+          className={getWordClass(card.word)}
           title={card.word}
           >
             {card.word}

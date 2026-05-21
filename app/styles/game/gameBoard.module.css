@@ -87,5 +87,18 @@
 
   .cardWord {
     font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+    word-break: normal;
+  }
+
+  .longCardWord {
+    font-size: clamp(0.58rem, 2.1vw, 0.78rem);
+  }
+
+  .veryLongCardWord {
+    font-size: clamp(0.48rem, 1.8vw, 0.66rem);
   }
 }
