@@ -115,8 +115,11 @@ export default function GamePage() {
         console.error("Failed to fetch chat history", error);
       }
     };
-    if (code) fetchChatHistory();
-  }, [code, apiService]);
+    if (code && game.gameId != null) {
+      setChatMessages([]);
+      fetchChatHistory();
+    }
+  }, [code, game.gameId, apiService]);
 
   useEffect(() => {
     setPauseModalOpen(game.status === "PAUSE");

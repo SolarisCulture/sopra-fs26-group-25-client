@@ -152,6 +152,7 @@ export function useGameSocket(opts: GameSocketOptions) {
           case "GameRestarting":
             o.setWinningTeam(null);
             o.setRemainingTime(null);
+            o.setChatMessages([]);
             if (event.board) {
               syncBoardState();
               o.setGameId(event.board.id);
